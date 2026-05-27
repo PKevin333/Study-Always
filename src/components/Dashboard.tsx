@@ -198,6 +198,17 @@ export default function Dashboard() {
     }
   };
 
+  const handleAddCustomSubject = async () => {
+    const trimmedName = newSubjectName.trim();
+    if (!trimmedName) {
+      alert('Digite o nome da disciplina antes de adicionar.');
+      return;
+    }
+
+    await addSubject(trimmedName, newSubjectGroup);
+    setNewSubjectName('');
+  };
+
   const showOnboarding = isAuthReady && (!profile || !profile.onboardingCompleted);
 
   if (loading || !isAuthReady) {
@@ -238,7 +249,7 @@ export default function Dashboard() {
             setNewSubjectName={setNewSubjectName}
             newSubjectGroup={newSubjectGroup}
             setNewSubjectGroup={setNewSubjectGroup}
-            addCustomSubject={() => addSubject(newSubjectName, newSubjectGroup)}
+            addCustomSubject={handleAddCustomSubject}
             subjects={subjects}
             setSelectedSubjectForTopics={setSelectedSubjectForTopics}
             setActiveTab={setActiveTab}

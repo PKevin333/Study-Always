@@ -3,7 +3,6 @@ import {
   collection, 
   query, 
   where, 
-  orderBy, 
   getDocs, 
   addDoc, 
   updateDoc, 
@@ -19,6 +18,14 @@ export function useMaterias(userId?: string) {
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const sortMaterias = (items: Materia[]) => {
+    return [...items].sort((a, b) => {
+      const aTime = a.criadaEm?.toMillis?.() || 0;
+      const bTime = b.criadaEm?.toMillis?.() || 0;
+      return aTime - bTime;
+    });
+  };
+
   useEffect(() => {
     if (!userId) {
       setMaterias([]);
@@ -31,15 +38,14 @@ export function useMaterias(userId?: string) {
       try {
         const q = query(
           collection(db, 'users', userId, 'materias'),
-          where('ativa', '==', true),
-          orderBy('criadaEm', 'asc')
+          where('ativa', '==', true)
         );
         const snapshot = await getDocs(q);
         const loadedMaterias: Materia[] = [];
         snapshot.forEach((doc) => {
           loadedMaterias.push({ id: doc.id, ...doc.data() } as Materia);
         });
-        setMaterias(loadedMaterias);
+        setMaterias(sortMaterias(loadedMaterias));
       } catch (error) {
         console.error('Erro ao carregar matérias:', error);
       } finally {
@@ -60,7 +66,7 @@ export function useMaterias(userId?: string) {
         criadaEm: Timestamp.now()
       };
       const docRef = await addDoc(collection(db, 'users', userId, 'materias'), data);
-      setMaterias(prev => [...prev, { id: docRef.id, ...data }]);
+      setMaterias(prev => sortMaterias([...prev, { id: docRef.id, ...data }]));
     } catch (error) {
       console.error('Erro ao adicionar matéria:', error);
       throw error;
@@ -124,7 +130,7 @@ export function useMaterias(userId?: string) {
       });
 
       await batch.commit();
-      setMaterias(prev => [...prev, ...newItems]);
+      setMaterias(prev => sortMaterias([...prev, ...newItems]));
     } catch (error) {
       console.error('Erro ao salvar matérias em lote:', error);
       throw error;

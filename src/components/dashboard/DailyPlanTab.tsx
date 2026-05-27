@@ -226,6 +226,13 @@ export function DailyPlanTab({
           {totalCount === 0 ? (
             <div className="flex flex-col items-end gap-2">
               <button 
+                onClick={() => setShowAddModal(true)}
+                className="w-full sm:w-auto px-5 py-3 border border-border rounded-xl font-bold text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all flex items-center justify-center gap-2"
+              >
+                <Plus size={18} />
+                Adicionar Manualmente
+              </button>
+              <button 
                 onClick={generateDailyPlan}
                 disabled={isGenerating}
                 className="bg-brand-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
@@ -515,6 +522,12 @@ export function DailyPlanTab({
               className="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-all shadow-lg shadow-brand-primary/20"
             >
               Gerar Plano Agora
+            </button>
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="mt-3 px-8 py-3 rounded-xl border border-border font-bold text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all"
+            >
+              Adicionar Bloco Manual
             </button>
           </div>
         ) : null}

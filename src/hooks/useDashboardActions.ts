@@ -77,11 +77,16 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   // Subjects
   const addSubject = async (name: string, group: number) => {
     if (!user) return;
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      alert('Informe o nome da disciplina antes de adicionar.');
+      return;
+    }
     const path = `users/${user.uid}/subjects`;
     try {
       await addDoc(collection(db, path), {
         userId: user.uid,
-        name,
+        name: trimmedName,
         group,
         status: 'active',
         weight: 3,
