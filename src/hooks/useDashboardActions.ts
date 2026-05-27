@@ -512,13 +512,23 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   };
 
   const generateDailyPlan = async (dailyTime: number, blocksPerDay: number) => {
-    if (!user || cycleBlocks.length === 0) return;
+    if (!user) return;
+    if (cycleBlocks.length === 0) {
+      alert("⚠️ Você não possui um Ciclo Base configurado.\n\nVá para a aba 'O Ciclo Base' e gere ou adicione blocos de estudo antes de gerar o plano diário.");
+      return;
+    }
     setIsGenerating(true);
     
     const today = getTodayLocalDate();
     const currentIndex = profile?.currentCycleIndex || 0;
     
     try {
+      // Limpa blocos existentes do dia antes de regerar
+      const qDaily = query(collection(db, `users/${user.uid}/dailyBlocks`), where('date', '==', today));
+      const snap = await getDocs(qDaily);
+      const deletePromises = snap.docs.map(d => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+
       for (let i = 0; i < blocksPerDay; i++) {
         const blockIndex = (currentIndex + i) % cycleBlocks.length;
         const cycleBlock = cycleBlocks[blockIndex];

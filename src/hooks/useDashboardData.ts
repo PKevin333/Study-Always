@@ -66,9 +66,13 @@ export function useDashboardData(user: any, selectedSubjectForTopics: Subject | 
   useEffect(() => {
     if (!user || !db) return;
     const today = getTodayLocalDate();
-    const q = query(collection(db, `users/${user.uid}/dailyBlocks`), where('date', '==', today), orderBy('order'));
+    const q = query(collection(db, `users/${user.uid}/dailyBlocks`), where('date', '==', today));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setDailyBlocks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyBlock)));
+      const blocks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyBlock));
+      blocks.sort((a, b) => a.order - b.order); // Ordenacao local para contornar falha de indice
+      setDailyBlocks(blocks);
+    }, (error) => {
+      console.error("Error fetching dailyBlocks:", error);
     });
     return () => unsubscribe();
   }, [user]);
