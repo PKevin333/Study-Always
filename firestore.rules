@@ -1,0 +1,223 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId}
+// Fields:
+//   - uid: string (required)
+//   - displayName: string
+//   - email: string (required)
+//   - area: string (required, enum: administrativa, controle)
+//   - targetExam: string
+//   - weeklyGoalHours: number
+//   - onboardingCompleted: boolean
+//   - createdAt: timestamp
+//
+// Collection: users/{userId}/subjects
+// Document ID: {subjectId}
+// Fields:
+//   - userId: string (required)
+//   - name: string (required)
+//   - totalHours: number
+//   - questionsSolved: number
+//   - accuracy: number
+//   - priority: number
+//   - lastStudied: timestamp
+//
+// Collection: users/{userId}/sessions
+// Document ID: {sessionId}
+// Fields:
+//   - userId: string (required)
+//   - subjectId: string (required)
+//   - durationMinutes: number (required)
+//   - questionsSolved: number
+//   - questionsCorrect: number
+//   - timestamp: timestamp (required)
+//   - type: string (enum: teoria, questoes, revisao)
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return (!('uid' in data) || data.uid == request.auth.uid) &&
+             (!('email' in data) || isValidEmail(data.email)) &&
+             (!('area' in data) || data.area in ['administrativa', 'controle']) &&
+             (!('displayName' in data) || data.displayName == null || (data.displayName is string && data.displayName.size() < 200)) &&
+             (!('weeklyGoalHours' in data) || data.weeklyGoalHours == null || data.weeklyGoalHours is number) &&
+             (!('onboardingCompleted' in data) || data.onboardingCompleted == null || data.onboardingCompleted is bool) &&
+             (!('theme' in data) || data.theme == null || data.theme in ['dark', 'light', 'bw']) &&
+             (!('accentColor' in data) || data.accentColor == null || data.accentColor in ['green', 'blue', 'purple', 'orange']) &&
+             (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() < 2000)) &&
+             (!('coverURL' in data) || data.coverURL == null || (data.coverURL is string && data.coverURL.size() < 2000)) &&
+             (!('cycleFocus' in data) || data.cycleFocus == null || data.cycleFocus in ['teoria', 'questoes', 'revisao', 'equilibrado']) &&
+             (!('dailyTimeMinutes' in data) || data.dailyTimeMinutes == null || data.dailyTimeMinutes is number) &&
+             (!('blocksPerDay' in data) || data.blocksPerDay == null || data.blocksPerDay is number) &&
+             (!('blockDurationMinutes' in data) || data.blockDurationMinutes == null || data.blockDurationMinutes is number) &&
+             (!('cycleAutonomy' in data) || data.cycleAutonomy == null || data.cycleAutonomy in ['sugerido', 'parcial', 'manual']) &&
+             (!('currentCycleIndex' in data) || data.currentCycleIndex == null || data.currentCycleIndex is number) &&
+             (!('createdAt' in data) || data.createdAt == null || data.createdAt is timestamp);
+    }
+
+    function isNewUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'area']) && isValidUser(data);
+    }
+
+    function isValidSubject(data) {
+      return data.keys().hasAll(['userId', 'name', 'group', 'status']) &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.group in [1, 2, 3] &&
+             data.status in ['active', 'optional', 'future'] &&
+             (!('weight' in data) || data.weight is number) &&
+             (!('order' in data) || data.order is number) &&
+             (!('studentLevel' in data) || data.studentLevel is string) &&
+             (!('totalHours' in data) || data.totalHours is number) &&
+             (!('questionsSolved' in data) || data.questionsSolved is number) &&
+             (!('accuracy' in data) || data.accuracy is number) &&
+             (!('performancePercent' in data) || data.performancePercent is number) &&
+             (!('studyFrequency' in data) || data.studyFrequency is number) &&
+             (!('dynamicPriority' in data) || data.dynamicPriority is number) &&
+             (!('lastStudied' in data) || data.lastStudied == null || data.lastStudied is timestamp);
+    }
+
+    function isValidSession(data) {
+      return data.keys().hasAll(['userId', 'subjectId', 'durationMinutes', 'timestamp']) &&
+             data.userId == request.auth.uid &&
+             data.durationMinutes is number && data.durationMinutes > 0 &&
+             (data.type == null || data.type in ['teoria', 'questoes', 'revisao']);
+    }
+
+    function isValidError(data) {
+      return data.keys().hasAll(['subjectId', 'content', 'createdAt']) &&
+             data.subjectId is string &&
+             data.content is string && data.content.size() > 0 && data.content.size() < 5000 &&
+             (data.reviewed == null || data.reviewed is bool);
+    }
+
+    function isValidCycleBlock(data) {
+      return data.keys().hasAll(['subjectId', 'subjectName', 'type', 'durationMinutes', 'order']) &&
+             data.subjectId is string &&
+             data.subjectName is string &&
+             data.type in ['teoria', 'questoes', 'revisao'] &&
+             data.durationMinutes is number &&
+             data.order is number;
+    }
+
+    function isValidDailyBlock(data) {
+      return data.keys().hasAll(['subjectId', 'subjectName', 'type', 'durationMinutes', 'order', 'status', 'date']) &&
+             data.subjectId is string &&
+             data.subjectName is string &&
+             data.type in ['teoria', 'questoes', 'revisao'] &&
+             data.durationMinutes is number &&
+             data.order is number &&
+             data.status in ['pendente', 'em_andamento', 'concluido'] &&
+             data.date is string &&
+             (data.topic == null || (data.topic is string && data.topic.size() < 200)) &&
+             (data.priority == null || data.priority in ['baixa', 'media', 'alta']) &&
+             (data.actualMinutes == null || data.actualMinutes is number);
+    }
+
+    function isValidTopic(data) {
+      return data.keys().hasAll(['name', 'status', 'order']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.status in ['nao_iniciado', 'em_estudo', 'concluido', 'revisar'] &&
+             data.order is number &&
+             (data.notes == null || (data.notes is string && data.notes.size() < 1000));
+    }
+
+    function isValidQuestionRecord(data) {
+      return data.keys().hasAll(['subjectId', 'subjectName', 'topic', 'total', 'correct', 'errors', 'percentage', 'date']) &&
+             data.subjectId is string &&
+             data.subjectName is string &&
+             data.topic is string && data.topic.size() > 0 && data.topic.size() < 200 &&
+             data.total is number && data.total > 0 &&
+             data.correct is number && data.correct >= 0 && data.correct <= data.total &&
+             data.errors is number && data.errors == (data.total - data.correct) &&
+             data.percentage is number && data.percentage >= 0 && data.percentage <= 100 &&
+             data.date is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isNewUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      
+      match /subjects/{subjectId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSubject(request.resource.data);
+        allow update: if isOwner(userId) && isValidSubject(request.resource.data);
+        allow delete: if isOwner(userId);
+
+        match /topics/{topicId} {
+          allow read: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidTopic(request.resource.data);
+          allow update: if isOwner(userId) && isValidTopic(request.resource.data);
+          allow delete: if isOwner(userId);
+        }
+      }
+
+      match /sessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSession(request.resource.data);
+        allow update: if isOwner(userId) && isValidSession(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /errors/{errorId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidError(request.resource.data);
+        allow update: if isOwner(userId) && isValidError(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /cycleBlocks/{blockId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCycleBlock(request.resource.data);
+        allow update: if isOwner(userId) && isValidCycleBlock(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /dailyBlocks/{blockId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidDailyBlock(request.resource.data);
+        allow update: if isOwner(userId) && isValidDailyBlock(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /questionRecords/{recordId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidQuestionRecord(request.resource.data);
+        allow update: if isOwner(userId) && isValidQuestionRecord(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

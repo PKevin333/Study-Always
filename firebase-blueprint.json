@@ -1,0 +1,177 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user preferences, goals, and current study area.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "area": { "type": "string", "enum": ["administrativa", "controle"] },
+        "targetExam": { "type": "string" },
+        "weeklyGoalHours": { "type": "number" },
+        "cycleFocus": { "type": "string", "enum": ["teoria", "questoes", "revisao", "equilibrado"] },
+        "dailyTimeMinutes": { "type": "number" },
+        "blocksPerDay": { "type": "number" },
+        "blockDurationMinutes": { "type": "number" },
+        "cycleAutonomy": { "type": "string", "enum": ["sugerido", "parcial", "manual"] },
+        "currentCycleIndex": { "type": "number" },
+        "onboardingCompleted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "area"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Represents a study subject for the user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "group": { "type": "number", "enum": [1, 2, 3] },
+        "weight": { "type": "number" },
+        "studentLevel": { "type": "string" },
+        "performancePercent": { "type": "number" },
+        "studyFrequency": { "type": "number" },
+        "dynamicPriority": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "optional", "future"] },
+        "order": { "type": "number" },
+        "totalHours": { "type": "number" },
+        "questionsSolved": { "type": "number" },
+        "accuracy": { "type": "number" },
+        "lastStudied": { "type": "string", "format": "date-time" },
+        "completedTopics": { "type": "number" },
+        "totalTopics": { "type": "number" },
+        "progressPercent": { "type": "number" }
+      },
+      "required": ["userId", "name", "group", "status"]
+    },
+    "Topic": {
+      "title": "Topic",
+      "description": "A specific content topic within a subject.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["nao_iniciado", "em_estudo", "concluido", "revisar"] },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["name", "status", "order"]
+    },
+    "StudySession": {
+      "title": "Study Session",
+      "description": "A recorded study session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "questionsSolved": { "type": "number" },
+        "questionsCorrect": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["teoria", "questoes", "revisao"] }
+      },
+      "required": ["userId", "subjectId", "durationMinutes", "timestamp"]
+    },
+    "ErrorLog": {
+      "title": "Error Log",
+      "description": "Stores study errors for the 'Caderno de Erros'.",
+      "type": "object",
+      "properties": {
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "reviewed": { "type": "boolean" },
+        "nextReview": { "type": "string", "format": "date-time" },
+        "proximaRevisao": { "type": "string", "format": "date-time" },
+        "intervalo": { "type": "number" },
+        "facilidade": { "type": "number" },
+        "totalRevisoes": { "type": "number" }
+      },
+      "required": ["subjectId", "content", "createdAt"]
+    },
+    "CycleBlock": {
+      "title": "Cycle Block",
+      "description": "A single block in the study cycle.",
+      "type": "object",
+      "properties": {
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "type": { "type": "string", "enum": ["teoria", "questoes", "revisao"] },
+        "durationMinutes": { "type": "number" },
+        "order": { "type": "number" },
+        "difficulty": { "type": "string", "enum": ["facil", "media", "dificil"] }
+      },
+      "required": ["subjectId", "subjectName", "type", "durationMinutes", "order"]
+    },
+    "DailyBlock": {
+      "title": "Daily Block",
+      "description": "A block to be executed today, derived from the study cycle.",
+      "type": "object",
+      "properties": {
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "type": { "type": "string", "enum": ["teoria", "questoes", "revisao"] },
+        "durationMinutes": { "type": "number" },
+        "order": { "type": "number" },
+        "status": { "type": "string", "enum": ["pendente", "em_andamento", "concluido"] },
+        "actualMinutes": { "type": "number" },
+        "date": { "type": "string", "format": "date" }
+      },
+      "required": ["subjectId", "subjectName", "type", "durationMinutes", "order", "status", "date"]
+    },
+    "QuestionRecord": {
+      "title": "Question Record",
+      "description": "A record of questions solved by the user.",
+      "type": "object",
+      "properties": {
+        "subjectId": { "type": "string" },
+        "subjectName": { "type": "string" },
+        "topic": { "type": "string" },
+        "total": { "type": "number" },
+        "correct": { "type": "number" },
+        "errors": { "type": "number" },
+        "percentage": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["subjectId", "subjectName", "topic", "total", "correct", "errors", "percentage", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document"
+    },
+    "/users/{userId}/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "Subjects tracked by the user"
+    },
+    "/users/{userId}/subjects/{subjectId}/topics/{topicId}": {
+      "schema": "Topic",
+      "description": "Topics within a subject"
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": "StudySession",
+      "description": "Study sessions recorded by the user"
+    },
+    "/users/{userId}/errors/{errorId}": {
+      "schema": "ErrorLog",
+      "description": "Study errors recorded by the user"
+    },
+    "/users/{userId}/cycleBlocks/{blockId}": {
+      "schema": "CycleBlock",
+      "description": "Blocks in the user's study cycle"
+    },
+    "/users/{userId}/dailyBlocks/{blockId}": {
+      "schema": "DailyBlock",
+      "description": "Execution blocks for the current day"
+    },
+    "/users/{userId}/questionRecords/{recordId}": {
+      "schema": "QuestionRecord",
+      "description": "Records of questions solved by the user"
+    }
+  }
+}
