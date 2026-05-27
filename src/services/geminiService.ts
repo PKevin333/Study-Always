@@ -1,6 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy init: evita crash no carregamento se GEMINI_API_KEY não estiver definida
+function getAI() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY não configurada.");
+  return new GoogleGenAI({ apiKey });
+}
+
 
 export interface MentorAdvice {
   title: string;
@@ -48,7 +54,7 @@ export async function getMentorAdvice(userData: any, subjects: any[], sessions: 
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: "gemini-3.1-pro-preview",
       contents: prompt,
       config: {
