@@ -466,16 +466,28 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   // Topics
   const addTopic = async (subjectId: string, name: string, order: number) => {
     if (!user) return;
+    const trimmedName = name.trim();
+    if (!subjectId) {
+      alert('Selecione uma disciplina antes de adicionar o conteúdo.');
+      return false;
+    }
+    if (!trimmedName) {
+      alert('Informe o nome do conteúdo antes de adicionar.');
+      return false;
+    }
+
     const path = `users/${user.uid}/subjects/${subjectId}/topics`;
     try {
       await addDoc(collection(db, path), {
-        name,
+        name: trimmedName,
         status: 'nao_iniciado',
         order,
         createdAt: serverTimestamp()
       });
+      return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
+      return false;
     }
   };
 
