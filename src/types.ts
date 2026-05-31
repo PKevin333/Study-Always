@@ -118,6 +118,6 @@ export interface Topic {
   name: string;
   status: 'nao_iniciado' | 'em_estudo' | 'concluido' | 'revisar';
   order: number;
-  createdAt: any;
+  createdAt?: any;
   completedAt?: any;
 }

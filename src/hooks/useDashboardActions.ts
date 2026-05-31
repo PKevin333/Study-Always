@@ -465,7 +465,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
 
   // Topics
   const addTopic = async (subjectId: string, name: string, order: number) => {
-    if (!user) return;
+    if (!user) return false;
     const trimmedName = name.trim();
     if (!subjectId) {
       alert('Selecione uma disciplina antes de adicionar o conteúdo.');
@@ -481,33 +481,39 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       await addDoc(collection(db, path), {
         name: trimmedName,
         status: 'nao_iniciado',
-        order,
-        createdAt: serverTimestamp()
+        order
       });
       return true;
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, path);
+      console.error('Erro ao adicionar tópico:', { err, path });
+      alert('Não foi possível salvar o tópico. Verifique as permissões do Firestore e tente novamente.');
       return false;
     }
   };
 
   const updateTopic = async (subjectId: string, topicId: string, updates: Partial<Topic>) => {
-    if (!user) return;
+    if (!user) return false;
     const path = `users/${user.uid}/subjects/${subjectId}/topics/${topicId}`;
     try {
       await updateDoc(doc(db, path), updates);
+      return true;
     } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, path);
+      console.error('Erro ao atualizar tópico:', { err, path });
+      alert('Não foi possível atualizar o tópico. Verifique as permissões do Firestore e tente novamente.');
+      return false;
     }
   };
 
   const deleteTopic = async (subjectId: string, topicId: string) => {
-    if (!user) return;
+    if (!user) return false;
     const path = `users/${user.uid}/subjects/${subjectId}/topics/${topicId}`;
     try {
       await deleteDoc(doc(db, path));
+      return true;
     } catch (err) {
-      handleFirestoreError(err, OperationType.DELETE, path);
+      console.error('Erro ao excluir tópico:', { err, path });
+      alert('Não foi possível excluir o tópico. Verifique as permissões do Firestore e tente novamente.');
+      return false;
     }
   };
 

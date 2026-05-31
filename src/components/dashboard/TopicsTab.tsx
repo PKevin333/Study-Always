@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronUp, Plus, Trash2, Target, MessageSquare } from 'lucide-react';
 import { Subject, Topic } from '../../types';
@@ -10,7 +10,7 @@ interface TopicsTabProps {
   topics: Topic[];
   newTopicName: string;
   setNewTopicName: (name: string) => void;
-  addTopic: () => void;
+  addTopic: () => Promise<boolean>;
   updateTopic: (id: string, updates: Partial<Topic>) => void;
   deleteTopic: (id: string) => void;
 }
@@ -25,7 +25,18 @@ export function TopicsTab({
   updateTopic,
   deleteTopic
 }: TopicsTabProps) {
+  const [isAddingTopic, setIsAddingTopic] = useState(false);
   if (!selectedSubjectForTopics) return null;
+
+  const handleAddTopic = async () => {
+    if (isAddingTopic) return;
+    setIsAddingTopic(true);
+    try {
+      await addTopic();
+    } finally {
+      setIsAddingTopic(false);
+    }
+  };
 
   return (
     <motion.div 
@@ -71,14 +82,21 @@ export function TopicsTab({
                 placeholder="Nome do tópico (ex: Crase, Regência...)"
                 value={newTopicName}
                 onChange={(e) => setNewTopicName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addTopic()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTopic();
+                  }
+                }}
+                disabled={isAddingTopic}
                 className="flex-1 bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary"
               />
               <button 
-                onClick={addTopic}
-                className="bg-brand-primary text-white px-6 rounded-xl font-bold hover:bg-brand-primary/80 transition-all"
+                onClick={handleAddTopic}
+                disabled={isAddingTopic}
+                className="bg-brand-primary text-white px-6 rounded-xl font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Adicionar
+                {isAddingTopic ? 'Salvando...' : 'Adicionar'}
               </button>
             </div>
           </div>
@@ -113,7 +131,7 @@ export function TopicsTab({
                       ].map(s => (
                         <button 
                           key={s.id}
-                          onClick={() => updateTopic(topic.id, { status: s.id as any, completedAt: s.id === 'concluido' ? new Date().toISOString() : null })}
+                          onClick={() => updateTopic(topic.id, { status: s.id as any })}
                           className={cn(
                             "text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded transition-all",
                             topic.status === s.id ? s.color : "text-text-secondary hover:bg-border"

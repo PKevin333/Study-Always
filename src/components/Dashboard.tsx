@@ -267,9 +267,10 @@ export default function Dashboard() {
             newTopicName={newTopicName}
             setNewTopicName={setNewTopicName}
             addTopic={async () => {
-              if (!selectedSubjectForTopics) return;
+              if (!selectedSubjectForTopics) return false;
               const added = await addTopic(selectedSubjectForTopics.id, newTopicName, topics.length);
               if (added) setNewTopicName('');
+              return Boolean(added);
             }}
             updateTopic={(id, updates) => updateTopic(selectedSubjectForTopics.id, id, updates)}
             deleteTopic={(id) => deleteTopic(selectedSubjectForTopics.id, id)}
