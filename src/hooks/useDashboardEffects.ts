@@ -105,17 +105,24 @@ export function useDashboardEffects(
 
   // Topics
   useEffect(() => {
-    if (!user || !db || !selectedSubjectForTopics) return;
+    if (!user || !db || !selectedSubjectForTopics) {
+      // [FIX]: limpa tópicos ao sair de uma disciplina para não exibir dados antigos em troca de contexto.
+      setTopics([]);
+      return;
+    }
     const q = query(collection(db, `users/${user.uid}/subjects/${selectedSubjectForTopics.id}/topics`), orderBy('order'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setTopics(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      console.error('Error fetching topics:', error);
+      setTopics([]);
     });
     return () => unsubscribe();
-  }, [user, selectedSubjectForTopics]);
+  }, [user, selectedSubjectForTopics, setTopics]);
 
   // Timer Logic
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev: number) => prev - 1);
@@ -152,5 +159,5 @@ export function useDashboardEffects(
       }
     }
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft, timerMode, currentCycle, cyclesBeforeLongBreak, studyTime, shortBreakTime, longBreakTime]);
+  }, [timerActive, timeLeft, timerMode, currentCycle, cyclesBeforeLongBreak, studyTime, shortBreakTime, longBreakTime, activeSessionBlock, selectedSubject, seconds, finishStudySession, setCurrentCycle, setSeconds, setTimeLeft, setTimerActive, setTimerMode, setTotalTimeForMode]);
 }

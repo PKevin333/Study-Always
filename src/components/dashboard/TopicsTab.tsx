@@ -25,6 +25,7 @@ export function TopicsTab({
   updateTopic,
   deleteTopic
 }: TopicsTabProps) {
+  // [FIX]: impede clique duplo/Enter repetido enquanto a escrita no Firestore está pendente.
   const [isAddingTopic, setIsAddingTopic] = useState(false);
   if (!selectedSubjectForTopics) return null;
 
@@ -131,7 +132,8 @@ export function TopicsTab({
                       ].map(s => (
                         <button 
                           key={s.id}
-                          onClick={() => updateTopic(topic.id, { status: s.id as any })}
+                          // [FIX]: envia só campos aceitos pelo contrato mínimo das regras de tópicos.
+                          onClick={() => updateTopic(topic.id, { status: s.id as Topic['status'] })}
                           className={cn(
                             "text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded transition-all",
                             topic.status === s.id ? s.color : "text-text-secondary hover:bg-border"

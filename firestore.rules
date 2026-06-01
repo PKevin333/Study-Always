@@ -149,6 +149,16 @@ service cloud.firestore {
              (data.notes == null || (data.notes is string && data.notes.size() < 1000));
     }
 
+    function isValidMateria(data) {
+      // [FIX]: a UI usa users/{uid}/materias; sem este validador a coleção ficava bloqueada.
+      return data.keys().hasAll(['nome', 'origem', 'ativa', 'criadaEm']) &&
+             data.nome is string && data.nome.size() > 0 && data.nome.size() < 100 &&
+             data.origem in ['base', 'custom'] &&
+             data.ativa is bool &&
+             data.criadaEm is timestamp &&
+             (!('cor' in data) || data.cor == null || data.cor is string);
+    }
+
     function isValidQuestionRecord(data) {
       return data.keys().hasAll(['subjectId', 'subjectName', 'topic', 'total', 'correct', 'errors', 'percentage', 'date']) &&
              data.subjectId is string &&
@@ -182,6 +192,14 @@ service cloud.firestore {
           allow update: if isOwner(userId) && isValidTopic(request.resource.data);
           allow delete: if isOwner(userId);
         }
+      }
+
+      match /materias/{materiaId} {
+        // [FIX]: libera leitura/escrita das matérias do próprio usuário usadas nas configurações.
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidMateria(request.resource.data);
+        allow update: if isOwner(userId) && isValidMateria(request.resource.data);
+        allow delete: if isOwner(userId);
       }
 
       match /sessions/{sessionId} {

@@ -57,6 +57,7 @@ export interface Subject {
 
 export interface Session {
   id: string;
+  userId: string;
   subjectId: string;
   subjectName: string;
   durationMinutes: number;

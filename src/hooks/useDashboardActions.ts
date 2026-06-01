@@ -148,6 +148,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   // Cycle Blocks
   const addCycleBlock = async (subjectId: string, subjectName: string, type: string, duration: number) => {
     if (!user) return;
+    // [FIX]: evita criar bloco inválido quando não há disciplina selecionada/ativa.
+    if (!subjectId || !subjectName || duration <= 0) {
+      alert('Selecione uma disciplina ativa antes de adicionar um bloco ao ciclo.');
+      return;
+    }
     const path = `users/${user.uid}/cycleBlocks`;
     try {
       await addDoc(collection(db, path), {
@@ -225,9 +230,19 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
 
   const generateCycle = async (dailyTime: number, blocksPerDay: number, cycleFocus: string) => {
     if (!user) return;
-    setIsGenerating(true);
-    
     const activeSubjects = subjects.filter(s => s.status === 'active');
+    // [FIX]: gerar ciclo sem matéria ativa apagava os blocos existentes e não recriava nada.
+    if (activeSubjects.length === 0) {
+      alert('Ative ao menos uma disciplina antes de gerar o ciclo.');
+      return;
+    }
+    if (blocksPerDay <= 0) {
+      alert('Informe ao menos um bloco de estudo por dia.');
+      return;
+    }
+
+    setIsGenerating(true);
+
     const sorted = [...activeSubjects].sort((a, b) => {
       if (a.group !== b.group) return a.group - b.group;
       return (a.order || 0) - (b.order || 0);
@@ -314,6 +329,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   // Errors
   const saveError = async (subjectId: string, text: string) => {
     if (!user) return;
+    // [FIX]: garante que chamadas fora da UI não gravem erro sem disciplina ou conteúdo.
+    if (!subjectId || !text.trim()) {
+      alert('Selecione a disciplina e descreva o erro antes de salvar.');
+      return;
+    }
     setSavingError(true);
     const path = `users/${user.uid}/errors`;
     try {
@@ -321,7 +341,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       await addDoc(collection(db, path), {
         subjectId,
         subjectName: subjects.find(s => s.id === subjectId)?.name || 'Desconhecida',
-        content: text,
+        content: text.trim(),
         date: now.toISOString(),
         createdAt: serverTimestamp(),
         reviewed: false,
@@ -345,10 +365,6 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
 
     const path = `users/${user.uid}/errors/${errorId}`;
     try {
-      let intervalo = error.intervalo || 1;
-      let facilidade = error.facilidade || 2.5;
-      const totalRevisoes = error.totalRevisoes || 0;
-      
       let qualidade: 0 | 1 | 2 | 3 | 4 | 5 = 3;
 
       if (rating === 'dificil') {
@@ -395,6 +411,12 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   // Question Records
   const addQuestionRecord = async (subjectId: string, topic: string, total: number, correct: number) => {
     if (!user) return;
+    const trimmedTopic = topic.trim();
+    // [FIX]: total zero/negativo ou acertos maiores que o total geram NaN e são rejeitados pelas regras.
+    if (!subjectId || !trimmedTopic || total <= 0 || correct < 0 || correct > total) {
+      alert('Informe disciplina, assunto, total de questões e acertos válidos.');
+      return;
+    }
     setSavingRecord(true);
     // questionRecords = fonte de verdade de desempenho
     // subjects.accuracy é apenas cache derivado
@@ -407,7 +429,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       await addDoc(collection(db, path), {
         subjectId,
         subjectName,
-        topic,
+        topic: trimmedTopic,
         total,
         correct,
         errors: errorsCount,
@@ -478,6 +500,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
 
     const path = `users/${user.uid}/subjects/${subjectId}/topics`;
     try {
+      // [FIX]: mantém o payload igual ao contrato mínimo validado nas regras do Firestore.
       await addDoc(collection(db, path), {
         name: trimmedName,
         status: 'nao_iniciado',
@@ -590,6 +613,8 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       // sessions = fonte de verdade do tempo estudado
       // NÃO calcular tempo a partir de dailyBlocks ou cycleBlocks
       await addDoc(collection(db, `users/${user.uid}/sessions`), {
+        // [FIX]: as regras exigem userId para criar sessões.
+        userId: user.uid,
         subjectId: subjectId,
         subjectName: subDoc.name,
         durationMinutes: actualMinutes,
@@ -604,9 +629,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
           actualMinutes
         });
         
-        // Update Cycle Position
-        const nextIndex = ((profile?.currentCycleIndex || 0) + 1) % cycleBlocks.length;
-        await updateDoc(doc(db, 'users', user.uid), { currentCycleIndex: nextIndex });
+        // [FIX]: blocos manuais podem existir sem ciclo base; módulo por zero gravava índice inválido.
+        if (cycleBlocks.length > 0) {
+          const nextIndex = ((profile?.currentCycleIndex || 0) + 1) % cycleBlocks.length;
+          await updateDoc(doc(db, 'users', user.uid), { currentCycleIndex: nextIndex });
+        }
       }
 
       // 3. Update Subject Stats

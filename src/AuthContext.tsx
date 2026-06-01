@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, Unsubscribe } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -24,9 +24,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    let profileUnsubscribe: () => void;
+    let profileUnsubscribe: Unsubscribe | null = null;
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      // [FIX]: remove o listener anterior antes de abrir outro para evitar perfil antigo sobrescrevendo estado.
+      if (profileUnsubscribe) {
+        profileUnsubscribe();
+        profileUnsubscribe = null;
+      }
+
       setUser(user);
       if (user && db) {
         try {

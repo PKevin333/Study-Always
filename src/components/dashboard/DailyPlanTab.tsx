@@ -19,6 +19,8 @@ import { DailyBlock, Subject } from '../../types';
 import { useAuth } from '../../AuthContext';
 import { useMaterias } from '../../hooks/useMaterias';
 
+type StudyBlockType = 'teoria' | 'questoes' | 'revisao';
+
 interface DailyPlanTabProps {
   dailyBlocks: DailyBlock[];
   generateDailyPlan: () => void;
@@ -48,7 +50,11 @@ export function DailyPlanTab({
   const { materias } = useMaterias(user?.uid);
 
   const [showAddModal, setShowAddModal] = React.useState(false);
-  const [newBlock, setNewBlock] = React.useState({
+  const [newBlock, setNewBlock] = React.useState<{
+    subjectId: string;
+    type: StudyBlockType;
+    durationMinutes: number;
+  }>({
     subjectId: '',
     type: 'teoria',
     durationMinutes: 60
@@ -100,7 +106,8 @@ export function DailyPlanTab({
     addDailyBlock({
       subjectId: subject.id,
       subjectName: subject.name,
-      type: newBlock.type as any,
+      // [FIX]: mantém o tipo do bloco dentro dos valores aceitos pelas regras do Firestore.
+      type: newBlock.type,
       durationMinutes: newBlock.durationMinutes
     });
     setShowAddModal(false);
@@ -151,7 +158,7 @@ export function DailyPlanTab({
                 <div>
                   <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Tipo de Estudo</label>
                   <div className="grid grid-cols-3 gap-2">
-                    {['teoria', 'questoes', 'revisao'].map((type) => (
+                    {(['teoria', 'questoes', 'revisao'] as StudyBlockType[]).map((type) => (
                       <button
                         key={type}
                         onClick={() => setNewBlock({ ...newBlock, type })}
