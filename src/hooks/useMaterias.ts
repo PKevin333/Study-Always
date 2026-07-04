@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { 
   collection, 
-  query, 
-  where, 
   getDocs, 
   addDoc, 
   updateDoc, 
@@ -36,11 +34,8 @@ export function useMaterias(userId?: string) {
     const loadMaterias = async () => {
       setLoading(true);
       try {
-        const q = query(
-          collection(db, 'users', userId, 'materias'),
-          where('ativa', '==', true)
-        );
-        const snapshot = await getDocs(q);
+        // [FIX]: a tela de gerenciamento precisa carregar também matérias inativas para permitir reativação.
+        const snapshot = await getDocs(collection(db, 'users', userId, 'materias'));
         const loadedMaterias: Materia[] = [];
         snapshot.forEach((doc) => {
           loadedMaterias.push({ id: doc.id, ...doc.data() } as Materia);
@@ -88,9 +83,8 @@ export function useMaterias(userId?: string) {
     if (!userId) return;
     try {
       await updateDoc(doc(db, 'users', userId, 'materias', id), { ativa });
-      if (!ativa) {
-        setMaterias(prev => prev.filter(m => m.id !== id));
-      }
+      // [FIX]: desativar não pode remover a matéria da lista, senão o usuário não consegue reativá-la.
+      setMaterias(prev => sortMaterias(prev.map(m => m.id === id ? { ...m, ativa } : m)));
     } catch (error) {
       console.error('Erro ao alternar status da matéria:', error);
       throw error;

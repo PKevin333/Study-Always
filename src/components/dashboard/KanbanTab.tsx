@@ -14,7 +14,7 @@ interface KanbanTabProps {
   updateDailyBlock: (id: string, updates: Partial<DailyBlock>) => void;
   deleteDailyBlock: (id: string) => void;
   subjects: Subject[];
-  addDailyBlock: (block: Partial<DailyBlock>) => void;
+  addDailyBlock: (block: Partial<DailyBlock>) => Promise<void>;
 }
 
 export function KanbanTab({
@@ -31,6 +31,7 @@ export function KanbanTab({
   const { materias } = useMaterias(user?.uid || '');
   const [draggedBlock, setDraggedBlock] = React.useState<DailyBlock | null>(null);
   const [showAddModal, setShowAddModal] = React.useState(false);
+  const [isAddingBlock, setIsAddingBlock] = React.useState(false);
   const [newBlock, setNewBlock] = React.useState({
     subjectId: '',
     type: 'teoria',
@@ -49,25 +50,30 @@ export function KanbanTab({
     return true;
   };
 
-  const handleAddManual = () => {
-    if (!newBlock.subjectId || newBlock.durationMinutes <= 0) return;
+  const handleAddManual = async () => {
+    if (!newBlock.subjectId || newBlock.durationMinutes <= 0 || isAddingBlock) return;
 
     const subject = subjects.find(item => item.id === newBlock.subjectId);
     if (!subject) return;
 
-    addDailyBlock({
-      subjectId: subject.id,
-      subjectName: subject.name,
-      type: newBlock.type as DailyBlock['type'],
-      durationMinutes: newBlock.durationMinutes
-    });
+    setIsAddingBlock(true);
+    try {
+      await addDailyBlock({
+        subjectId: subject.id,
+        subjectName: subject.name,
+        type: newBlock.type as DailyBlock['type'],
+        durationMinutes: newBlock.durationMinutes
+      });
 
-    setShowAddModal(false);
-    setNewBlock({
-      subjectId: '',
-      type: 'teoria',
-      durationMinutes: 60
-    });
+      setShowAddModal(false);
+      setNewBlock({
+        subjectId: '',
+        type: 'teoria',
+        durationMinutes: 60
+      });
+    } finally {
+      setIsAddingBlock(false);
+    }
   };
 
   const filteredBlocks = dailyBlocks.filter(filterBlock);
@@ -170,10 +176,11 @@ export function KanbanTab({
                   </button>
                   <button
                     onClick={handleAddManual}
-                    disabled={!newBlock.subjectId || newBlock.durationMinutes <= 0}
+                    // [FIX]: bloqueia cliques consecutivos para não criar blocos duplicados enquanto salva.
+                    disabled={isAddingBlock || !newBlock.subjectId || newBlock.durationMinutes <= 0}
                     className="flex-1 px-4 py-3 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
                   >
-                    Adicionar
+                    {isAddingBlock ? 'Adicionando...' : 'Adicionar'}
                   </button>
                 </div>
               </div>

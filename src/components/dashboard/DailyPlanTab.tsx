@@ -29,7 +29,7 @@ interface DailyPlanTabProps {
   updateDailyBlock: (id: string, updates: Partial<DailyBlock>) => void;
   deleteDailyBlock: (id: string) => void;
   subjects: Subject[];
-  addDailyBlock: (block: Partial<DailyBlock>) => void;
+  addDailyBlock: (block: Partial<DailyBlock>) => Promise<void>;
   overdueReviewsCount: number;
   setActiveTab: (tab: string) => void;
 }
@@ -50,6 +50,7 @@ export function DailyPlanTab({
   const { materias } = useMaterias(user?.uid);
 
   const [showAddModal, setShowAddModal] = React.useState(false);
+  const [isAddingBlock, setIsAddingBlock] = React.useState(false);
   const [newBlock, setNewBlock] = React.useState<{
     subjectId: string;
     type: StudyBlockType;
@@ -98,20 +99,25 @@ export function DailyPlanTab({
     updateDailyBlock(block.id, { status: 'concluido' });
   };
 
-  const handleAddManual = () => {
-    if (!newBlock.subjectId) return;
+  const handleAddManual = async () => {
+    if (!newBlock.subjectId || isAddingBlock) return;
     const subject = subjects.find(s => s.id === newBlock.subjectId);
     if (!subject) return;
 
-    addDailyBlock({
-      subjectId: subject.id,
-      subjectName: subject.name,
-      // [FIX]: mantém o tipo do bloco dentro dos valores aceitos pelas regras do Firestore.
-      type: newBlock.type,
-      durationMinutes: newBlock.durationMinutes
-    });
-    setShowAddModal(false);
-    setNewBlock({ subjectId: '', type: 'teoria', durationMinutes: 60 });
+    setIsAddingBlock(true);
+    try {
+      await addDailyBlock({
+        subjectId: subject.id,
+        subjectName: subject.name,
+        // [FIX]: mantém o tipo do bloco dentro dos valores aceitos pelas regras do Firestore.
+        type: newBlock.type,
+        durationMinutes: newBlock.durationMinutes
+      });
+      setShowAddModal(false);
+      setNewBlock({ subjectId: '', type: 'teoria', durationMinutes: 60 });
+    } finally {
+      setIsAddingBlock(false);
+    }
   };
 
   return (
@@ -211,10 +217,11 @@ export function DailyPlanTab({
                   </button>
                   <button 
                     onClick={handleAddManual}
-                    disabled={!newBlock.subjectId || newBlock.durationMinutes <= 0}
+                    // [FIX]: bloqueia cliques consecutivos para não criar blocos duplicados enquanto salva.
+                    disabled={isAddingBlock || !newBlock.subjectId || newBlock.durationMinutes <= 0}
                     className="flex-1 px-4 py-3 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
                   >
-                    Adicionar
+                    {isAddingBlock ? 'Adicionando...' : 'Adicionar'}
                   </button>
                 </div>
               </div>

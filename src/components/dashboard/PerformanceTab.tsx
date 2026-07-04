@@ -12,7 +12,8 @@ interface PerformanceTabProps {
   setNewRecordTotal: (total: number) => void;
   newRecordCorrect: number;
   setNewRecordCorrect: (correct: number) => void;
-  addQuestionRecord: () => void;
+  addQuestionRecord: () => Promise<boolean>;
+  savingRecord: boolean;
   subjects: Subject[];
   questionRecords: QuestionRecord[];
   deleteQuestionRecord: (id: string, subjectId: string, total: number) => void;
@@ -28,10 +29,13 @@ export function PerformanceTab({
   newRecordCorrect,
   setNewRecordCorrect,
   addQuestionRecord,
+  savingRecord,
   subjects,
   questionRecords,
   deleteQuestionRecord
 }: PerformanceTabProps) {
+  const isInvalidRecord = !newRecordSubject || !newRecordTopic.trim() || newRecordTotal <= 0 || newRecordCorrect < 0 || newRecordCorrect > newRecordTotal;
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -88,9 +92,11 @@ export function PerformanceTab({
             </div>
             <button 
               onClick={addQuestionRecord}
-              className="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-colors flex items-center justify-center gap-2"
+              // [FIX]: evita registros duplicados por cliques consecutivos enquanto a escrita no Firestore está pendente.
+              disabled={savingRecord || isInvalidRecord}
+              className="w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Plus size={20} /> Registrar Desempenho
+              <Plus size={20} /> {savingRecord ? 'Salvando...' : 'Registrar Desempenho'}
             </button>
           </div>
 

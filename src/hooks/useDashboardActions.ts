@@ -409,14 +409,15 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   };
 
   // Question Records
-  const addQuestionRecord = async (subjectId: string, topic: string, total: number, correct: number) => {
-    if (!user) return;
+  const addQuestionRecord = async (subjectId: string, topic: string, total: number, correct: number): Promise<boolean> => {
+    if (!user) return false;
     const trimmedTopic = topic.trim();
     // [FIX]: total zero/negativo ou acertos maiores que o total geram NaN e são rejeitados pelas regras.
     if (!subjectId || !trimmedTopic || total <= 0 || correct < 0 || correct > total) {
       alert('Informe disciplina, assunto, total de questões e acertos válidos.');
-      return;
+      return false;
     }
+    if (savingRecord) return false;
     setSavingRecord(true);
     // questionRecords = fonte de verdade de desempenho
     // subjects.accuracy é apenas cache derivado
@@ -452,8 +453,10 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
           accuracy: newAccuracy
         });
       }
+      return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
+      return false;
     } finally {
       setSavingRecord(false);
     }

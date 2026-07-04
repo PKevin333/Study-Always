@@ -386,7 +386,17 @@ export default function Dashboard() {
             setNewRecordTotal={setNewRecordTotal}
             newRecordCorrect={newRecordCorrect}
             setNewRecordCorrect={setNewRecordCorrect}
-            addQuestionRecord={() => addQuestionRecord(newRecordSubject, newRecordTopic, newRecordTotal, newRecordCorrect)}
+            savingRecord={savingRecord}
+            addQuestionRecord={async () => {
+              const saved = await addQuestionRecord(newRecordSubject, newRecordTopic, newRecordTotal, newRecordCorrect);
+              if (saved) {
+                // [FIX]: mantém a disciplina selecionada e limpa apenas os campos do registro concluído.
+                setNewRecordTopic('');
+                setNewRecordTotal(0);
+                setNewRecordCorrect(0);
+              }
+              return saved;
+            }}
             deleteQuestionRecord={deleteQuestionRecord}
           />
         );
