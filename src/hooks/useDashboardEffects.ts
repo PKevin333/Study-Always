@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { collection, query, onSnapshot, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { getTodayLocalDate } from '../utils/date';
@@ -14,6 +14,9 @@ export function useDashboardEffects(
     setErrors,
     setCycleBlocks,
     setDailyBlocks,
+    dailyBlocks,
+    dailyPlanGuardUntil,
+    setDailyPlanGuardUntil,
     setQuestionRecords,
     setTopics,
     selectedSubjectForTopics,
@@ -37,6 +40,16 @@ export function useDashboardEffects(
   } = state;
 
   const { finishStudySession } = actions;
+  const dailyBlocksLengthRef = useRef(0);
+  const dailyPlanGuardUntilRef = useRef(0);
+
+  useEffect(() => {
+    dailyBlocksLengthRef.current = dailyBlocks.length;
+  }, [dailyBlocks.length]);
+
+  useEffect(() => {
+    dailyPlanGuardUntilRef.current = dailyPlanGuardUntil || 0;
+  }, [dailyPlanGuardUntil]);
 
   // Sessions
   useEffect(() => {
@@ -86,6 +99,13 @@ export function useDashboardEffects(
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const blocks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       blocks.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+      if (blocks.length === 0 && dailyBlocksLengthRef.current > 0 && Date.now() < dailyPlanGuardUntilRef.current) {
+        console.warn('[DailyPlan] Ignorando snapshot vazio atrasado durante geracao do plano.');
+        return;
+      }
+      if (blocks.length > 0 && dailyPlanGuardUntilRef.current > 0) {
+        setDailyPlanGuardUntil(0);
+      }
       setDailyBlocks(blocks);
     }, (error) => {
       console.error('Error fetching dailyBlocks:', error);

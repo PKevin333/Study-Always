@@ -53,6 +53,7 @@ export default function Dashboard() {
     savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,
+    setDailyPlanGuardUntil,
     draggedBlock, setDraggedBlock,
     isGenerating, setIsGenerating,
     editProfileName, setEditProfileName,
@@ -192,6 +193,8 @@ export default function Dashboard() {
     // [FIX]: mostra o plano imediatamente apos a gravacao, sem depender do tempo do snapshot do Firestore.
     if (generatedBlocks.length > 0) {
       setDailyBlocks(generatedBlocks);
+      // [FIX]: impede que um snapshot vazio atrasado sobrescreva o plano recem-gerado.
+      setDailyPlanGuardUntil(Date.now() + 10000);
     }
   };
 

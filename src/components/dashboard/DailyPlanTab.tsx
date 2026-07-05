@@ -497,7 +497,17 @@ export function DailyPlanTab({
           })}
         </AnimatePresence>
 
-        {allFilteredOut ? (
+        {isGenerating && totalCount === 0 ? (
+          <div className="text-center py-20 bg-card border-2 border-dashed border-border rounded-3xl">
+            <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
+              <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Gerando plano do dia</h3>
+            <p className="text-text-secondary max-w-xs mx-auto">
+              Preparando os blocos com base no seu ciclo de estudos.
+            </p>
+          </div>
+        ) : allFilteredOut ? (
           <div className="text-center py-20 bg-card border-2 border-dashed border-border rounded-3xl">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <AlertCircle size={40} />

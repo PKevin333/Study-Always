@@ -30,6 +30,7 @@ export function useDashboardState(user: any, profile: any) {
   const [savingError, setSavingError] = useState(false);
   const [cycleBlocks, setCycleBlocks] = useState<any[]>([]);
   const [dailyBlocks, setDailyBlocks] = useState<any[]>([]);
+  const [dailyPlanGuardUntil, setDailyPlanGuardUntil] = useState(0);
   const [draggedBlock, setDraggedBlock] = useState<any | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   
@@ -111,6 +112,7 @@ export function useDashboardState(user: any, profile: any) {
     savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,
+    dailyPlanGuardUntil, setDailyPlanGuardUntil,
     draggedBlock, setDraggedBlock,
     isGenerating, setIsGenerating,
     editProfileName, setEditProfileName,
