@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Play, Plus } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
-import { useAuth } from '../../AuthContext';
-import { useMaterias } from '../../hooks/useMaterias';
 
 interface KanbanTabProps {
   dailyBlocks: DailyBlock[];
@@ -27,8 +25,6 @@ export function KanbanTab({
   subjects,
   addDailyBlock
 }: KanbanTabProps) {
-  const { user } = useAuth();
-  const { materias } = useMaterias(user?.uid || '');
   const [draggedBlock, setDraggedBlock] = React.useState<DailyBlock | null>(null);
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [isAddingBlock, setIsAddingBlock] = React.useState(false);
@@ -38,11 +34,8 @@ export function KanbanTab({
     durationMinutes: 60
   });
 
-  const normalizeName = (value: string) => value.trim().toLowerCase();
-
   const isSubjectAvailable = (subject: Subject) => {
-    const matchingMateria = materias.find(item => normalizeName(item.nome) === normalizeName(subject.name));
-    return subject.status === 'active' && matchingMateria?.ativa !== false;
+    return subject.status === 'active';
   };
 
   const activeSubjects = subjects.filter(isSubjectAvailable);
@@ -52,9 +45,7 @@ export function KanbanTab({
     // [FIX]: usa a mesma regra do seletor; antes o usuário podia adicionar um bloco que era salvo e escondido logo após o snapshot.
     if (matchingSubject) return isSubjectAvailable(matchingSubject);
 
-    const matchingMateria = materias.find(item => normalizeName(item.nome) === normalizeName(block.subjectName));
-    if (matchingMateria) return matchingMateria.ativa;
-
+    // [FIX]: blocos antigos sem subjectId conhecido continuam visíveis; esconder por nome em outra coleção fazia cards sumirem.
     return true;
   };
 

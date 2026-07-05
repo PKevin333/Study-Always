@@ -16,8 +16,6 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
-import { useAuth } from '../../AuthContext';
-import { useMaterias } from '../../hooks/useMaterias';
 
 type StudyBlockType = 'teoria' | 'questoes' | 'revisao';
 
@@ -46,9 +44,6 @@ export function DailyPlanTab({
   overdueReviewsCount,
   setActiveTab
 }: DailyPlanTabProps) {
-  const { user } = useAuth();
-  const { materias } = useMaterias(user?.uid);
-
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [isAddingBlock, setIsAddingBlock] = React.useState(false);
   const [newBlock, setNewBlock] = React.useState<{
@@ -61,11 +56,8 @@ export function DailyPlanTab({
     durationMinutes: 60
   });
 
-  const normalizeName = (value: string) => value.trim().toLowerCase();
-
   const isSubjectAvailable = (subject: Subject) => {
-    const materia = materias.find(m => normalizeName(m.nome) === normalizeName(subject.name));
-    return subject.status === 'active' && materia?.ativa !== false;
+    return subject.status === 'active';
   };
 
   const filterBlock = (block: DailyBlock) => {
@@ -73,9 +65,7 @@ export function DailyPlanTab({
     // [FIX]: usa a mesma regra do seletor; antes um bloco podia ser salvo e sumir por filtros diferentes entre subjects/materias.
     if (subject) return isSubjectAvailable(subject);
 
-    const materia = materias.find(m => normalizeName(m.nome) === normalizeName(block.subjectName));
-    if (materia) return materia.ativa;
-    
+    // [FIX]: blocos antigos sem subjectId conhecido continuam visíveis; esconder por nome em outra coleção fazia cards sumirem.
     return true;
   };
 
