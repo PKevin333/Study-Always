@@ -61,19 +61,20 @@ export function DailyPlanTab({
     durationMinutes: 60
   });
 
-  // Combine logic: A block is valid if the corresponding subject is active (based on subjects array) 
-  // OR based on new 'materias' collection if we are doing dual mode logic. 
-  // "Os blocos do ciclo que usam essa matéria devem ser filtrados (não exibidos)"
-  // The system likely matches by subjectName right now since materias might not have matching ids if they were just strings in the old model, or subjectName directly fits.
-  // Actually, we'll check if a Materia with same name exists and is 'ativa: false'
+  const normalizeName = (value: string) => value.trim().toLowerCase();
+
+  const isSubjectAvailable = (subject: Subject) => {
+    const materia = materias.find(m => normalizeName(m.nome) === normalizeName(subject.name));
+    return subject.status === 'active' && materia?.ativa !== false;
+  };
+
   const filterBlock = (block: DailyBlock) => {
-    // If we have migrating logic, match by name.
-    const materia = materias.find(m => m.nome.toLowerCase() === block.subjectName.toLowerCase());
-    if (materia && !materia.ativa) return false;
-    
-    // Fallback to legacy Subject status
     const subject = subjects.find(s => s.id === block.subjectId);
-    if (subject && subject.status !== 'active') return false;
+    // [FIX]: usa a mesma regra do seletor; antes um bloco podia ser salvo e sumir por filtros diferentes entre subjects/materias.
+    if (subject) return isSubjectAvailable(subject);
+
+    const materia = materias.find(m => normalizeName(m.nome) === normalizeName(block.subjectName));
+    if (materia) return materia.ativa;
     
     return true;
   };
@@ -155,7 +156,7 @@ export function DailyPlanTab({
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
                   >
                     <option value="">Selecione uma matéria</option>
-                    {subjects.filter(s => s.status === 'active').map(s => (
+                    {subjects.filter(isSubjectAvailable).map(s => (
                       <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
                   </select>

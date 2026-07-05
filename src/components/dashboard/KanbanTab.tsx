@@ -38,14 +38,22 @@ export function KanbanTab({
     durationMinutes: 60
   });
 
-  const activeSubjects = subjects.filter(subject => subject.status === 'active');
+  const normalizeName = (value: string) => value.trim().toLowerCase();
+
+  const isSubjectAvailable = (subject: Subject) => {
+    const matchingMateria = materias.find(item => normalizeName(item.nome) === normalizeName(subject.name));
+    return subject.status === 'active' && matchingMateria?.ativa !== false;
+  };
+
+  const activeSubjects = subjects.filter(isSubjectAvailable);
 
   const filterBlock = (block: DailyBlock) => {
-    const matchingMateria = materias.find(item => item.nome.toLowerCase() === block.subjectName.toLowerCase());
-    if (matchingMateria && !matchingMateria.ativa) return false;
-
     const matchingSubject = subjects.find(item => item.id === block.subjectId);
-    if (matchingSubject && matchingSubject.status !== 'active') return false;
+    // [FIX]: usa a mesma regra do seletor; antes o usuário podia adicionar um bloco que era salvo e escondido logo após o snapshot.
+    if (matchingSubject) return isSubjectAvailable(matchingSubject);
+
+    const matchingMateria = materias.find(item => normalizeName(item.nome) === normalizeName(block.subjectName));
+    if (matchingMateria) return matchingMateria.ativa;
 
     return true;
   };
