@@ -187,6 +187,14 @@ export default function Dashboard() {
     }
   };
 
+  const handleGenerateDailyPlan = async () => {
+    const generatedBlocks = await generateDailyPlan(dailyTime, blocksPerDay);
+    // [FIX]: mostra o plano imediatamente apos a gravacao, sem depender do tempo do snapshot do Firestore.
+    if (generatedBlocks.length > 0) {
+      setDailyBlocks(generatedBlocks);
+    }
+  };
+
   const handleOnboardingComplete = async (data: { level: string, hours: number, subjects: string[] }) => {
     const success = await completeOnboarding(data);
     if (success) {
@@ -300,7 +308,7 @@ export default function Dashboard() {
         return (
           <DailyPlanTab 
             dailyBlocks={dailyBlocks}
-            generateDailyPlan={() => generateDailyPlan(dailyTime, blocksPerDay)}
+            generateDailyPlan={handleGenerateDailyPlan}
             isGenerating={isGenerating}
             startStudySession={startStudySession}
             updateDailyBlock={updateDailyBlock}
@@ -315,7 +323,7 @@ export default function Dashboard() {
         return (
           <KanbanTab 
             dailyBlocks={dailyBlocks}
-            generateDailyPlan={() => generateDailyPlan(dailyTime, blocksPerDay)}
+            generateDailyPlan={handleGenerateDailyPlan}
             isGenerating={isGenerating}
             startStudySession={startStudySession}
             updateDailyBlock={updateDailyBlock}

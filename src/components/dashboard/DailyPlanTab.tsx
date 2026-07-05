@@ -524,9 +524,10 @@ export function DailyPlanTab({
             </p>
             <button 
               onClick={generateDailyPlan}
-              className="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-all shadow-lg shadow-brand-primary/20"
+              disabled={isGenerating}
+              className="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-all shadow-lg shadow-brand-primary/20 disabled:opacity-50"
             >
-              Gerar Plano Agora
+              {isGenerating ? 'Gerando...' : 'Gerar Plano Agora'}
             </button>
             <button 
               onClick={() => setShowAddModal(true)}

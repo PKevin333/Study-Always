@@ -13,7 +13,8 @@ import {
   limit,
   orderBy,
   arrayUnion,
-  increment
+  increment,
+  writeBatch
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { 
@@ -564,40 +565,60 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
-  const generateDailyPlan = async (dailyTime: number, blocksPerDay: number) => {
-    if (!user) return;
+  const generateDailyPlan = async (dailyTime: number, blocksPerDay: number): Promise<DailyBlock[]> => {
+    if (!user) return [];
     if (cycleBlocks.length === 0) {
       alert("⚠️ Você não possui um Ciclo Base configurado.\n\nVá para a aba 'O Ciclo Base' e gere ou adicione blocos de estudo antes de gerar o plano diário.");
-      return;
+      return [];
     }
+    const activeSubjectIds = new Set(subjects.filter(subject => subject.status === 'active').map(subject => subject.id));
+    const visibleCycleBlocks = cycleBlocks.filter(block => activeSubjectIds.has(block.subjectId));
+    if (visibleCycleBlocks.length === 0) {
+      alert('Ative ao menos uma disciplina presente no ciclo antes de gerar o plano do dia.');
+      return [];
+    }
+
+    const safeBlocksPerDay = Math.min(20, Math.max(1, Math.floor(Number.isFinite(blocksPerDay) ? blocksPerDay : 0)));
     setIsGenerating(true);
     
     const today = getTodayLocalDate();
-    const currentIndex = profile?.currentCycleIndex || 0;
+    const currentIndex = sanitizeCycleIndex(profile?.currentCycleIndex || 0, visibleCycleBlocks);
     
     try {
-      // Limpa blocos existentes do dia antes de regerar
+      // [FIX]: batch atomico evita apagar o plano atual antes de confirmar que os novos blocos foram criados.
       const qDaily = query(collection(db, `users/${user.uid}/dailyBlocks`), where('date', '==', today));
       const snap = await getDocs(qDaily);
-      const deletePromises = snap.docs.map(d => deleteDoc(d.ref));
-      await Promise.all(deletePromises);
+      const batch = writeBatch(db);
+      snap.docs.forEach(d => batch.delete(d.ref));
+      const generatedBlocks: DailyBlock[] = [];
+      const dailyBlocksCollection = collection(db, `users/${user.uid}/dailyBlocks`);
 
-      for (let i = 0; i < blocksPerDay; i++) {
-        const blockIndex = (currentIndex + i) % cycleBlocks.length;
-        const cycleBlock = cycleBlocks[blockIndex];
-        
-        await addDoc(collection(db, `users/${user.uid}/dailyBlocks`), {
+      for (let i = 0; i < safeBlocksPerDay; i++) {
+        const blockIndex = (currentIndex + i) % visibleCycleBlocks.length;
+        const cycleBlock = visibleCycleBlocks[blockIndex];
+        const blockRef = doc(dailyBlocksCollection);
+        const blockType = ['teoria', 'questoes', 'revisao'].includes(cycleBlock.type) ? cycleBlock.type : 'teoria';
+        const fallbackDuration = Math.max(1, Math.round((Number.isFinite(dailyTime) && dailyTime > 0 ? dailyTime : 60) / safeBlocksPerDay));
+        const blockData = {
           subjectId: cycleBlock.subjectId,
           subjectName: cycleBlock.subjectName,
-          type: cycleBlock.type,
-          durationMinutes: cycleBlock.durationMinutes,
+          type: blockType,
+          durationMinutes: Number.isFinite(cycleBlock.durationMinutes) && cycleBlock.durationMinutes > 0 ? cycleBlock.durationMinutes : fallbackDuration,
           order: i,
-          status: 'pendente',
+          status: 'pendente' as const,
           date: today
-        });
+        };
+
+        batch.set(blockRef, blockData);
+        generatedBlocks.push({ id: blockRef.id, ...blockData });
       }
+
+      await batch.commit();
+      return generatedBlocks;
     } catch (err) {
       console.error("Error generating daily plan:", err);
+      alert('Nao foi possivel gerar o plano do dia. Verifique as permissoes do Firestore e tente novamente.');
+      return [];
     } finally {
       setIsGenerating(false);
     }
