@@ -12,6 +12,8 @@ interface SettingsTabProps {
   setEditProfilePhoto: (photo: string) => void;
   editProfileCover: string;
   setEditProfileCover: (cover: string) => void;
+  editTargetContest: string;
+  setEditTargetContest: (target: string) => void;
   urlErrors: { photo?: string, cover?: string };
   setUrlErrors: React.Dispatch<React.SetStateAction<{ photo?: string, cover?: string }>>;
   handleSaveProfile: () => void;
@@ -30,6 +32,8 @@ export function SettingsTab({
   setEditProfilePhoto,
   editProfileCover,
   setEditProfileCover,
+  editTargetContest,
+  setEditTargetContest,
   urlErrors,
   setUrlErrors,
   handleSaveProfile,
@@ -83,6 +87,18 @@ export function SettingsTab({
                   value={editProfileName}
                   onChange={(e) => setEditProfileName(e.target.value)}
                   placeholder="Seu nome"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-text-secondary mb-2">Concurso alvo</label>
+                <input
+                  type="text"
+                  value={editTargetContest}
+                  onChange={(e) => setEditTargetContest(e.target.value)}
+                  placeholder="Ex: INSS, Banco do Brasil, Receita Federal..."
+                  maxLength={80}
                   className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
                 />
               </div>
@@ -217,7 +233,9 @@ export function SettingsTab({
 
                   <div className="pt-16 pb-8 px-6 text-center">
                     <h4 className="text-xl font-bold mb-1">{editProfileName || user?.displayName}</h4>
-                    <p className="text-sm text-text-secondary">{profile?.area === 'controle' ? 'Tribunal de Contas' : 'Área Administrativa'}</p>
+                    <p className="text-sm text-text-secondary">
+                      {editTargetContest.trim() || profile?.targetExam || profile?.concursoAlvo || (profile?.area === 'controle' ? 'Tribunal de Contas' : 'Área Administrativa')}
+                    </p>
                     
                     <div className="mt-6 flex justify-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-brand-primary"></div>

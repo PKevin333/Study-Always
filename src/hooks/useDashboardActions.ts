@@ -543,14 +543,18 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
-  const handleSaveProfile = async (name: string, photo: string, cover: string) => {
+  const handleSaveProfile = async (name: string, photo: string, cover: string, targetContest: string) => {
     if (!user) return;
     const path = `users/${user.uid}`;
+    const trimmedTargetContest = targetContest.trim();
     try {
       await updateDoc(doc(db, 'users', user.uid), {
         displayName: name,
         photoURL: photo,
-        coverURL: cover
+        coverURL: cover,
+        // [FIX]: permite personalizar o concurso alvo exibido no perfil em vez de prender o usuário em "Tribunal de Contas".
+        targetExam: trimmedTargetContest || 'Área Administrativa',
+        concursoAlvo: trimmedTargetContest || 'Área Administrativa'
       });
       return true;
     } catch (error) {

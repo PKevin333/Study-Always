@@ -34,6 +34,8 @@ export function Sidebar({
   user, 
   profile 
 }: SidebarProps) {
+  const targetContest = profile?.targetExam || profile?.concursoAlvo || (profile?.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa');
+
   const handleNavClick = (tab: string) => {
     setActiveTab(tab);
     setIsMobileMenuOpen(false);
@@ -86,7 +88,7 @@ export function Sidebar({
             )}
             <div className="overflow-hidden">
               <div className="text-sm font-medium truncate">{profile?.displayName || user?.displayName}</div>
-              <div className="text-xs text-text-secondary truncate">{profile?.area}</div>
+              <div className="text-xs text-text-secondary truncate">{targetContest}</div>
             </div>
           </div>
           <button onClick={() => auth.signOut()} className="w-full flex items-center gap-3 px-3 py-2 text-text-secondary hover:text-text-primary transition-colors">

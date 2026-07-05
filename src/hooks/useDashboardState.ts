@@ -37,6 +37,7 @@ export function useDashboardState(user: any, profile: any) {
   const [editProfileName, setEditProfileName] = useState('');
   const [editProfilePhoto, setEditProfilePhoto] = useState('');
   const [editProfileCover, setEditProfileCover] = useState('');
+  const [editTargetContest, setEditTargetContest] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [urlErrors, setUrlErrors] = useState<{photo?: string, cover?: string}>({});
   const [activeSessionBlock, setActiveSessionBlock] = useState<any | null>(null);
@@ -78,6 +79,7 @@ export function useDashboardState(user: any, profile: any) {
       setEditProfileName(profile.displayName || user?.displayName || '');
       setEditProfilePhoto(profile.photoURL || '');
       setEditProfileCover(profile.coverURL || '');
+      setEditTargetContest(profile.targetExam || profile.concursoAlvo || (profile.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa'));
       setSaveStatus('idle');
       setUrlErrors({});
     }
@@ -114,6 +116,7 @@ export function useDashboardState(user: any, profile: any) {
     editProfileName, setEditProfileName,
     editProfilePhoto, setEditProfilePhoto,
     editProfileCover, setEditProfileCover,
+    editTargetContest, setEditTargetContest,
     saveStatus, setSaveStatus,
     urlErrors, setUrlErrors,
     activeSessionBlock, setActiveSessionBlock,

@@ -58,6 +58,7 @@ export default function Dashboard() {
     editProfileName, setEditProfileName,
     editProfilePhoto, setEditProfilePhoto,
     editProfileCover, setEditProfileCover,
+    editTargetContest, setEditTargetContest,
     saveStatus, setSaveStatus,
     urlErrors, setUrlErrors,
     activeSessionBlock, setActiveSessionBlock,
@@ -177,7 +178,7 @@ export default function Dashboard() {
 
   const handleProfileSave = async () => {
     setSaveStatus('saving');
-    const success = await handleSaveProfile(editProfileName, editProfilePhoto, editProfileCover);
+    const success = await handleSaveProfile(editProfileName, editProfilePhoto, editProfileCover, editTargetContest);
     if (success) {
       setSaveStatus('success');
       setTimeout(() => setSaveStatus('idle'), 3000);
@@ -434,6 +435,8 @@ export default function Dashboard() {
             setEditProfilePhoto={setEditProfilePhoto}
             editProfileCover={editProfileCover}
             setEditProfileCover={setEditProfileCover}
+            editTargetContest={editTargetContest}
+            setEditTargetContest={setEditTargetContest}
             urlErrors={urlErrors}
             setUrlErrors={setUrlErrors}
             handleSaveProfile={handleProfileSave}

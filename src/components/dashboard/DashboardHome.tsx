@@ -55,6 +55,8 @@ export function DashboardHome({
   setTimerActive,
   dailyAverage
 }: DashboardHomeProps) {
+  const targetContest = profile?.targetExam || profile?.concursoAlvo || (profile?.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa');
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -65,7 +67,7 @@ export function DashboardHome({
     >
       <header className="mb-10">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Olá, {user?.displayName?.split(' ')[0]}! 👋</h1>
-        <p className="text-text-secondary text-sm sm:text-base">Foco total na sua preparação para <span className="text-brand-primary font-bold">{profile?.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa'}</span>.</p>
+        <p className="text-text-secondary text-sm sm:text-base">Foco total na sua preparação para <span className="text-brand-primary font-bold">{targetContest}</span>.</p>
       </header>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
