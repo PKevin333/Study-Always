@@ -141,6 +141,21 @@ service cloud.firestore {
              (data.actualMinutes == null || data.actualMinutes is number);
     }
 
+    function isValidDailyBlockPatch() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return changed.hasOnly(['subjectId', 'subjectName', 'type', 'durationMinutes', 'order', 'status', 'date', 'topic', 'priority', 'actualMinutes']) &&
+             (!changed.hasAny(['subjectId']) || request.resource.data.subjectId is string) &&
+             (!changed.hasAny(['subjectName']) || request.resource.data.subjectName is string) &&
+             (!changed.hasAny(['type']) || request.resource.data.type in ['teoria', 'questoes', 'revisao']) &&
+             (!changed.hasAny(['durationMinutes']) || request.resource.data.durationMinutes is number) &&
+             (!changed.hasAny(['order']) || request.resource.data.order is number) &&
+             (!changed.hasAny(['status']) || request.resource.data.status in ['pendente', 'em_andamento', 'concluido']) &&
+             (!changed.hasAny(['date']) || request.resource.data.date is string) &&
+             (!changed.hasAny(['topic']) || request.resource.data.topic == null || (request.resource.data.topic is string && request.resource.data.topic.size() < 200)) &&
+             (!changed.hasAny(['priority']) || request.resource.data.priority == null || request.resource.data.priority in ['baixa', 'media', 'alta']) &&
+             (!changed.hasAny(['actualMinutes']) || request.resource.data.actualMinutes == null || request.resource.data.actualMinutes is number);
+    }
+
     function isValidTopic(data) {
       return data.keys().hasAll(['name', 'status', 'order']) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
@@ -228,7 +243,8 @@ service cloud.firestore {
       match /dailyBlocks/{blockId} {
         allow read: if isOwner(userId);
         allow create: if isOwner(userId) && isValidDailyBlock(request.resource.data);
-        allow update: if isOwner(userId) && isValidDailyBlock(request.resource.data);
+        // [FIX]: cards antigos com campos legados não podem bloquear ações válidas do Kanban, como mover entre colunas.
+        allow update: if isOwner(userId) && (isValidDailyBlock(request.resource.data) || isValidDailyBlockPatch());
         allow delete: if isOwner(userId);
       }
 
