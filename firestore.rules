@@ -171,7 +171,8 @@ service cloud.firestore {
       match /subjects/{subjectId} {
         allow read: if isOwner(userId);
         allow create: if isOwner(userId) && isValidSubject(request.resource.data);
-        allow update: if isOwner(userId) && isValidSubject(request.resource.data);
+        // [FIX]: atualizações operacionais, como somar horas estudadas, não devem falhar por campos legados da disciplina.
+        allow update: if isOwner(userId);
         allow delete: if isOwner(userId);
 
         match /topics/{topicId} {

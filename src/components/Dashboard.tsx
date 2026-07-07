@@ -112,6 +112,7 @@ export default function Dashboard() {
     fetchMentorAdvice,
     generateDailyPlan,
     finishStudySession,
+    recordManualStudySession,
     updateCycleSettings,
     completeOnboarding
   } = actions;
@@ -362,6 +363,7 @@ export default function Dashboard() {
             selectedSubject={selectedSubject}
             setSelectedSubject={setSelectedSubject}
             finishStudySession={handleFinishSession}
+            recordManualStudySession={recordManualStudySession}
             seconds={seconds}
             activeSessionBlock={activeSessionBlock}
           />

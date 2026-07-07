@@ -43,6 +43,7 @@ interface TimerTabProps {
   seconds: number;
   activeSessionBlock: any;
   finishStudySession: () => Promise<void>;
+  recordManualStudySession: (subjectId: string, minutes: number, type: string) => Promise<boolean>;
 }
 
 export function TimerTab({
@@ -71,10 +72,29 @@ export function TimerTab({
   longBreakTime,
   seconds,
   activeSessionBlock,
-  finishStudySession
+  finishStudySession,
+  recordManualStudySession
 }: TimerTabProps) {
   const [showResetConfirm, setShowResetConfirm] = React.useState(false);
+  const [manualSubject, setManualSubject] = React.useState('');
+  const [manualMinutes, setManualMinutes] = React.useState(60);
+  const [manualType, setManualType] = React.useState<'teoria' | 'questoes' | 'revisao'>('teoria');
+  const [savingManualSession, setSavingManualSession] = React.useState(false);
   const progress = ((totalTimeForMode - timeLeft) / totalTimeForMode) * 100;
+
+  const handleManualSessionSave = async () => {
+    if (savingManualSession) return;
+    setSavingManualSession(true);
+    try {
+      const saved = await recordManualStudySession(manualSubject, manualMinutes, manualType);
+      if (saved) {
+        setManualMinutes(60);
+        setManualType('teoria');
+      }
+    } finally {
+      setSavingManualSession(false);
+    }
+  };
 
   const handleResetClick = () => {
     if (timerActive || seconds > 0) {
@@ -310,6 +330,58 @@ export function TimerTab({
                 </div>
               </button>
             ))}
+          </div>
+
+          <div className="w-full mt-10 p-5 rounded-2xl bg-background border border-border">
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 className="font-bold text-sm">Registrar estudo manual</h3>
+                <p className="text-xs text-text-secondary">Use quando você já estudou fora do cronômetro.</p>
+              </div>
+              <CheckCircle2 size={20} className="text-brand-primary" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_140px] gap-3">
+              <select
+                value={manualSubject}
+                onChange={(e) => setManualSubject(e.target.value)}
+                disabled={savingManualSession}
+                className="bg-card border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary disabled:opacity-50"
+              >
+                <option value="">Disciplina estudada</option>
+                {subjects.filter(s => s.status === 'active').map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+
+              <input
+                type="number"
+                min={1}
+                value={manualMinutes}
+                onChange={(e) => setManualMinutes(parseInt(e.target.value, 10) || 0)}
+                disabled={savingManualSession}
+                className="bg-card border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary disabled:opacity-50"
+              />
+
+              <select
+                value={manualType}
+                onChange={(e) => setManualType(e.target.value as 'teoria' | 'questoes' | 'revisao')}
+                disabled={savingManualSession}
+                className="bg-card border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary disabled:opacity-50"
+              >
+                <option value="teoria">Teoria</option>
+                <option value="questoes">Questões</option>
+                <option value="revisao">Revisão</option>
+              </select>
+            </div>
+
+            <button
+              onClick={handleManualSessionSave}
+              disabled={savingManualSession || !manualSubject || manualMinutes <= 0}
+              className="mt-4 w-full bg-brand-primary text-white py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-50"
+            >
+              {savingManualSession ? 'Registrando...' : 'Registrar tempo estudado'}
+            </button>
           </div>
         </div>
       </div>

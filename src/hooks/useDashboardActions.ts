@@ -677,6 +677,45 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
+  const recordManualStudySession = async (subjectId: string, minutes: number, type: string = 'teoria') => {
+    if (!user) return false;
+    const normalizedMinutes = Math.floor(minutes);
+    if (!subjectId || !Number.isFinite(normalizedMinutes) || normalizedMinutes < 1) {
+      alert('Selecione uma disciplina e informe um tempo válido.');
+      return false;
+    }
+
+    const subDoc = subjects.find(s => s.id === subjectId);
+    if (!subDoc) {
+      alert('Disciplina não encontrada.');
+      return false;
+    }
+
+    const sessionType = ['teoria', 'questoes', 'revisao'].includes(type) ? type : 'teoria';
+
+    try {
+      await addDoc(collection(db, `users/${user.uid}/sessions`), {
+        userId: user.uid,
+        subjectId,
+        subjectName: subDoc.name,
+        durationMinutes: normalizedMinutes,
+        type: sessionType,
+        timestamp: serverTimestamp()
+      });
+
+      await updateDoc(doc(db, `users/${user.uid}/subjects`, subjectId), {
+        totalHours: (subDoc.totalHours || 0) + (normalizedMinutes / 60),
+        lastStudied: serverTimestamp()
+      });
+
+      return true;
+    } catch (err) {
+      console.error('Error recording manual study session:', err);
+      alert('Não foi possível registrar o estudo. Verifique as permissões do Firestore e tente novamente.');
+      return false;
+    }
+  };
+
   const updateCycleSettings = async (updates: any) => {
     if (!user) return;
     const path = `users/${user.uid}`;
@@ -810,6 +849,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     fetchMentorAdvice,
     generateDailyPlan,
     finishStudySession,
+    recordManualStudySession,
     updateCycleSettings,
     completeOnboarding
   };
