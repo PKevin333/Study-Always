@@ -38,6 +38,7 @@ interface DashboardHomeProps {
   chartData: any[];
   setTimerActive: (active: boolean) => void;
   dailyAverage: number;
+  recordManualStudySession: (subjectId: string, minutes: number, type: string) => Promise<boolean>;
 }
 
 export function DashboardHome({
@@ -53,9 +54,22 @@ export function DashboardHome({
   setActiveTab,
   chartData,
   setTimerActive,
-  dailyAverage
+  dailyAverage,
+  recordManualStudySession
 }: DashboardHomeProps) {
   const targetContest = profile?.targetExam || profile?.concursoAlvo || (profile?.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa');
+
+  const [savingQuickSession, setSavingQuickSession] = React.useState<string | null>(null);
+
+  const handleQuickComplete = async (subjectId: string, minutes: number, type: string) => {
+    if (savingQuickSession) return;
+    setSavingQuickSession(subjectId);
+    try {
+      await recordManualStudySession(subjectId, minutes, type);
+    } finally {
+      setSavingQuickSession(null);
+    }
+  };
 
   return (
     <motion.div 
@@ -125,16 +139,27 @@ export function DashboardHome({
                         <span className="text-[10px] text-text-secondary">{block.durationMinutes} min</span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => {
-                        setSelectedSubject(block.subjectId);
-                        setActiveTab('timer');
-                        setTimerActive(true);
-                      }}
-                      className="p-2 opacity-0 group-hover:opacity-100 hover:bg-brand-primary/10 text-brand-primary rounded-lg transition-all"
-                    >
-                      <Play size={16} fill="currentColor" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleQuickComplete(block.subjectId, block.durationMinutes || 60, block.type)}
+                        disabled={savingQuickSession === block.subjectId}
+                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-brand-green/10 text-brand-green rounded-lg transition-all disabled:opacity-50"
+                        title="Marcar como estudado"
+                      >
+                        <CheckCircle2 size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedSubject(block.subjectId);
+                          setActiveTab('timer');
+                          setTimerActive(true);
+                        }}
+                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-brand-primary/10 text-brand-primary rounded-lg transition-all"
+                        title="Iniciar cronômetro"
+                      >
+                        <Play size={16} fill="currentColor" />
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -199,7 +224,7 @@ export function DashboardHome({
             <div className="space-y-4">
               {prioritySubjects.length > 0 ? (
                 prioritySubjects.slice(0, 5).map((sub, i) => (
-                  <div key={sub.id} className="flex items-center justify-between p-3 rounded-xl bg-background border border-border">
+                  <div key={sub.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-background border border-border">
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         "w-2 h-2 rounded-full", 
@@ -213,6 +238,14 @@ export function DashboardHome({
                         "text-xs font-bold",
                         i === 0 ? "text-brand-red" : "text-brand-primary"
                       )}>{Math.round(sub.priorityScore)} pts</span>
+                      <button
+                        onClick={() => handleQuickComplete(sub.id, 60, 'teoria')}
+                        disabled={savingQuickSession === sub.id}
+                        className="p-1.5 rounded-lg text-brand-green hover:bg-brand-green/10 disabled:opacity-50"
+                        title="Registrar 1h estudada"
+                      >
+                        <CheckCircle2 size={15} />
+                      </button>
                     </div>
                   </div>
                 ))

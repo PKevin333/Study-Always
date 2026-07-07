@@ -253,6 +253,7 @@ export default function Dashboard() {
             setSelectedSubject={setSelectedSubject}
             setTimerActive={setTimerActive}
             dailyAverage={dailyAverage}
+            recordManualStudySession={recordManualStudySession}
           />
         );
       case 'subjects':
