@@ -624,7 +624,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
-  const finishStudySession = async (activeSessionBlock: any, selectedSubject: string, seconds: number) => {
+  const finishStudySession = async (activeSessionBlock: any, selectedSubject: string, seconds: number, sessionType: string = 'teoria') => {
     if (!user) return;
     if (!activeSessionBlock && !selectedSubject) return;
     
@@ -635,6 +635,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const subjectId = activeSessionBlock?.subjectId || selectedSubject;
     const subDoc = subjects.find(s => s.id === subjectId);
     if (!subDoc) return;
+    const normalizedType = ['teoria', 'questoes', 'revisao'].includes(sessionType) ? sessionType : 'teoria';
 
     try {
       // 1. Save Session
@@ -646,7 +647,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         subjectId: subjectId,
         subjectName: subDoc.name,
         durationMinutes: actualMinutes,
-        type: activeSessionBlock?.type || 'teoria',
+        type: activeSessionBlock?.type || normalizedType,
         timestamp: serverTimestamp()
       });
 

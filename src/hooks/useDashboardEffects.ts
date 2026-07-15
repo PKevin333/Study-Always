@@ -36,7 +36,8 @@ export function useDashboardEffects(
     longBreakTime,
     setTotalTimeForMode,
     activeSessionBlock,
-    selectedSubject
+    selectedSubject,
+    timerStudyType
   } = state;
 
   const { finishStudySession } = actions;
@@ -156,7 +157,7 @@ export function useDashboardEffects(
       // Handle phase transition
       if (timerMode === 'study') {
         // Register session
-        finishStudySession(activeSessionBlock, selectedSubject, seconds);
+        finishStudySession(activeSessionBlock, selectedSubject, seconds, timerStudyType);
         setSeconds(0);
         
         if (currentCycle >= cyclesBeforeLongBreak) {
@@ -179,5 +180,5 @@ export function useDashboardEffects(
       }
     }
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft, timerMode, currentCycle, cyclesBeforeLongBreak, studyTime, shortBreakTime, longBreakTime, activeSessionBlock, selectedSubject, seconds, finishStudySession, setCurrentCycle, setSeconds, setTimeLeft, setTimerActive, setTimerMode, setTotalTimeForMode]);
+  }, [timerActive, timeLeft, timerMode, currentCycle, cyclesBeforeLongBreak, studyTime, shortBreakTime, longBreakTime, activeSessionBlock, selectedSubject, seconds, timerStudyType, finishStudySession, setCurrentCycle, setSeconds, setTimeLeft, setTimerActive, setTimerMode, setTotalTimeForMode]);
 }

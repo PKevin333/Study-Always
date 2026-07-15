@@ -16,6 +16,8 @@ import { cn } from '../../lib/utils';
 import { Subject } from '../../types';
 import { formatTime } from '../../utils/firestore';
 
+type StudySessionType = 'teoria' | 'questoes' | 'revisao';
+
 interface TimerTabProps {
   timerMode: 'study' | 'shortBreak' | 'longBreak';
   timeLeft: number;
@@ -31,6 +33,8 @@ interface TimerTabProps {
   setSelectedSubject: (id: string) => void;
   timerPreset: string;
   setTimerPreset: (preset: 'pomodoro' | 'medium' | 'deep' | 'custom') => void;
+  timerStudyType: StudySessionType;
+  setTimerStudyType: (type: StudySessionType) => void;
   setStudyTime: (time: number) => void;
   setShortBreakTime: (time: number) => void;
   setLongBreakTime: (time: number) => void;
@@ -61,6 +65,8 @@ export function TimerTab({
   setSelectedSubject,
   timerPreset,
   setTimerPreset,
+  timerStudyType,
+  setTimerStudyType,
   setStudyTime,
   setShortBreakTime,
   setLongBreakTime,
@@ -81,6 +87,11 @@ export function TimerTab({
   const [manualType, setManualType] = React.useState<'teoria' | 'questoes' | 'revisao'>('teoria');
   const [savingManualSession, setSavingManualSession] = React.useState(false);
   const progress = ((totalTimeForMode - timeLeft) / totalTimeForMode) * 100;
+  const studyTypeOptions: { id: StudySessionType; label: string }[] = [
+    { id: 'teoria', label: 'Teoria' },
+    { id: 'questoes', label: 'Questões' },
+    { id: 'revisao', label: 'Revisão' }
+  ];
 
   const handleManualSessionSave = async () => {
     if (savingManualSession) return;
@@ -176,19 +187,43 @@ export function TimerTab({
                 <div className="w-full bg-brand-primary/5 border border-brand-primary/20 rounded-2xl px-6 py-4 text-center">
                   <div className="text-[10px] font-bold text-brand-primary uppercase tracking-widest mb-1">Meta do Plano do Dia</div>
                   <div className="font-bold text-lg">{activeSessionBlock.subjectName}</div>
+                  <div className="mt-2 inline-flex px-3 py-1 rounded-full bg-background border border-border text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                    {studyTypeOptions.find(option => option.id === activeSessionBlock.type)?.label || 'Teoria'}
+                  </div>
                 </div>
               ) : (
-                <select 
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                  disabled={timerActive}
-                  className="w-full bg-background border border-border rounded-2xl px-6 py-4 text-center font-bold text-lg outline-none focus:border-brand-primary transition-all appearance-none cursor-pointer hover:bg-card disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="">Selecione a Disciplina</option>
-                  {subjects.filter(s => s.status === 'active').map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
+                <div className="space-y-3">
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    disabled={timerActive}
+                    className="w-full bg-background border border-border rounded-2xl px-6 py-4 text-center font-bold text-lg outline-none focus:border-brand-primary transition-all appearance-none cursor-pointer hover:bg-card disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Selecione a Disciplina</option>
+                    {subjects.filter(s => s.status === 'active').map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    {studyTypeOptions.map(option => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setTimerStudyType(option.id)}
+                        disabled={timerActive}
+                        className={cn(
+                          "px-3 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                          timerStudyType === option.id
+                            ? "bg-brand-primary text-white border-brand-primary"
+                            : "bg-background border-border text-text-secondary hover:border-brand-primary/40 hover:text-brand-primary"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>

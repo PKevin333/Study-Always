@@ -41,6 +41,7 @@ export default function Dashboard() {
     timeLeft, setTimeLeft,
     totalTimeForMode, setTotalTimeForMode,
     timerPreset, setTimerPreset,
+    timerStudyType, setTimerStudyType,
     selectedSubject, setSelectedSubject,
     newSubjectName, setNewSubjectName,
     newSubjectGroup, setNewSubjectGroup,
@@ -155,7 +156,7 @@ export default function Dashboard() {
   };
 
   const handleFinishSession = async () => {
-    const success = await finishStudySession(activeSessionBlock, selectedSubject, seconds);
+    const success = await finishStudySession(activeSessionBlock, selectedSubject, seconds, timerStudyType);
     if (success) {
       setTimerActive(false);
       setActiveSessionBlock(null);
@@ -352,6 +353,8 @@ export default function Dashboard() {
             cyclesBeforeLongBreak={cyclesBeforeLongBreak}
             timerPreset={timerPreset}
             setTimerPreset={setTimerPreset}
+            timerStudyType={timerStudyType}
+            setTimerStudyType={setTimerStudyType}
             studyTime={studyTime}
             setStudyTime={setStudyTime}
             shortBreakTime={shortBreakTime}

@@ -17,6 +17,7 @@ export function useDashboardState(user: any, profile: any) {
   const [timeLeft, setTimeLeft] = useState(50 * 60);
   const [totalTimeForMode, setTotalTimeForMode] = useState(50 * 60);
   const [timerPreset, setTimerPreset] = useState<'pomodoro' | 'medium' | 'deep' | 'custom'>('deep');
+  const [timerStudyType, setTimerStudyType] = useState<'teoria' | 'questoes' | 'revisao'>('teoria');
 
   const [selectedSubject, setSelectedSubject] = useState('');
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -100,6 +101,7 @@ export function useDashboardState(user: any, profile: any) {
     timeLeft, setTimeLeft,
     totalTimeForMode, setTotalTimeForMode,
     timerPreset, setTimerPreset,
+    timerStudyType, setTimerStudyType,
     selectedSubject, setSelectedSubject,
     newSubjectName, setNewSubjectName,
     newSubjectGroup, setNewSubjectGroup,
