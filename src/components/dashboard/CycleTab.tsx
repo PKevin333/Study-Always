@@ -12,7 +12,8 @@ import {
   Trash2, 
   ChevronUp, 
   ChevronDown, 
-  MessageSquare 
+  MessageSquare,
+  CheckCircle2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
@@ -32,6 +33,7 @@ interface CycleTabProps {
   duplicateBlock: (block: any) => void;
   addCycleBlock: (subjectId: string, subjectName: string, type: string, duration: number) => void;
   updateSubject: (id: string, updates: Partial<Subject>) => void;
+  recordManualStudySession: (subjectId: string, minutes: number, type: string) => Promise<boolean>;
 }
 
 export function CycleTab({
@@ -48,8 +50,46 @@ export function CycleTab({
   updateBlock,
   duplicateBlock,
   addCycleBlock,
-  updateSubject
+  updateSubject,
+  recordManualStudySession
 }: CycleTabProps) {
+  const [savingBlockId, setSavingBlockId] = React.useState<string | null>(null);
+  const [savedBlockId, setSavedBlockId] = React.useState<string | null>(null);
+  const feedbackTimerRef = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current !== null) {
+        window.clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleRecordBlock = async (block: CycleBlock) => {
+    if (savingBlockId) return;
+
+    setSavingBlockId(block.id);
+    try {
+      const saved = await recordManualStudySession(
+        block.subjectId,
+        block.durationMinutes,
+        block.type
+      );
+
+      if (saved) {
+        setSavedBlockId(block.id);
+        if (feedbackTimerRef.current !== null) {
+          window.clearTimeout(feedbackTimerRef.current);
+        }
+        feedbackTimerRef.current = window.setTimeout(() => {
+          setSavedBlockId(current => current === block.id ? null : current);
+        }, 2500);
+      }
+    } finally {
+      setSavingBlockId(null);
+    }
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -268,6 +308,9 @@ export function CycleTab({
                             <option value="questoes">Questões</option>
                             <option value="revisao">Revisão</option>
                           </select>
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-green/10 text-brand-green">
+                            Manual
+                          </span>
                         </div>
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -291,7 +334,25 @@ export function CycleTab({
                         />
                         <span className="text-[10px] text-text-secondary">min</span>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleRecordBlock(block)}
+                          disabled={savingBlockId === block.id || block.durationMinutes < 1}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all disabled:opacity-50",
+                            savedBlockId === block.id
+                              ? "bg-brand-green text-white"
+                              : "bg-brand-green/10 text-brand-green hover:bg-brand-green hover:text-white"
+                          )}
+                          title="Registrar como estudado"
+                        >
+                          <CheckCircle2 size={13} />
+                          {savingBlockId === block.id
+                            ? 'Registrando...'
+                            : savedBlockId === block.id
+                              ? 'Registrado'
+                              : 'Registrar'}
+                        </button>
                         <button 
                           disabled={i === 0}
                           onClick={() => {

@@ -307,6 +307,7 @@ export default function Dashboard() {
             subjects={subjects}
             addCycleBlock={addCycleBlock}
             updateSubject={updateSubject}
+            recordManualStudySession={recordManualStudySession}
           />
         );
       case 'daily':
