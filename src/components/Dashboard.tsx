@@ -14,6 +14,7 @@ import { TimerTab } from './dashboard/TimerTab';
 import { FocusTab } from './dashboard/FocusTab';
 import { PerformanceTab } from './dashboard/PerformanceTab';
 import { ErrorsTab } from './dashboard/ErrorsTab';
+import { HistoryTab } from './dashboard/HistoryTab';
 import { MentorTab } from './dashboard/MentorTab';
 import { SettingsTab } from './dashboard/SettingsTab';
 import { TopicsTab } from './dashboard/TopicsTab';
@@ -433,6 +434,13 @@ export default function Dashboard() {
             deleteError={deleteError}
             updateError={updateError}
             rateErrorReview={rateErrorReview}
+          />
+        );
+      case 'history':
+        return (
+          <HistoryTab
+            sessions={sessions}
+            subjects={subjects}
           />
         );
       case 'mentor':

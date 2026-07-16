@@ -11,7 +11,8 @@ import {
   Timer, 
   Sparkles, 
   Settings, 
-  LogOut 
+  LogOut,
+  ClipboardList
 } from 'lucide-react';
 import { NavItem } from '../ui/NavItem';
 import { cn } from '../../lib/utils';
@@ -73,6 +74,7 @@ export function Sidebar({
           <NavItem icon={<BarChart3 size={20} />} label="Desempenho" active={activeTab === 'performance'} onClick={() => handleNavClick('performance')} />
           <NavItem icon={<ListChecks size={20} />} label="Caderno de Erros" active={activeTab === 'errors'} onClick={() => handleNavClick('errors')} />
           <NavItem icon={<Timer size={20} />} label="Cronômetro" active={activeTab === 'timer'} onClick={() => handleNavClick('timer')} />
+          <NavItem icon={<ClipboardList size={20} />} label="Histórico" active={activeTab === 'history'} onClick={() => handleNavClick('history')} />
           <NavItem icon={<Sparkles size={20} />} label="Mentor IA" active={activeTab === 'mentor'} onClick={() => handleNavClick('mentor')} />
           <NavItem icon={<Settings size={20} />} label="Configurações" active={activeTab === 'settings'} onClick={() => handleNavClick('settings')} />
         </nav>
