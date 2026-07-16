@@ -262,7 +262,7 @@ export function SettingsTab({
                 {[
                   { id: 'dark', label: 'Modo Escuro', desc: 'Conforto visual para longas sessões.', icon: <div className="w-6 h-6 rounded-full bg-[#0f0f0f] border border-[#262626]"></div> },
                   { id: 'light', label: 'Modo Claro', desc: 'Clareza e brilho para o dia a dia.', icon: <div className="w-6 h-6 rounded-full bg-[#f9fafb] border border-[#e5e7eb]"></div> },
-                  { id: 'bw', label: 'Minimalista', desc: 'Foco total, sem distrações visuais.', icon: <div className="w-6 h-6 rounded-full bg-white border border-black flex items-center justify-center"><div className="w-3 h-3 bg-black rounded-full"></div></div> }
+                  { id: 'bw', label: 'Preto e Branco', desc: 'Interface sem cores de destaque para foco visual.', icon: <div className="w-6 h-6 rounded-full bg-white border border-black flex items-center justify-center"><div className="w-3 h-3 bg-black rounded-full"></div></div> }
                 ].map(theme => (
                   <button
                     key={theme.id}
