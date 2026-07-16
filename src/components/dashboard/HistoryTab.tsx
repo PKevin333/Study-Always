@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, Clock, Filter, History, ListChecks } from 'lucide-react';
+import { CalendarDays, Clock, Filter, History, ListChecks, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Session, Subject } from '../../types';
 
 interface HistoryTabProps {
   sessions: Session[];
   subjects: Subject[];
+  deleteStudySession: (session: Session) => Promise<boolean>;
 }
 
 type StudyType = 'teoria' | 'questoes' | 'revisao';
@@ -66,9 +67,10 @@ const formatDuration = (minutes: number) => {
   return `${mins}min`;
 };
 
-export function HistoryTab({ sessions, subjects }: HistoryTabProps) {
+export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTabProps) {
   const [subjectFilter, setSubjectFilter] = React.useState('all');
   const [typeFilter, setTypeFilter] = React.useState<'all' | StudyType>('all');
+  const [deletingSessionId, setDeletingSessionId] = React.useState<string | null>(null);
 
   const sortedSessions = React.useMemo(() => {
     return [...sessions].sort((a, b) => {
@@ -87,6 +89,22 @@ export function HistoryTab({ sessions, subjects }: HistoryTabProps) {
   }, [sortedSessions, subjectFilter, typeFilter]);
 
   const totalMinutes = filteredSessions.reduce((total, session) => total + (session.durationMinutes || 0), 0);
+
+  const handleDeleteSession = async (session: Session) => {
+    if (deletingSessionId) return;
+
+    const confirmed = window.confirm(
+      `Excluir esta sessão de ${formatDuration(session.durationMinutes)} em ${session.subjectName || 'disciplina não encontrada'}? As horas da disciplina serão recalculadas.`
+    );
+    if (!confirmed) return;
+
+    setDeletingSessionId(session.id);
+    try {
+      await deleteStudySession(session);
+    } finally {
+      setDeletingSessionId(null);
+    }
+  };
 
   return (
     <motion.div
@@ -166,11 +184,20 @@ export function HistoryTab({ sessions, subjects }: HistoryTabProps) {
                   <h3 className="font-bold truncate">{session.subjectName || 'Disciplina não encontrada'}</h3>
                 </div>
 
-                <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-3 text-sm">
                   <div className="flex items-center gap-2 text-text-secondary">
                     <Clock size={16} />
                     <span className="font-bold text-text-primary">{formatDuration(session.durationMinutes)}</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteSession(session)}
+                    disabled={deletingSessionId === session.id}
+                    className="p-2 rounded-lg text-text-secondary hover:text-brand-red hover:bg-brand-red/10 transition-all disabled:opacity-50"
+                    title="Excluir sessão"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               </div>
             );

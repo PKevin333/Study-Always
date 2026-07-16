@@ -23,6 +23,7 @@ import {
   DailyBlock, 
   Topic, 
   StudyError,
+  Session,
   OperationType 
 } from '../types';
 import { handleFirestoreError } from '../utils/firestore';
@@ -717,6 +718,33 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
+  const deleteStudySession = async (session: Session) => {
+    if (!user) return false;
+    if (!session?.id) return false;
+
+    const normalizedMinutes = Math.max(0, Math.floor(session.durationMinutes || 0));
+    const subDoc = subjects.find(s => s.id === session.subjectId);
+
+    try {
+      const batch = writeBatch(db);
+      batch.delete(doc(db, `users/${user.uid}/sessions`, session.id));
+
+      if (subDoc) {
+        const nextTotalHours = Math.max(0, (subDoc.totalHours || 0) - (normalizedMinutes / 60));
+        batch.update(doc(db, `users/${user.uid}/subjects`, session.subjectId), {
+          totalHours: nextTotalHours
+        });
+      }
+
+      await batch.commit();
+      return true;
+    } catch (err) {
+      console.error('Error deleting study session:', err);
+      alert('Não foi possível excluir a sessão. Verifique as permissões do Firestore e tente novamente.');
+      return false;
+    }
+  };
+
   const updateCycleSettings = async (updates: any) => {
     if (!user) return;
     const path = `users/${user.uid}`;
@@ -851,6 +879,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     generateDailyPlan,
     finishStudySession,
     recordManualStudySession,
+    deleteStudySession,
     updateCycleSettings,
     completeOnboarding
   };

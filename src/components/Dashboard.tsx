@@ -115,6 +115,7 @@ export default function Dashboard() {
     generateDailyPlan,
     finishStudySession,
     recordManualStudySession,
+    deleteStudySession,
     updateCycleSettings,
     completeOnboarding
   } = actions;
@@ -441,6 +442,7 @@ export default function Dashboard() {
           <HistoryTab
             sessions={sessions}
             subjects={subjects}
+            deleteStudySession={deleteStudySession}
           />
         );
       case 'mentor':
