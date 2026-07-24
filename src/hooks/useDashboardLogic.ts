@@ -42,14 +42,35 @@ export function useDashboardLogic(
   }, [questionRecords]);
 
   const prioritySubjects = useMemo(() => {
+    const questionStatsBySubject = questionRecords.reduce<Record<string, { total: number; correct: number }>>((acc, record) => {
+      if (!acc[record.subjectId]) {
+        acc[record.subjectId] = { total: 0, correct: 0 };
+      }
+      acc[record.subjectId].total += record.total || 0;
+      acc[record.subjectId].correct += record.correct || 0;
+      return acc;
+    }, {});
+
     return subjects
       .filter(s => s.status === 'active')
-      .map(s => ({
-        ...s,
-        priorityScore: (s.weight || 1) * 10 + (100 - (s.accuracy || 0)) + (10 - (s.studyFrequency || 0))
-      }))
+      .map(s => {
+        const questionStats = questionStatsBySubject[s.id];
+        const questionTotal = questionStats?.total || 0;
+        const derivedAccuracy = questionTotal > 0
+          ? Math.round(((questionStats?.correct || 0) / questionTotal) * 100)
+          : (s.accuracy || 0);
+        const accuracyPenalty = questionTotal > 0 ? 100 - derivedAccuracy : 70;
+        const lowStudyPenalty = Math.max(0, 20 - (s.totalHours || 0) * 2);
+
+        return {
+          ...s,
+          accuracy: derivedAccuracy,
+          questionTotal,
+          priorityScore: (s.weight || 1) * 10 + accuracyPenalty + lowStudyPenalty
+        };
+      })
       .sort((a, b) => b.priorityScore - a.priorityScore);
-  }, [subjects]);
+  }, [subjects, questionRecords]);
 
   const errorMap = useMemo(() => {
     const map: Record<string, { subjectId: string, subjectName: string, topic: string, total: number, correct: number, errors: number, lastStudied: number }> = {};
