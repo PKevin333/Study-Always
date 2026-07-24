@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Play, Plus } from 'lucide-react';
+import { CheckCircle2, Circle, MoreHorizontal, Play, Plus, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
 
@@ -76,6 +76,21 @@ export function KanbanTab({
   };
 
   const filteredBlocks = dailyBlocks.filter(filterBlock);
+  const trelloVars = {
+    '--trello-list-bg': '#F1F2F4',
+    '--trello-card-bg': '#FFFFFF',
+    '--trello-card-text': '#172B4D',
+    '--trello-muted-text': '#5E6C84',
+    '--trello-soft-bg': 'rgba(9,30,66,0.08)',
+    '--trello-hover-bg': 'rgba(9,30,66,0.06)',
+    '--trello-card-shadow': '0 1px 1px rgba(9,30,66,0.25)',
+    '--trello-card-shadow-hover': '0 1px 3px rgba(9,30,66,0.25), 0 0 0 1px rgba(9,30,66,0.13)'
+  } as React.CSSProperties;
+  const columns = [
+    { id: 'pendente', label: 'A Fazer', accent: 'border-t-brand-blue', icon: <Circle size={16} /> },
+    { id: 'em_andamento', label: 'Em Progresso', accent: 'border-t-brand-primary', icon: <Play size={16} /> },
+    { id: 'concluido', label: 'Concluído', accent: 'border-t-brand-green', icon: <CheckCircle2 size={16} /> }
+  ];
 
   return (
     <motion.div
@@ -188,21 +203,23 @@ export function KanbanTab({
         )}
       </AnimatePresence>
 
-      <header className="mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-2">Quadro Kanban</h2>
-        <p className="text-text-secondary text-sm sm:text-base">Organize visualmente seus blocos de estudo do dia.</p>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-4">
+      <header className="mb-6 flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Quadro Kanban</h2>
+          <p className="text-text-secondary text-sm sm:text-base">Organize visualmente seus blocos de estudo do dia.</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
           <button
             onClick={generateDailyPlan}
             disabled={isGenerating}
-            className="w-full sm:w-auto bg-brand-primary text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-primary/80 transition-all disabled:opacity-50"
+            className="w-full sm:w-auto bg-brand-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
           >
             {isGenerating ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Plus size={18} />}
             Gerar Plano do Dia
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-full sm:w-auto border border-border px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all"
+            className="w-full sm:w-auto border border-border bg-card px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all"
           >
             <Plus size={18} />
             Adicionar Bloco
@@ -210,19 +227,19 @@ export function KanbanTab({
         </div>
       </header>
 
-      <div className="flex-1 overflow-x-auto pb-4">
-        <div className="flex gap-6 min-w-max h-full items-start">
-          {[
-            { id: 'pendente', label: 'A Fazer', color: 'border-border', bg: 'bg-card' },
-            { id: 'em_andamento', label: 'Em Progresso', color: 'border-brand-primary/50', bg: 'bg-brand-primary/5' },
-            { id: 'concluido', label: 'Concluido', color: 'border-brand-green/50', bg: 'bg-brand-green/5' }
-          ].map(column => {
+      <div className="flex-1 overflow-x-auto pb-4 -mx-2 px-2" style={trelloVars}>
+        <div className="flex gap-4 min-w-max h-full items-start font-sans">
+          {columns.map(column => {
             const columnBlocks = filteredBlocks.filter(block => block.status === column.id).sort((a, b) => a.order - b.order);
 
             return (
               <div
                 key={column.id}
-                className={cn('w-80 rounded-2xl border flex flex-col max-h-full', column.color, column.bg)}
+                className={cn(
+                  'w-[272px] rounded-xl flex flex-col max-h-full border-t-[3px] shadow-sm',
+                  column.accent
+                )}
+                style={{ backgroundColor: 'var(--trello-list-bg)' }}
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.dataTransfer.dropEffect = 'move';
@@ -235,14 +252,32 @@ export function KanbanTab({
                   setDraggedBlock(null);
                 }}
               >
-                <div className="p-4 border-b border-border/50 flex justify-between items-center">
-                  <h3 className="font-bold">{column.label}</h3>
-                  <span className="text-xs font-bold bg-background px-2 py-1 rounded-full text-text-secondary">
-                    {columnBlocks.length}
-                  </span>
+                <div className="px-3 py-2 flex justify-between items-center gap-2">
+                  <div className="min-w-0 flex items-center gap-2">
+                    <span className={cn(
+                      'shrink-0',
+                      column.id === 'pendente' ? 'text-brand-blue' :
+                      column.id === 'em_andamento' ? 'text-brand-primary' : 'text-brand-green'
+                    )}>
+                      {column.icon}
+                    </span>
+                    <h3 className="font-semibold text-sm truncate" style={{ color: 'var(--trello-card-text)' }}>{column.label}</h3>
+                    <span
+                      className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: 'var(--trello-soft-bg)', color: 'var(--trello-muted-text)' }}
+                    >
+                      {columnBlocks.length}
+                    </span>
+                  </div>
+                  <button
+                    className="shrink-0 p-1 rounded hover:bg-[var(--trello-soft-bg)] transition-colors"
+                    title="Opções da coluna"
+                  >
+                    <MoreHorizontal size={16} color="var(--trello-muted-text)" />
+                  </button>
                 </div>
 
-                <div className="p-4 flex-1 overflow-y-auto space-y-3 min-h-[200px]">
+                <div className="px-2 pb-2 flex-1 overflow-y-auto space-y-2 min-h-[220px]">
                   <AnimatePresence>
                     {columnBlocks.map(block => (
                       <motion.div
@@ -259,34 +294,46 @@ export function KanbanTab({
                         }}
                         onDragEnd={() => setDraggedBlock(null)}
                         className={cn(
-                          'bg-background border border-border rounded-xl p-4 cursor-grab active:cursor-grabbing hover:border-brand-primary/30 transition-colors shadow-sm relative overflow-hidden',
-                          draggedBlock?.id === block.id ? 'opacity-50' : ''
+                          'rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing transition-transform duration-100 relative overflow-hidden group',
+                          draggedBlock?.id === block.id ? 'opacity-70 rotate-2 shadow-2xl' : 'hover:-translate-y-0.5'
                         )}
+                        style={{
+                          backgroundColor: 'var(--trello-card-bg)',
+                          boxShadow: draggedBlock?.id === block.id ? '0 8px 16px rgba(9,30,66,0.3)' : 'var(--trello-card-shadow)',
+                          color: 'var(--trello-card-text)'
+                        }}
+                        onMouseEnter={(event) => {
+                          event.currentTarget.style.boxShadow = 'var(--trello-card-shadow-hover)';
+                        }}
+                        onMouseLeave={(event) => {
+                          event.currentTarget.style.boxShadow = draggedBlock?.id === block.id ? '0 8px 16px rgba(9,30,66,0.3)' : 'var(--trello-card-shadow)';
+                        }}
                       >
-                        <div className="flex justify-between items-start mb-2 pl-2">
+                        <div className="flex justify-between items-start gap-2 mb-2">
                           <span className={cn(
-                            'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded',
+                            'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded',
                             block.type === 'teoria' ? 'bg-brand-blue/10 text-brand-blue' :
                             block.type === 'questoes' ? 'bg-brand-primary/10 text-brand-primary' : 'bg-brand-orange/10 text-brand-orange'
                           )}>{block.type}</span>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-text-secondary">{block.durationMinutes}m</span>
+                            <span className="text-xs font-semibold" style={{ color: 'var(--trello-muted-text)' }}>{block.durationMinutes}m</span>
                             <button
                               onClick={() => deleteDailyBlock(block.id)}
-                              className="text-text-secondary hover:text-brand-red transition-colors"
+                              className="opacity-0 group-hover:opacity-100 text-[#6B778C] hover:text-brand-red transition-all"
+                              title="Excluir bloco"
                             >
                               <Trash2 size={14} />
                             </button>
                           </div>
                         </div>
 
-                        <h4 className="font-bold text-sm mb-1 pl-2">{block.subjectName}</h4>
+                        <h4 className="font-semibold text-sm leading-5 mb-2">{block.subjectName}</h4>
 
                         {column.id === 'pendente' && (
                           <button
                             onClick={() => startStudySession(block)}
-                            className="w-full mt-3 bg-brand-primary/10 text-brand-primary text-xs font-bold py-2 rounded-lg hover:bg-brand-primary hover:text-white transition-colors flex items-center justify-center gap-1"
+                            className="w-full mt-2 bg-brand-primary/10 text-brand-primary text-xs font-bold py-2 rounded-lg hover:bg-brand-primary hover:text-white transition-colors flex items-center justify-center gap-1"
                           >
                             <Play size={12} /> Iniciar
                           </button>
@@ -298,10 +345,17 @@ export function KanbanTab({
                   {column.id === 'pendente' && (
                     <button
                       onClick={() => setShowAddModal(true)}
-                      className="w-full py-3 border-2 border-dashed border-border rounded-xl text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary transition-all flex items-center justify-center gap-2"
+                      className="w-full py-2.5 px-3 rounded-lg text-left transition-colors flex items-center gap-2"
+                      style={{ color: 'var(--trello-muted-text)' }}
+                      onMouseEnter={(event) => {
+                        event.currentTarget.style.backgroundColor = 'var(--trello-hover-bg)';
+                      }}
+                      onMouseLeave={(event) => {
+                        event.currentTarget.style.backgroundColor = 'transparent';
+                      }}
                     >
                       <Plus size={16} />
-                      <span className="text-xs font-bold">Novo Bloco</span>
+                      <span className="text-sm font-semibold">Adicionar bloco</span>
                     </button>
                   )}
                 </div>
