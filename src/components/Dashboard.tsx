@@ -345,6 +345,7 @@ export default function Dashboard() {
         return (
           <TimerTab 
             timerMode={timerMode}
+            setTimerMode={setTimerMode}
             timeLeft={timeLeft}
             totalTimeForMode={totalTimeForMode}
             timerActive={timerActive}
