@@ -160,7 +160,6 @@ export function TimerTab({
   const [pomodoroColor, setPomodoroColor] = React.useState<PomodoroColor>('red');
 
   const styles = colorStyles[pomodoroColor];
-  const progress = totalTimeForMode > 0 ? ((totalTimeForMode - timeLeft) / totalTimeForMode) * 100 : 0;
   const activeMode = modeOptions.find(mode => mode.id === timerMode) || modeOptions[0];
   const canChangeMode = !timerActive && seconds === 0;
   const canStart = timerActive || timerMode !== 'study' || Boolean(activeSessionBlock || selectedSubject);
@@ -267,12 +266,12 @@ export function TimerTab({
         </div>
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <section className="xl:col-span-8 bg-card border border-border rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-8 shadow-2xl relative overflow-hidden">
-          <div className={cn('absolute inset-x-0 top-0 h-64 bg-gradient-to-b opacity-80', styles.panel)} />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        <section className="xl:col-span-5 self-start h-fit bg-card border border-border rounded-[2rem] p-8 sm:px-8 sm:py-10 shadow-2xl relative overflow-hidden">
+          <div className={cn('absolute inset-x-0 top-0 h-40 bg-gradient-to-b opacity-80', styles.panel)} />
 
-          <div className="relative z-10">
-            <div className="flex justify-center mb-8">
+          <div className="relative z-10 flex flex-col items-center gap-4">
+            <div className="flex justify-center">
               <div className="inline-flex bg-background/70 border border-border rounded-2xl p-1 overflow-x-auto max-w-full">
                 {modeOptions.map(mode => (
                   <button
@@ -293,72 +292,46 @@ export function TimerTab({
               </div>
             </div>
 
-            <div className="text-center mb-8">
-              <div className={cn('inline-flex px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-[0.2em] mb-5', styles.soft)}>
+            <div className="text-center flex flex-col items-center gap-4">
+              <div className={cn('inline-flex px-4 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-wider', styles.soft)}>
                 {activeMode.helper}
               </div>
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80 mx-auto mb-8">
-                <svg className="w-full h-full -rotate-90 transform">
-                  <circle
-                    cx="50%"
-                    cy="50%"
-                    r="46%"
-                    className="stroke-background fill-none"
-                    strokeWidth="8"
-                  />
-                  <motion.circle
-                    cx="50%"
-                    cy="50%"
-                    r="46%"
-                    className={cn('fill-none transition-colors duration-500', styles.stroke)}
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    initial={{ strokeDasharray: '0 1000' }}
-                    animate={{ strokeDasharray: `${(progress / 100) * 1000} 1000` }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-6xl sm:text-8xl font-black tabular-nums tracking-tight">
-                    {formatTime(timeLeft)}
-                  </div>
-                  <div className="mt-2 text-xs font-bold text-text-secondary uppercase tracking-widest">
-                    {timerActive ? 'Em andamento' : 'Pausado'}
-                  </div>
-                </div>
+              <div className="text-6xl sm:text-8xl font-black tabular-nums tracking-tight leading-none">
+                {formatTime(timeLeft)}
               </div>
 
-              <div className="flex items-center justify-center gap-3 sm:gap-5">
+              <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={handleResetClick}
-                  className="p-4 rounded-2xl bg-background border border-border text-text-secondary hover:text-brand-red hover:border-brand-red/30 transition-all"
+                  className="p-3 rounded-2xl bg-background border border-border text-text-secondary hover:text-brand-red hover:border-brand-red/30 transition-all"
                   title="Reiniciar"
                 >
-                  <RotateCcw size={22} />
+                  <RotateCcw size={20} />
                 </button>
 
                 <button
                   onClick={() => setTimerActive(!timerActive)}
                   disabled={!canStart}
                   className={cn(
-                    'min-w-44 px-8 py-4 rounded-2xl text-white font-black text-lg shadow-2xl transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3',
+                    'px-8 py-3 rounded-2xl text-white font-black text-base shadow-xl transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2',
                     styles.button
                   )}
                 >
-                  {timerActive ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+                  {timerActive ? <Pause size={21} fill="currentColor" /> : <Play size={21} fill="currentColor" />}
                   {timerActive ? 'Pausar' : seconds > 0 ? 'Continuar' : 'Iniciar'}
                 </button>
 
                 <button
                   onClick={skipPhase}
-                  className="p-4 rounded-2xl bg-background border border-border text-text-secondary hover:text-brand-primary hover:border-brand-primary/30 transition-all"
+                  className="p-3 rounded-2xl bg-background border border-border text-text-secondary hover:text-brand-primary hover:border-brand-primary/30 transition-all"
                   title="Pular fase"
                 >
-                  <Zap size={22} />
+                  <Zap size={20} />
                 </button>
               </div>
 
               {!canStart && (
-                <p className="mt-4 text-xs text-text-secondary">
+                <p className="text-xs text-text-secondary">
                   Selecione uma disciplina antes de iniciar uma sessão de estudo.
                 </p>
               )}
@@ -366,7 +339,7 @@ export function TimerTab({
               {timerMode === 'study' && seconds >= 60 && (
                 <button
                   onClick={finishStudySession}
-                  className={cn('mt-6 px-5 py-2.5 rounded-full border text-xs font-bold hover:text-white transition-all inline-flex items-center gap-2', styles.soft)}
+                  className={cn('px-5 py-2.5 rounded-full border text-xs font-bold hover:text-white transition-all inline-flex items-center gap-2', styles.soft)}
                 >
                   <CheckCircle2 size={14} />
                   Finalizar sessão agora ({Math.floor(seconds / 60)} min)
@@ -409,7 +382,7 @@ export function TimerTab({
           )}
         </section>
 
-        <aside className="xl:col-span-4 space-y-6">
+        <aside className="xl:col-span-7 space-y-6">
           <section className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-sm">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <Clock size={18} className={styles.text} /> Sessão Atual
