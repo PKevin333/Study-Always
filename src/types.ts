@@ -88,6 +88,7 @@ export interface CycleBlock {
   durationMinutes: number;
   order: number;
   difficulty: 'facil' | 'media' | 'dificil';
+  dayOfWeek?: number;
 }
 
 export interface DailyBlock {

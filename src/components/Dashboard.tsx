@@ -117,6 +117,7 @@ export default function Dashboard() {
     recordManualStudySession,
     deleteStudySession,
     updateCycleSettings,
+    saveCycleDayBlocks,
     completeOnboarding
   } = actions;
 
@@ -250,6 +251,7 @@ export default function Dashboard() {
             avgAccuracy={avgAccuracy}
             chartData={chartData}
             sessions={sessions}
+            subjects={subjects}
             cycleBlocks={cycleBlocks}
             prioritySubjects={prioritySubjects}
             setActiveTab={setActiveTab}
@@ -257,6 +259,7 @@ export default function Dashboard() {
             setTimerActive={setTimerActive}
             dailyAverage={dailyAverage}
             recordManualStudySession={recordManualStudySession}
+            saveCycleDayBlocks={saveCycleDayBlocks}
           />
         );
       case 'subjects':

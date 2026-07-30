@@ -230,6 +230,63 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
+  const saveCycleDayBlocks = async (
+    dayOfWeek: number,
+    blocks: Array<{
+      subjectId: string;
+      type: string;
+      durationMinutes: number;
+    }>
+  ) => {
+    if (!user) return false;
+    if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+      alert('Selecione um dia da semana válido.');
+      return false;
+    }
+
+    const normalizedBlocks = blocks.map((block, index) => {
+      const subject = subjects.find(s => s.id === block.subjectId);
+      const duration = Math.max(5, Math.floor(Number(block.durationMinutes) || 0));
+      const type = ['teoria', 'questoes', 'revisao'].includes(block.type) ? block.type : 'teoria';
+
+      return {
+        subject,
+        subjectId: block.subjectId,
+        subjectName: subject?.name || '',
+        type,
+        durationMinutes: duration,
+        order: index,
+        dayOfWeek,
+        difficulty: subject?.studentLevel === 'Iniciante' ? 'facil' : 'media'
+      };
+    });
+
+    if (normalizedBlocks.some(block => !block.subject || !block.subjectId || block.durationMinutes < 5)) {
+      alert('Revise as matérias e durações antes de salvar o ciclo.');
+      return false;
+    }
+
+    const path = `users/${user.uid}/cycleBlocks`;
+    try {
+      const batch = writeBatch(db);
+      const collectionRef = collection(db, path);
+      cycleBlocks
+        .filter(block => block.dayOfWeek === dayOfWeek)
+        .forEach(block => batch.delete(doc(db, path, block.id)));
+
+      normalizedBlocks.forEach(({ subject, ...block }) => {
+        const blockRef = doc(collectionRef);
+        batch.set(blockRef, block);
+      });
+
+      await batch.commit();
+      return true;
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, path);
+      return false;
+    }
+  };
+
   const generateCycle = async (dailyTime: number, blocksPerDay: number, cycleFocus: string) => {
     if (!user) return;
     const activeSubjects = subjects.filter(s => s.status === 'active');
@@ -854,6 +911,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     updateBlock,
     deleteBlock,
     duplicateBlock,
+    saveCycleDayBlocks,
     generateCycle,
     addDailyBlock,
     updateDailyBlock,
