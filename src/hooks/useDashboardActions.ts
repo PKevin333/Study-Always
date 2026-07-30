@@ -29,6 +29,7 @@ import {
 import { handleFirestoreError } from '../utils/firestore';
 import { getTodayLocalDate } from '../utils/date';
 import { sanitizeCycleIndex } from '../utils/cycle';
+import { getSubjectColorId } from '../utils/subjectColors';
 
 import { getMentorAdvice } from '../services/geminiService';
 import { calcularSRS } from '../utils/srsCalculator';
@@ -77,7 +78,22 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   };
 
   // Subjects
-  const addSubject = async (name: string, group: number) => {
+  const syncSubjectTopicProgress = async (subjectId: string) => {
+    if (!user || !subjectId) return;
+    const topicsPath = `users/${user.uid}/subjects/${subjectId}/topics`;
+    const topicsSnap = await getDocs(collection(db, topicsPath));
+    const totalTopics = topicsSnap.size;
+    const completedTopics = topicsSnap.docs.filter(topic => topic.data().status === 'concluido').length;
+    const progressPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+
+    await updateDoc(doc(db, `users/${user.uid}/subjects`, subjectId), {
+      completedTopics,
+      totalTopics,
+      progressPercent
+    });
+  };
+
+  const addSubject = async (name: string, group: number, color?: string) => {
     if (!user) return;
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -100,7 +116,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         totalHours: 0,
         questionsSolved: 0,
         accuracy: 0,
-        lastStudied: null
+        lastStudied: null,
+        color: color || getSubjectColorId({ id: `${Date.now()}-${trimmedName}` }),
+        completedTopics: 0,
+        totalTopics: 0,
+        progressPercent: 0
       });
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
@@ -575,6 +595,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         status: 'nao_iniciado',
         order
       });
+      await syncSubjectTopicProgress(subjectId);
       return true;
     } catch (err) {
       console.error('Erro ao adicionar tópico:', { err, path });
@@ -588,6 +609,9 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const path = `users/${user.uid}/subjects/${subjectId}/topics/${topicId}`;
     try {
       await updateDoc(doc(db, path), updates);
+      if ('status' in updates) {
+        await syncSubjectTopicProgress(subjectId);
+      }
       return true;
     } catch (err) {
       console.error('Erro ao atualizar tópico:', { err, path });
@@ -601,6 +625,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const path = `users/${user.uid}/subjects/${subjectId}/topics/${topicId}`;
     try {
       await deleteDoc(doc(db, path));
+      await syncSubjectTopicProgress(subjectId);
       return true;
     } catch (err) {
       console.error('Erro ao excluir tópico:', { err, path });

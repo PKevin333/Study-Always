@@ -14,6 +14,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { Subject, StudyError } from '../../types';
+import { cn } from '../../lib/utils';
+import { getSubjectBadgeClass } from '../../utils/subjectColors';
 
 interface ErrorsTabProps {
   errorSubject: string;
@@ -77,6 +79,7 @@ export function ErrorsTab({
   const [subjectFilter, setSubjectFilter] = React.useState('todos');
   const [search, setSearch] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState(1);
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const dueTodayCount = React.useMemo(() => errors.filter(isReviewDueToday).length, [errors]);
 
@@ -256,7 +259,10 @@ export function ErrorsTab({
                             {formatDate(error.createdAt)}
                           </td>
                           <td className="px-4 py-4">
-                            <span className="inline-flex max-w-[180px] rounded-lg bg-brand-blue/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-blue">
+                            <span className={cn(
+                              "inline-flex max-w-[180px] rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm",
+                              getSubjectBadgeClass(subjectById.get(error.subjectId))
+                            )}>
                               <span className="truncate">{error.subjectName}</span>
                             </span>
                           </td>

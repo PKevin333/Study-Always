@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
+import { getSubjectBadgeClass } from '../../utils/subjectColors';
 
 const WEEK_DAYS = [
   { value: 1, label: 'Seg' },
@@ -72,6 +73,7 @@ export function CycleTab({
     () => cycleBlocks.some(block => block.dayOfWeek !== undefined && block.dayOfWeek !== null),
     [cycleBlocks]
   );
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const visibleCycleBlocks = React.useMemo(() => {
     const blocks = hasWeeklyBlocks
@@ -345,6 +347,12 @@ export function CycleTab({
                           ))}
                         </select>
                         <div className="flex gap-2 mt-1">
+                          <span className={cn(
+                            "inline-flex max-w-[150px] items-center rounded-full border px-2 py-0.5 text-[10px] font-bold shadow-sm",
+                            getSubjectBadgeClass(subjectById.get(block.subjectId))
+                          )}>
+                            <span className="truncate">{block.subjectName}</span>
+                          </span>
                           <select
                             value={block.type}
                             onChange={(e) => updateBlock(block.id, { type: e.target.value })}

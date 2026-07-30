@@ -50,6 +50,7 @@ export interface Subject {
   questionsSolved: number;
   accuracy: number;
   lastStudied: any;
+  color?: string;
   completedTopics?: number;
   totalTopics?: number;
   progressPercent?: number;

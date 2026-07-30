@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { CalendarDays, Clock, Filter, History, ListChecks, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Session, Subject } from '../../types';
+import { getSubjectBadgeClass } from '../../utils/subjectColors';
 
 interface HistoryTabProps {
   sessions: Session[];
@@ -31,13 +32,8 @@ const normalizeStudyType = (type: string): StudyType => {
 const toDate = (value: unknown): Date | null => {
   if (!value) return null;
   if (value instanceof Date) return value;
-  if (typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') {
-    return value.toDate();
-  }
-  if (typeof value === 'object' && 'seconds' in value && typeof value.seconds === 'number') {
-    return new Date(value.seconds * 1000);
-  }
-
+  if (typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') return value.toDate();
+  if (typeof value === 'object' && 'seconds' in value && typeof value.seconds === 'number') return new Date(value.seconds * 1000);
   if (typeof value !== 'string' && typeof value !== 'number') return null;
 
   const parsed = new Date(value);
@@ -71,6 +67,7 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
   const [subjectFilter, setSubjectFilter] = React.useState('all');
   const [typeFilter, setTypeFilter] = React.useState<'all' | StudyType>('all');
   const [deletingSessionId, setDeletingSessionId] = React.useState<string | null>(null);
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const sortedSessions = React.useMemo(() => {
     return [...sessions].sort((a, b) => {
@@ -181,7 +178,12 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
                       {formatDateTime(session.timestamp)}
                     </span>
                   </div>
-                  <h3 className="font-bold truncate">{session.subjectName || 'Disciplina não encontrada'}</h3>
+                  <span className={cn(
+                    "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
+                    getSubjectBadgeClass(subjectById.get(session.subjectId))
+                  )}>
+                    <span className="truncate">{session.subjectName || 'Disciplina não encontrada'}</span>
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-3 text-sm">

@@ -3,14 +3,16 @@ import { motion } from 'framer-motion';
 import { Plus, BookMarked, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject } from '../../types';
+import { getSubjectBadgeClass, getSubjectColorId, SUBJECT_COLOR_OPTIONS } from '../../utils/subjectColors';
 
 interface SubjectsTabProps {
   newSubjectName: string;
   setNewSubjectName: (name: string) => void;
   newSubjectGroup: number;
   setNewSubjectGroup: (group: number) => void;
-  addCustomSubject: () => void;
+  addCustomSubject: (color?: string) => void;
   subjects: Subject[];
+  updateSubject: (id: string, updates: Partial<Subject>) => void;
   setSelectedSubjectForTopics: (sub: Subject) => void;
   setActiveTab: (tab: string) => void;
   moveSubject: (id: string, direction: 'up' | 'down') => void;
@@ -25,12 +27,19 @@ export function SubjectsTab({
   setNewSubjectGroup,
   addCustomSubject,
   subjects,
+  updateSubject,
   setSelectedSubjectForTopics,
   setActiveTab,
   moveSubject,
   toggleSubjectStatus,
   deleteSubject
 }: SubjectsTabProps) {
+  const [newSubjectColor, setNewSubjectColor] = React.useState(SUBJECT_COLOR_OPTIONS[0].id);
+
+  const handleAddSubject = () => {
+    addCustomSubject(newSubjectColor);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, x: 10 }} 
@@ -58,7 +67,22 @@ export function SubjectsTab({
             <option value={2}>Grupo 2</option>
             <option value={3}>Grupo 3</option>
           </select>
-          <button onClick={addCustomSubject} className="bg-brand-primary text-white p-2 rounded-xl hover:bg-brand-primary/80">
+          <div className="flex items-center gap-1 bg-card border border-border rounded-xl px-2 py-2">
+            {SUBJECT_COLOR_OPTIONS.map(option => (
+              <button
+                key={option.id}
+                onClick={() => setNewSubjectColor(option.id)}
+                className={cn(
+                  "w-5 h-5 rounded-full border border-border transition-all",
+                  option.className,
+                  newSubjectColor === option.id && "ring-2 ring-brand-primary ring-offset-2 ring-offset-card"
+                )}
+                title={option.label}
+                aria-label={`Selecionar cor ${option.label}`}
+              />
+            ))}
+          </div>
+          <button onClick={handleAddSubject} className="bg-brand-primary text-white p-2 rounded-xl hover:bg-brand-primary/80">
             <Plus size={20} />
           </button>
         </div>
@@ -78,7 +102,12 @@ export function SubjectsTab({
                   sub.status === 'active' ? "bg-background border-brand-primary/30" : "bg-background/50 border-border opacity-60"
                 )}>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-medium text-sm">{sub.name}</span>
+                    <span className={cn(
+                      "inline-flex max-w-[170px] items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
+                      getSubjectBadgeClass(sub)
+                    )}>
+                      <span className="truncate">{sub.name}</span>
+                    </span>
                     <div className="flex gap-1">
                       <button onClick={() => { setSelectedSubjectForTopics(sub); setActiveTab('topics'); }} className="p-1 hover:text-brand-blue" title="Ver Conteúdos"><BookMarked size={14} /></button>
                       <button onClick={() => moveSubject(sub.id, 'up')} className="p-1 hover:text-brand-primary"><ChevronUp size={14} /></button>
@@ -90,6 +119,25 @@ export function SubjectsTab({
                       <div className="h-full bg-brand-primary" style={{ width: `${sub.progressPercent || 0}%` }} />
                     </div>
                     <span className="text-[10px] font-bold text-text-secondary">{sub.progressPercent || 0}%</span>
+                  </div>
+                  <div className="mb-3 flex items-center justify-between text-xs text-text-secondary">
+                    <span>Conteúdos concluídos</span>
+                    <span className="font-bold">{sub.completedTopics || 0}/{sub.totalTopics || 0}</span>
+                  </div>
+                  <div className="mb-3 flex flex-wrap gap-1.5">
+                    {SUBJECT_COLOR_OPTIONS.map(option => (
+                      <button
+                        key={option.id}
+                        onClick={() => updateSubject(sub.id, { color: option.id })}
+                        className={cn(
+                          "w-4 h-4 rounded-full border border-border transition-all",
+                          option.className,
+                          getSubjectColorId(sub) === option.id && "ring-2 ring-brand-primary ring-offset-1 ring-offset-background"
+                        )}
+                        title={`Usar ${option.label}`}
+                        aria-label={`Usar cor ${option.label} em ${sub.name}`}
+                      />
+                    ))}
                   </div>
                   <div className="flex items-center justify-between">
                     <button 

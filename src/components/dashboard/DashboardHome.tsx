@@ -29,6 +29,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { Subject, CycleBlock } from '../../types';
+import { getSubjectBadgeClass } from '../../utils/subjectColors';
 
 const WEEK_DAYS = [
   { value: 1, label: 'Seg' },
@@ -103,6 +104,7 @@ export function DashboardHome({
     Number((maxHours + yPadding).toFixed(1))
   ];
   const todayDay = new Date().getDay();
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const getBlocksForDay = React.useCallback((dayOfWeek: number) => {
     const dayBlocks = cycleBlocks.filter(block => block.dayOfWeek === dayOfWeek);
@@ -268,7 +270,13 @@ export function DashboardHome({
                       {i + 1}º
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <div className={cn("text-sm font-bold truncate", isCompleted && "line-through opacity-50")}>{block.subjectName}</div>
+                      <span className={cn(
+                        "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
+                        getSubjectBadgeClass(subjectById.get(block.subjectId)),
+                        isCompleted && "line-through"
+                      )}>
+                        <span className="truncate">{block.subjectName}</span>
+                      </span>
                       <div className="flex gap-2 mt-0.5">
                         <span className={cn(
                           "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
@@ -381,7 +389,12 @@ export function DashboardHome({
                         "w-2 h-2 rounded-full", 
                         i === 0 ? "bg-brand-red" : sub.priorityScore > 150 ? "bg-brand-yellow" : "bg-brand-blue"
                       )} />
-                      <span className="text-sm font-medium truncate max-w-[120px] sm:max-w-none">{sub.name}</span>
+                      <span className={cn(
+                        "inline-flex max-w-[150px] sm:max-w-none items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
+                        getSubjectBadgeClass(sub)
+                      )}>
+                        <span className="truncate">{sub.name}</span>
+                      </span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-xs text-text-secondary">

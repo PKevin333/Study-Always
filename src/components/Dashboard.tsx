@@ -215,14 +215,14 @@ export default function Dashboard() {
     }
   };
 
-  const handleAddCustomSubject = async () => {
+  const handleAddCustomSubject = async (color?: string) => {
     const trimmedName = newSubjectName.trim();
     if (!trimmedName) {
       alert('Digite o nome da disciplina antes de adicionar.');
       return;
     }
 
-    await addSubject(trimmedName, newSubjectGroup);
+    await addSubject(trimmedName, newSubjectGroup, color);
     setNewSubjectName('');
   };
 
@@ -271,6 +271,7 @@ export default function Dashboard() {
             setNewSubjectGroup={setNewSubjectGroup}
             addCustomSubject={handleAddCustomSubject}
             subjects={subjects}
+            updateSubject={updateSubject}
             setSelectedSubjectForTopics={setSelectedSubjectForTopics}
             setActiveTab={setActiveTab}
             moveSubject={moveSubject}
