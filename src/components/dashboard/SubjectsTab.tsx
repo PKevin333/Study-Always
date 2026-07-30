@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, BookMarked, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject } from '../../types';
-import { getSubjectBadgeClass, getSubjectColorId, SUBJECT_COLOR_OPTIONS } from '../../utils/subjectColors';
+import { getSubjectBadgeClass, getSubjectColorClass, getSubjectColorId, SUBJECT_COLOR_OPTIONS } from '../../utils/subjectColors';
 
 interface SubjectsTabProps {
   newSubjectName: string;
@@ -35,30 +35,36 @@ export function SubjectsTab({
   deleteSubject
 }: SubjectsTabProps) {
   const [newSubjectColor, setNewSubjectColor] = React.useState(SUBJECT_COLOR_OPTIONS[0].id);
+  const [openColorSubjectId, setOpenColorSubjectId] = React.useState<string | null>(null);
 
   const handleAddSubject = () => {
     addCustomSubject(newSubjectColor);
   };
 
+  const handleUpdateSubjectColor = (subjectId: string, color: string) => {
+    updateSubject(subjectId, { color });
+    setOpenColorSubjectId(null);
+  };
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, x: 10 }} 
-      animate={{ opacity: 1, x: 0 }} 
-      exit={{ opacity: 0, x: -10 }} 
+    <motion.div
+      initial={{ opacity: 0, x: 10 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -10 }}
       key="subjects"
       className="pb-20"
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <h2 className="text-2xl font-bold">Gerenciar Disciplinas</h2>
         <div className="flex flex-wrap gap-4 w-full sm:w-auto">
-          <input 
-            type="text" 
-            placeholder="Nova matéria..." 
+          <input
+            type="text"
+            placeholder="Nova matéria..."
             value={newSubjectName}
             onChange={(e) => setNewSubjectName(e.target.value)}
             className="flex-1 sm:flex-none bg-card border border-border rounded-xl px-4 py-2 text-sm outline-none focus:border-brand-primary"
           />
-          <select 
+          <select
             value={newSubjectGroup}
             onChange={(e) => setNewSubjectGroup(parseInt(e.target.value))}
             className="bg-card border border-border rounded-xl px-4 py-2 text-sm outline-none"
@@ -96,7 +102,7 @@ export function SubjectsTab({
               <span className="text-xs text-text-secondary bg-border px-2 py-1 rounded-full">G{groupNum}</span>
             </h3>
             <div className="space-y-3">
-              {subjects.filter(s => s.group === groupNum).map((sub) => (
+              {subjects.filter(subject => subject.group === groupNum).map((sub) => (
                 <div key={sub.id} className={cn(
                   "p-4 rounded-xl border transition-all",
                   sub.status === 'active' ? "bg-background border-brand-primary/30" : "bg-background/50 border-border opacity-60"
@@ -108,7 +114,33 @@ export function SubjectsTab({
                     )}>
                       <span className="truncate">{sub.name}</span>
                     </span>
-                    <div className="flex gap-1">
+                    <div className="relative flex gap-1">
+                      <button
+                        onClick={() => setOpenColorSubjectId(current => current === sub.id ? null : sub.id)}
+                        className={cn(
+                          "w-5 h-5 rounded-full border border-border shadow-sm transition-all hover:ring-2 hover:ring-brand-primary/50",
+                          getSubjectColorClass(sub)
+                        )}
+                        title="Alterar cor"
+                        aria-label={`Alterar cor de ${sub.name}`}
+                      />
+                      {openColorSubjectId === sub.id && (
+                        <div className="absolute right-0 top-7 z-20 grid w-40 grid-cols-4 gap-2 rounded-lg border border-border bg-card p-3 shadow-lg">
+                          {SUBJECT_COLOR_OPTIONS.map(option => (
+                            <button
+                              key={option.id}
+                              onClick={() => handleUpdateSubjectColor(sub.id, option.id)}
+                              className={cn(
+                                "w-6 h-6 rounded-full border border-border transition-all",
+                                option.className,
+                                getSubjectColorId(sub) === option.id && "ring-2 ring-brand-primary ring-offset-2 ring-offset-card"
+                              )}
+                              title={`Usar ${option.label}`}
+                              aria-label={`Usar cor ${option.label} em ${sub.name}`}
+                            />
+                          ))}
+                        </div>
+                      )}
                       <button onClick={() => { setSelectedSubjectForTopics(sub); setActiveTab('topics'); }} className="p-1 hover:text-brand-blue" title="Ver Conteúdos"><BookMarked size={14} /></button>
                       <button onClick={() => moveSubject(sub.id, 'up')} className="p-1 hover:text-brand-primary"><ChevronUp size={14} /></button>
                       <button onClick={() => moveSubject(sub.id, 'down')} className="p-1 hover:text-brand-primary"><ChevronDown size={14} /></button>
@@ -124,27 +156,12 @@ export function SubjectsTab({
                     <span>Conteúdos concluídos</span>
                     <span className="font-bold">{sub.completedTopics || 0}/{sub.totalTopics || 0}</span>
                   </div>
-                  <div className="mb-3 flex flex-wrap gap-1.5">
-                    {SUBJECT_COLOR_OPTIONS.map(option => (
-                      <button
-                        key={option.id}
-                        onClick={() => updateSubject(sub.id, { color: option.id })}
-                        className={cn(
-                          "w-4 h-4 rounded-full border border-border transition-all",
-                          option.className,
-                          getSubjectColorId(sub) === option.id && "ring-2 ring-brand-primary ring-offset-1 ring-offset-background"
-                        )}
-                        title={`Usar ${option.label}`}
-                        aria-label={`Usar cor ${option.label} em ${sub.name}`}
-                      />
-                    ))}
-                  </div>
                   <div className="flex items-center justify-between">
-                    <button 
+                    <button
                       onClick={() => toggleSubjectStatus(sub.id, sub.status)}
                       className={cn(
                         "text-[10px] uppercase font-bold px-2 py-1 rounded-full",
-                        sub.status === 'active' ? "bg-brand-primary/10 text-brand-primary" : 
+                        sub.status === 'active' ? "bg-brand-primary/10 text-brand-primary" :
                         sub.status === 'optional' ? "bg-brand-yellow/10 text-brand-yellow" : "bg-text-secondary/10 text-text-secondary"
                       )}
                     >

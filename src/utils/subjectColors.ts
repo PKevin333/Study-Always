@@ -38,3 +38,6 @@ export const getSubjectBadgeClass = (subject?: Pick<Subject, 'id' | 'color'> | n
   return `${colorClassMap[getSubjectColorId(subject)]} ${bwOverride}`;
 };
 
+export const getSubjectColorClass = (subject?: Pick<Subject, 'id' | 'color'> | null) => {
+  return colorClassMap[getSubjectColorId(subject)];
+};
