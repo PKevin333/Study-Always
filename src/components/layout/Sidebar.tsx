@@ -75,7 +75,7 @@ export function Sidebar({
           <NavItem icon={<ListChecks size={20} />} label="Caderno de Erros" active={activeTab === 'errors'} onClick={() => handleNavClick('errors')} />
           <NavItem icon={<Timer size={20} />} label="Cronômetro" active={activeTab === 'timer'} onClick={() => handleNavClick('timer')} />
           <NavItem icon={<ClipboardList size={20} />} label="Histórico" active={activeTab === 'history'} onClick={() => handleNavClick('history')} />
-          <NavItem icon={<Sparkles size={20} />} label="Mentor IA" active={activeTab === 'mentor'} onClick={() => handleNavClick('mentor')} />
+          <NavItem icon={<Sparkles size={20} />} label="Mentor IA" badge="IA" active={activeTab === 'mentor'} onClick={() => handleNavClick('mentor')} />
           <NavItem icon={<Settings size={20} />} label="Configurações" active={activeTab === 'settings'} onClick={() => handleNavClick('settings')} />
         </nav>
 
