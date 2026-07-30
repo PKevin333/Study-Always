@@ -52,7 +52,7 @@ export function FocusTab({
         <button
           onClick={generateWeaknessPlan}
           disabled={focusItems.focar.length === 0}
-          className="w-full sm:w-auto bg-brand-red text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-red/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full sm:w-auto bg-brand-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Target size={20} />
           Atacar pontos fracos
@@ -194,7 +194,7 @@ export function FocusTab({
                   setActiveTab('timer');
                 }
               }}
-              className="bg-brand-red text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-red/80 transition-colors"
+              className="bg-brand-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-colors"
             >
               Iniciar Estudo Agora
             </button>
@@ -253,7 +253,7 @@ export function FocusTab({
                           );
                           alert(`${item.subjectName} adicionado ao ciclo de estudos!`);
                         }}
-                        className="flex-1 bg-brand-blue text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-blue/80 transition-colors"
+                        className="flex-1 bg-brand-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-primary/80 transition-colors"
                       >
                         + Ciclo
                       </button>

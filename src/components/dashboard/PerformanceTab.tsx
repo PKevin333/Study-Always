@@ -14,6 +14,7 @@ import {
 import {
   CartesianGrid,
   Cell,
+  Legend,
   Line,
   LineChart,
   Pie,
@@ -336,7 +337,8 @@ export function PerformanceTab({
                       labelStyle={{ color: 'var(--text-primary)' }}
                     />
                     <Line type="monotone" dataKey="total" name="Questões" stroke="var(--brand-primary)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                    <Line type="monotone" dataKey="accuracy" name="% Acerto" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+                    <Legend verticalAlign="top" align="right" wrapperStyle={{ color: 'var(--text-secondary)', fontSize: 12, paddingBottom: 8 }} />
+                    <Line type="monotone" dataKey="accuracy" name="% Acerto" stroke="var(--color-brand-blue)" strokeWidth={2} dot={{ r: 3 }} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (

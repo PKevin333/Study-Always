@@ -87,7 +87,7 @@ export function KanbanTab({
     '--trello-card-shadow-hover': '0 1px 3px rgba(9,30,66,0.25), 0 0 0 1px rgba(9,30,66,0.13)'
   } as React.CSSProperties;
   const columns = [
-    { id: 'pendente', label: 'A Fazer', accent: 'border-t-brand-blue', icon: <Circle size={16} /> },
+    { id: 'pendente', label: 'A Fazer', accent: 'border-t-brand-magenta', icon: <Circle size={16} /> },
     { id: 'em_andamento', label: 'Em Progresso', accent: 'border-t-brand-primary', icon: <Play size={16} /> },
     { id: 'concluido', label: 'Concluído', accent: 'border-t-brand-green', icon: <CheckCircle2 size={16} /> }
   ];
@@ -256,7 +256,7 @@ export function KanbanTab({
                   <div className="min-w-0 flex items-center gap-2">
                     <span className={cn(
                       'shrink-0',
-                      column.id === 'pendente' ? 'text-brand-blue' :
+                      column.id === 'pendente' ? 'text-brand-magenta' :
                       column.id === 'em_andamento' ? 'text-brand-primary' : 'text-brand-green'
                     )}>
                       {column.icon}
