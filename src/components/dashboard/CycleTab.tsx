@@ -1,22 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  RotateCcw, 
-  Sparkles, 
-  Target, 
-  Clock, 
-  BookOpen, 
-  AlertCircle, 
-  History, 
-  Plus, 
-  Trash2, 
-  ChevronUp, 
-  ChevronDown, 
+import {
+  RotateCcw,
+  Sparkles,
+  Target,
+  Clock,
+  BookOpen,
+  AlertCircle,
+  History,
+  Plus,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
   MessageSquare,
   CheckCircle2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
+
+const WEEK_DAYS = [
+  { value: 1, label: 'Seg' },
+  { value: 2, label: 'Ter' },
+  { value: 3, label: 'Qua' },
+  { value: 4, label: 'Qui' },
+  { value: 5, label: 'Sex' },
+  { value: 6, label: 'Sáb' },
+  { value: 0, label: 'Dom' }
+];
 
 interface CycleTabProps {
   subjects: Subject[];
@@ -31,7 +41,7 @@ interface CycleTabProps {
   deleteBlock: (id: string) => void;
   updateBlock: (id: string, updates: any) => void;
   duplicateBlock: (block: any) => void;
-  addCycleBlock: (subjectId: string, subjectName: string, type: string, duration: number) => void;
+  addCycleBlock: (subjectId: string, subjectName: string, type: string, duration: number, dayOfWeek?: number) => void;
   updateSubject: (id: string, updates: Partial<Subject>) => void;
   recordManualStudySession: (subjectId: string, minutes: number, type: string) => Promise<boolean>;
 }
@@ -55,7 +65,21 @@ export function CycleTab({
 }: CycleTabProps) {
   const [savingBlockId, setSavingBlockId] = React.useState<string | null>(null);
   const [savedBlockId, setSavedBlockId] = React.useState<string | null>(null);
+  const [selectedCycleDay, setSelectedCycleDay] = React.useState(new Date().getDay());
   const feedbackTimerRef = React.useRef<number | null>(null);
+
+  const hasWeeklyBlocks = React.useMemo(
+    () => cycleBlocks.some(block => block.dayOfWeek !== undefined && block.dayOfWeek !== null),
+    [cycleBlocks]
+  );
+
+  const visibleCycleBlocks = React.useMemo(() => {
+    const blocks = hasWeeklyBlocks
+      ? cycleBlocks.filter(block => block.dayOfWeek === selectedCycleDay)
+      : cycleBlocks.filter(block => block.dayOfWeek === undefined || block.dayOfWeek === null);
+
+    return [...blocks].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [cycleBlocks, hasWeeklyBlocks, selectedCycleDay]);
 
   React.useEffect(() => {
     return () => {
@@ -90,12 +114,22 @@ export function CycleTab({
     }
   };
 
+  const handleAddBlock = () => {
+    const lastBlock = visibleCycleBlocks[visibleCycleBlocks.length - 1];
+    const firstSubject = subjects.find(subject => subject.status === 'active') || subjects[0];
+    const subjectId = lastBlock?.subjectId || firstSubject?.id;
+    const subjectName = lastBlock?.subjectName || firstSubject?.name;
+
+    if (!subjectId || !subjectName) return;
+    addCycleBlock(subjectId, subjectName, 'teoria', 60, selectedCycleDay);
+  };
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      exit={{ opacity: 0, y: -10 }} 
-      key="cycle" 
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      key="cycle"
       className="pb-20"
     >
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -104,7 +138,7 @@ export function CycleTab({
           <p className="text-text-secondary text-sm sm:text-base">Monte seu plano flexível com orientação inteligente.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button 
+          <button
             onClick={generateCycle}
             disabled={isGenerating}
             className="w-full sm:w-auto bg-brand-primary text-white px-6 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-primary/80 transition-all disabled:opacity-50"
@@ -116,9 +150,7 @@ export function CycleTab({
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Settings */}
         <div className="lg:col-span-4 space-y-8">
-          {/* Focus */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <Target size={18} className="text-brand-primary" /> Foco do Estudo
@@ -145,16 +177,18 @@ export function CycleTab({
             </div>
           </div>
 
-          {/* Time */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h3 className="font-bold mb-6 flex items-center gap-2">
-              <Clock size={18} className="text-brand-yellow" /> Disponibilidade
+              <Clock size={18} className="text-brand-primary" /> Disponibilidade
             </h3>
             <div className="space-y-6">
               <div>
                 <label className="text-[10px] text-text-secondary block mb-2 uppercase font-bold tracking-wider">Horas por Dia</label>
-                <input 
-                  type="range" min="30" max="480" step="30"
+                <input
+                  type="range"
+                  min="30"
+                  max="480"
+                  step="30"
                   value={dailyTime}
                   onChange={(e) => updateCycleSettings({ dailyTimeMinutes: parseInt(e.target.value) })}
                   className="w-full h-1.5 bg-border rounded-lg appearance-none cursor-pointer accent-brand-primary"
@@ -185,23 +219,22 @@ export function CycleTab({
             </div>
           </div>
 
-          {/* Active Subjects */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <BookOpen size={18} className="text-brand-blue" /> Matérias Ativas
+              <BookOpen size={18} className="text-brand-primary" /> Matérias Ativas
             </h3>
             <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
               {subjects.map(sub => (
-                <div 
-                  key={sub.id} 
+                <div
+                  key={sub.id}
                   className={cn(
                     "flex items-center justify-between p-3 rounded-xl border transition-all",
                     sub.status === 'active' ? "bg-brand-primary/5 border-brand-primary/20" : "bg-background border-border opacity-60"
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={sub.status === 'active'}
                       onChange={() => updateSubject(sub.id, { status: sub.status === 'active' ? 'optional' : 'active' })}
                       className="w-4 h-4 rounded border-border text-brand-primary focus:ring-brand-primary"
@@ -217,9 +250,7 @@ export function CycleTab({
           </div>
         </div>
 
-        {/* Right Column: Cycle Preview */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Validation Alerts */}
           {getValidationAlerts().length > 0 && (
             <div className="space-y-2">
               {getValidationAlerts().map((alert, i) => (
@@ -234,55 +265,74 @@ export function CycleTab({
             </div>
           )}
 
-          {/* Cycle Preview */}
           <div className="bg-card border border-border rounded-2xl p-4 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-              <h3 className="font-bold text-xl flex items-center gap-2">
-                <History size={22} className="text-brand-primary" /> Prévia do Ciclo
-              </h3>
-              <div className="flex gap-2 w-full sm:w-auto">
-                <button 
-                  onClick={() => {
-                    if (window.confirm('Deseja resetar o ciclo atual?')) {
-                      cycleBlocks.forEach(b => deleteBlock(b.id));
-                    }
-                  }}
-                  className="w-full sm:w-auto text-xs text-text-secondary hover:text-brand-red flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg hover:bg-brand-red/5 transition-all"
-                >
-                  <RotateCcw size={14} /> Resetar
-                </button>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+              <div>
+                <h3 className="font-bold text-xl flex items-center gap-2">
+                  <History size={22} className="text-brand-primary" /> Prévia do Ciclo
+                </h3>
+                <p className="mt-1 text-xs text-text-secondary">
+                  {hasWeeklyBlocks ? 'Editando o ciclo do dia selecionado.' : 'Ciclo base legado usado como fallback em todos os dias.'}
+                </p>
               </div>
+              <button
+                onClick={() => {
+                  if (window.confirm('Deseja resetar o ciclo atual?')) {
+                    visibleCycleBlocks.forEach(block => deleteBlock(block.id));
+                  }
+                }}
+                className="w-full sm:w-auto text-xs text-text-secondary hover:text-brand-red flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg hover:bg-brand-red/5 transition-all"
+              >
+                <RotateCcw size={14} /> Resetar
+              </button>
             </div>
 
-            {cycleBlocks.length === 0 ? (
+            <div className="mb-6 flex flex-wrap gap-2">
+              {WEEK_DAYS.map(day => (
+                <button
+                  key={day.value}
+                  onClick={() => setSelectedCycleDay(day.value)}
+                  className={cn(
+                    "rounded-lg border px-3 py-2 text-xs font-bold transition-all",
+                    selectedCycleDay === day.value
+                      ? "border-brand-primary bg-brand-primary text-white"
+                      : "border-border bg-background text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary"
+                  )}
+                >
+                  {day.label}
+                </button>
+              ))}
+            </div>
+
+            {visibleCycleBlocks.length === 0 ? (
               <div className="py-20 text-center">
                 <div className="w-16 h-16 bg-border rounded-full flex items-center justify-center mx-auto mb-4">
                   <History size={32} className="text-text-secondary" />
                 </div>
-                <h4 className="font-bold mb-2">Nenhum ciclo gerado</h4>
-                <p className="text-sm text-text-secondary mb-6">Clique no botão acima para gerar uma sugestão inteligente.</p>
-                <button 
-                  onClick={generateCycle}
+                <h4 className="font-bold mb-2">Nenhum bloco neste dia</h4>
+                <p className="text-sm text-text-secondary mb-6">Adicione um bloco manual ou gere uma sugestão inteligente.</p>
+                <button
+                  onClick={handleAddBlock}
                   className="bg-brand-primary text-white px-6 py-2 rounded-xl font-bold text-sm"
                 >
-                  Gerar Agora
+                  Adicionar Bloco
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {cycleBlocks.map((block, i) => (
-                  <motion.div 
+                {visibleCycleBlocks.map((block, i) => (
+                  <motion.div
                     layout
-                    key={block.id} 
+                    key={block.id}
                     className="group bg-background border border-border rounded-xl p-5 hover:border-brand-primary/50 transition-all relative"
                   >
                     <div className="absolute -top-2 -left-2 w-6 h-6 bg-brand-primary rounded-lg flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
                       {i + 1}
                     </div>
-                    
+
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex-1">
-                        <select 
+                        <select
                           value={block.subjectId}
                           onChange={(e) => {
                             const sub = subjects.find(s => s.id === e.target.value);
@@ -295,12 +345,12 @@ export function CycleTab({
                           ))}
                         </select>
                         <div className="flex gap-2 mt-1">
-                          <select 
+                          <select
                             value={block.type}
                             onChange={(e) => updateBlock(block.id, { type: e.target.value })}
                             className={cn(
                               "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded outline-none appearance-none cursor-pointer",
-                              block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" : 
+                              block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" :
                               block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
                             )}
                           >
@@ -326,8 +376,10 @@ export function CycleTab({
                     <div className="flex items-center justify-between pt-4 border-t border-border/50">
                       <div className="flex items-center gap-2">
                         <Clock size={14} className="text-text-secondary" />
-                        <input 
-                          type="number" 
+                        <input
+                          type="number"
+                          min={5}
+                          step={5}
                           value={block.durationMinutes}
                           onChange={(e) => updateBlock(block.id, { durationMinutes: parseInt(e.target.value) })}
                           className="w-12 bg-transparent text-xs font-bold outline-none"
@@ -353,10 +405,10 @@ export function CycleTab({
                               ? 'Registrado'
                               : 'Registrar'}
                         </button>
-                        <button 
+                        <button
                           disabled={i === 0}
                           onClick={() => {
-                            const prev = cycleBlocks[i-1];
+                            const prev = visibleCycleBlocks[i - 1];
                             updateBlock(block.id, { order: i - 1 });
                             updateBlock(prev.id, { order: i });
                           }}
@@ -364,10 +416,10 @@ export function CycleTab({
                         >
                           <ChevronUp size={16} />
                         </button>
-                        <button 
-                          disabled={i === cycleBlocks.length - 1}
+                        <button
+                          disabled={i === visibleCycleBlocks.length - 1}
                           onClick={() => {
-                            const next = cycleBlocks[i+1];
+                            const next = visibleCycleBlocks[i + 1];
                             updateBlock(block.id, { order: i + 1 });
                             updateBlock(next.id, { order: i });
                           }}
@@ -379,17 +431,9 @@ export function CycleTab({
                     </div>
                   </motion.div>
                 ))}
-                
-                <button 
-                  onClick={() => {
-                    const lastBlock = cycleBlocks[cycleBlocks.length - 1];
-                    addCycleBlock(
-                      lastBlock?.subjectId || subjects[0]?.id,
-                      lastBlock?.subjectName || subjects[0]?.name,
-                      'teoria',
-                      60
-                    );
-                  }}
+
+                <button
+                  onClick={handleAddBlock}
                   className="border-2 border-dashed border-border rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary transition-all"
                 >
                   <Plus size={24} />
@@ -399,7 +443,6 @@ export function CycleTab({
             )}
           </div>
 
-          {/* Info Card */}
           <div className="bg-brand-blue/5 border border-brand-blue/20 rounded-2xl p-6 flex gap-4 items-start">
             <div className="w-10 h-10 bg-brand-blue/10 rounded-xl flex items-center justify-center text-brand-blue shrink-0">
               <MessageSquare size={20} />
@@ -407,7 +450,7 @@ export function CycleTab({
             <div>
               <h4 className="font-bold text-brand-blue mb-1">Como funciona o Ciclo?</h4>
               <p className="text-xs text-brand-blue/80 leading-relaxed">
-                Diferente de um cronograma fixo, o ciclo é uma sequência. Se você parar no bloco 2 hoje, amanhã começa pelo bloco 3. Isso evita o sentimento de "matéria acumulada" e garante que você estude tudo na proporção correta.
+                Diferente de um cronograma fixo, o ciclo é uma sequência. Se você parar no bloco 2 hoje, amanhã começa pelo bloco 3. Isso evita o sentimento de matéria acumulada e garante que você estude tudo na proporção correta.
               </p>
             </div>
           </div>

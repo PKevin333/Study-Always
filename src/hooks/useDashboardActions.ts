@@ -148,7 +148,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   };
 
   // Cycle Blocks
-  const addCycleBlock = async (subjectId: string, subjectName: string, type: string, duration: number) => {
+  const addCycleBlock = async (subjectId: string, subjectName: string, type: string, duration: number, dayOfWeek?: number) => {
     if (!user) return;
     // [FIX]: evita criar bloco inválido quando não há disciplina selecionada/ativa.
     if (!subjectId || !subjectName || duration <= 0) {
@@ -157,12 +157,16 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
     const path = `users/${user.uid}/cycleBlocks`;
     try {
+      const sameDayBlocks = Number.isInteger(dayOfWeek)
+        ? cycleBlocks.filter(block => block.dayOfWeek === dayOfWeek)
+        : cycleBlocks.filter(block => block.dayOfWeek === undefined || block.dayOfWeek === null);
       await addDoc(collection(db, path), {
         subjectId,
         subjectName,
         type,
         durationMinutes: duration,
-        order: cycleBlocks.length
+        order: sameDayBlocks.length,
+        ...(Number.isInteger(dayOfWeek) ? { dayOfWeek } : {})
       });
       
       // Validação do currentCycleIndex após mutação
@@ -214,9 +218,12 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const { id, ...data } = block;
     const path = `users/${user.uid}/cycleBlocks`;
     try {
+      const sameDayBlocks = Number.isInteger(data.dayOfWeek)
+        ? cycleBlocks.filter(item => item.dayOfWeek === data.dayOfWeek)
+        : cycleBlocks.filter(item => item.dayOfWeek === undefined || item.dayOfWeek === null);
       await addDoc(collection(db, path), {
         ...data,
-        order: cycleBlocks.length
+        order: sameDayBlocks.length
       });
       
       // Validação do currentCycleIndex após mutação (adição por duplicação)

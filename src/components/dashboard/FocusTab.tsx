@@ -17,7 +17,7 @@ interface FocusTabProps {
   cycleBlocks: CycleBlock[];
   setIgnoredFocusTopics: React.Dispatch<React.SetStateAction<string[]>>;
   addDailyBlock: (block: Partial<DailyBlock>) => void;
-  addCycleBlock: (subjectId: string, subjectName: string, type: string, duration: number) => void;
+  addCycleBlock: (subjectId: string, subjectName: string, type: string, duration: number, dayOfWeek?: number) => void;
 }
 
 export function FocusTab({
