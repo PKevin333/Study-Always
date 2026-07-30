@@ -15,6 +15,7 @@ import { FocusTab } from './dashboard/FocusTab';
 import { PerformanceTab } from './dashboard/PerformanceTab';
 import { ErrorsTab } from './dashboard/ErrorsTab';
 import { HistoryTab } from './dashboard/HistoryTab';
+import { CalendarTab } from './dashboard/CalendarTab';
 import { MentorTab } from './dashboard/MentorTab';
 import { SettingsTab } from './dashboard/SettingsTab';
 import { TopicsTab } from './dashboard/TopicsTab';
@@ -448,6 +449,15 @@ export default function Dashboard() {
             sessions={sessions}
             subjects={subjects}
             deleteStudySession={deleteStudySession}
+          />
+        );
+      case 'calendar':
+        return (
+          <CalendarTab
+            sessions={sessions}
+            dailyBlocks={dailyBlocks}
+            subjects={subjects}
+            setActiveTab={setActiveTab}
           />
         );
       case 'mentor':

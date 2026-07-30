@@ -3,6 +3,7 @@ import {
   LayoutDashboard, 
   Target, 
   CalendarCheck, 
+  CalendarDays,
   Kanban, 
   History, 
   BookOpen, 
@@ -68,6 +69,7 @@ export function Sidebar({
           <NavItem icon={<LayoutDashboard size={20} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => handleNavClick('dashboard')} />
           <NavItem icon={<Target size={20} />} label="Foco de Estudo" active={activeTab === 'focus'} onClick={() => handleNavClick('focus')} />
           <NavItem icon={<CalendarCheck size={20} />} label="Plano do Dia" active={activeTab === 'daily'} onClick={() => handleNavClick('daily')} />
+          <NavItem icon={<CalendarDays size={20} />} label="Calendário" active={activeTab === 'calendar'} onClick={() => handleNavClick('calendar')} />
           <NavItem icon={<Kanban size={20} />} label="Quadro Kanban" active={activeTab === 'kanban'} onClick={() => handleNavClick('kanban')} />
           <NavItem icon={<History size={20} />} label="Ciclo de Estudos" active={activeTab === 'cycle'} onClick={() => handleNavClick('cycle')} />
           <NavItem icon={<BookOpen size={20} />} label="Disciplinas" active={activeTab === 'subjects'} onClick={() => handleNavClick('subjects')} />
