@@ -116,6 +116,15 @@ export function DashboardHome({
     return getBlocksForDay(todayDay).sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [getBlocksForDay, todayDay]);
 
+  const todayCycleSubjectIds = React.useMemo(() => {
+    return new Set(todayCycleBlocks.map(block => block.subjectId));
+  }, [todayCycleBlocks]);
+
+  const subjectsOutsideTodayCycle = React.useMemo(() => {
+    if (todayCycleSubjectIds.size === 0) return prioritySubjects;
+    return prioritySubjects.filter(subject => !todayCycleSubjectIds.has(subject.id));
+  }, [prioritySubjects, todayCycleSubjectIds]);
+
   const syncDraftBlocks = React.useCallback((dayOfWeek: number) => {
     const blocks = getBlocksForDay(dayOfWeek)
       .sort((a, b) => (a.order || 0) - (b.order || 0))
@@ -364,31 +373,27 @@ export function DashboardHome({
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
                 <h3 className="font-bold flex items-center gap-2">
-                  <AlertCircle size={18} className="text-brand-primary" /> Prioridades de Estudo
+                  <AlertCircle size={18} className="text-brand-primary" /> Acompanhamento
                 </h3>
-                <p className="text-xs text-text-secondary mt-1">Prioridade combina peso, desempenho em questões e horas estudadas.</p>
+                <p className="text-xs text-text-secondary mt-1">Mostra matérias ativas que ainda ficaram fora do ciclo de hoje.</p>
               </div>
               <div className="group relative">
                 <Info size={16} className="text-text-secondary" />
                 <div className="hidden group-hover:block absolute right-0 top-6 z-10 w-64 rounded-xl border border-border bg-card p-3 text-xs text-text-secondary shadow-xl">
-                  Vermelho: prioridade alta. Amarelo: atenção intermediária. Azul: acompanhamento normal.
+                  Esta lista não substitui o ciclo. Ela só ajuda a perceber matérias ativas que ainda não entraram no planejamento de hoje.
                 </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-3 mb-5 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-red" /> Alta</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-yellow" /> Média</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-blue" /> Normal</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-primary" /> Fora do ciclo de hoje</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-blue" /> Acompanhar depois</span>
             </div>
             <div className="space-y-4">
-              {prioritySubjects.length > 0 ? (
-                prioritySubjects.slice(0, 5).map((sub, i) => (
+              {subjectsOutsideTodayCycle.length > 0 ? (
+                subjectsOutsideTodayCycle.slice(0, 5).map((sub) => (
                   <div key={sub.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-background border border-border">
                     <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full", 
-                        i === 0 ? "bg-brand-red" : sub.priorityScore > 150 ? "bg-brand-yellow" : "bg-brand-blue"
-                      )} />
+                      <div className="w-2 h-2 rounded-full bg-brand-primary" />
                       <span className={cn(
                         "inline-flex max-w-[150px] sm:max-w-none items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
                         getSubjectBadgeClass(sub)
@@ -402,7 +407,7 @@ export function DashboardHome({
                       </span>
                       <span className={cn(
                         "text-xs font-bold",
-                        i === 0 ? "text-brand-red" : "text-brand-primary"
+                        "text-brand-primary"
                       )}>{Math.round(sub.priorityScore)} pts</span>
                       <button
                         onClick={() => {
@@ -420,12 +425,12 @@ export function DashboardHome({
                 ))
               ) : (
                 <div className="py-8 text-center">
-                  <p className="text-xs text-text-secondary mb-4">Nenhuma prioridade identificada.</p>
+                  <p className="text-xs text-text-secondary mb-4">Seu ciclo de hoje já cobre as principais matérias ativas.</p>
                   <button 
-                    onClick={() => setActiveTab('subjects')}
+                    onClick={openCycleEditor}
                     className="text-xs font-bold text-brand-primary hover:underline"
                   >
-                    Adicionar Disciplinas
+                    Ajustar ciclo
                   </button>
                 </div>
               )}
