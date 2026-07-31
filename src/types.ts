@@ -104,6 +104,19 @@ export interface DailyBlock {
   actualMinutes?: number;
 }
 
+export interface CalendarTask {
+  id: string;
+  userId: string;
+  title: string;
+  date: string;
+  time?: string;
+  category: 'estudo' | 'revisao' | 'questoes' | 'simulado' | 'outro';
+  notes?: string;
+  completed: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+}
+
 export interface QuestionRecord {
   id: string;
   subjectId: string;

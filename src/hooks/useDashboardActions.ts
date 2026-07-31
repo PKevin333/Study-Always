@@ -24,6 +24,7 @@ import {
   Topic, 
   StudyError,
   Session,
+  CalendarTask,
   OperationType 
 } from '../types';
 import { handleFirestoreError } from '../utils/firestore';
@@ -845,6 +846,64 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
+  const addCalendarTask = async (task: Omit<CalendarTask, 'id' | 'userId' | 'completed' | 'createdAt' | 'updatedAt'>) => {
+    if (!user) return false;
+    const trimmedTitle = task.title.trim();
+    if (!trimmedTitle) {
+      alert('Informe o título da tarefa antes de salvar.');
+      return false;
+    }
+
+    const path = `users/${user.uid}/calendarTasks`;
+    try {
+      await addDoc(collection(db, path), {
+        userId: user.uid,
+        title: trimmedTitle,
+        date: task.date,
+        time: task.time || '',
+        category: task.category,
+        notes: task.notes?.trim() || '',
+        completed: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      return true;
+    } catch (err) {
+      console.error('Error adding calendar task:', err);
+      handleFirestoreError(err, OperationType.CREATE, path);
+      return false;
+    }
+  };
+
+  const updateCalendarTask = async (id: string, updates: Partial<CalendarTask>) => {
+    if (!user || !id) return false;
+    const path = `users/${user.uid}/calendarTasks/${id}`;
+    try {
+      await updateDoc(doc(db, path), {
+        ...updates,
+        updatedAt: serverTimestamp()
+      });
+      return true;
+    } catch (err) {
+      console.error('Error updating calendar task:', err);
+      handleFirestoreError(err, OperationType.UPDATE, path);
+      return false;
+    }
+  };
+
+  const deleteCalendarTask = async (id: string) => {
+    if (!user || !id) return false;
+    const path = `users/${user.uid}/calendarTasks/${id}`;
+    try {
+      await deleteDoc(doc(db, path));
+      return true;
+    } catch (err) {
+      console.error('Error deleting calendar task:', err);
+      handleFirestoreError(err, OperationType.DELETE, path);
+      return false;
+    }
+  };
+
   const completeOnboarding = async (data: { level: string, hours: number, subjects: string[] }) => {
     if (!user) return;
     setIsGenerating(true);
@@ -971,6 +1030,9 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     recordManualStudySession,
     deleteStudySession,
     updateCycleSettings,
+    addCalendarTask,
+    updateCalendarTask,
+    deleteCalendarTask,
     completeOnboarding
   };
 }

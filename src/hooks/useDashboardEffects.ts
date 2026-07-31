@@ -14,6 +14,7 @@ export function useDashboardEffects(
     setErrors,
     setCycleBlocks,
     setDailyBlocks,
+    setCalendarTasks,
     dailyBlocks,
     dailyPlanGuardUntil,
     setDailyPlanGuardUntil,
@@ -113,6 +114,24 @@ export function useDashboardEffects(
     });
     return () => unsubscribe();
   }, [user]);
+
+  // Calendar Tasks
+  useEffect(() => {
+    if (!user || !db) return;
+    const q = query(collection(db, `users/${user.uid}/calendarTasks`), orderBy('date', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      tasks.sort((a: any, b: any) => {
+        if (a.date !== b.date) return String(a.date).localeCompare(String(b.date));
+        return String(a.time || '').localeCompare(String(b.time || ''));
+      });
+      setCalendarTasks(tasks);
+    }, (error) => {
+      console.error('Error fetching calendarTasks:', error);
+      setCalendarTasks([]);
+    });
+    return () => unsubscribe();
+  }, [user, setCalendarTasks]);
 
   // Question Records
   useEffect(() => {

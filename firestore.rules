@@ -159,6 +159,19 @@ service cloud.firestore {
              data.date is string;
     }
 
+    function isValidCalendarTask(data) {
+      return data.keys().hasAll(['userId', 'title', 'date', 'category', 'completed']) &&
+             data.userId == request.auth.uid &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.date is string &&
+             data.category in ['estudo', 'revisao', 'questoes', 'simulado', 'outro'] &&
+             data.completed is bool &&
+             (!('time' in data) || data.time == null || data.time is string) &&
+             (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() < 1000)) &&
+             (!('createdAt' in data) || data.createdAt == null || data.createdAt is timestamp) &&
+             (!('updatedAt' in data) || data.updatedAt == null || data.updatedAt is timestamp);
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -223,6 +236,13 @@ service cloud.firestore {
         allow read: if isOwner(userId);
         allow create: if isOwner(userId) && isValidQuestionRecord(request.resource.data);
         allow update: if isOwner(userId) && isValidQuestionRecord(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /calendarTasks/{taskId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCalendarTask(request.resource.data);
+        allow update: if isOwner(userId) && isValidCalendarTask(request.resource.data);
         allow delete: if isOwner(userId);
       }
     }

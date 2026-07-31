@@ -56,6 +56,7 @@ export default function Dashboard() {
     savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,
+    calendarTasks,
     setDailyPlanGuardUntil,
     draggedBlock, setDraggedBlock,
     isGenerating, setIsGenerating,
@@ -117,6 +118,9 @@ export default function Dashboard() {
     finishStudySession,
     recordManualStudySession,
     deleteStudySession,
+    addCalendarTask,
+    updateCalendarTask,
+    deleteCalendarTask,
     updateCycleSettings,
     saveCycleDayBlocks,
     completeOnboarding
@@ -454,9 +458,10 @@ export default function Dashboard() {
       case 'calendar':
         return (
           <CalendarTab
-            sessions={sessions}
-            dailyBlocks={dailyBlocks}
-            subjects={subjects}
+            tasks={calendarTasks}
+            addCalendarTask={addCalendarTask}
+            updateCalendarTask={updateCalendarTask}
+            deleteCalendarTask={deleteCalendarTask}
             setActiveTab={setActiveTab}
           />
         );
