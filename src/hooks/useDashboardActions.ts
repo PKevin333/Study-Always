@@ -35,6 +35,21 @@ import { getSubjectColorId } from '../utils/subjectColors';
 import { getMentorAdvice } from '../services/geminiService';
 import { calcularSRS } from '../utils/srsCalculator';
 
+const FIRESTORE_WRITE_TIMEOUT_MS = 15000;
+
+const withWriteTimeout = async <T,>(promise: Promise<T>, message: string): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), FIRESTORE_WRITE_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
 export const persistirRevisaoSRS = async (
   userId: string,
   erroId: string,
@@ -856,7 +871,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
 
     const path = `users/${user.uid}/calendarTasks`;
     try {
-      await addDoc(collection(db, path), {
+      await withWriteTimeout(addDoc(collection(db, path), {
         userId: user.uid,
         title: trimmedTitle,
         date: task.date,
@@ -866,11 +881,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         completed: false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
-      });
+      }), 'Tempo limite excedido ao salvar a tarefa no calendário.');
       return true;
     } catch (err) {
       console.error('Error adding calendar task:', err);
-      handleFirestoreError(err, OperationType.CREATE, path);
+      alert('Não foi possível salvar a tarefa. Verifique as permissões do Firestore e tente novamente.');
       return false;
     }
   };
@@ -879,14 +894,14 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user || !id) return false;
     const path = `users/${user.uid}/calendarTasks/${id}`;
     try {
-      await updateDoc(doc(db, path), {
+      await withWriteTimeout(updateDoc(doc(db, path), {
         ...updates,
         updatedAt: serverTimestamp()
-      });
+      }), 'Tempo limite excedido ao atualizar a tarefa no calendário.');
       return true;
     } catch (err) {
       console.error('Error updating calendar task:', err);
-      handleFirestoreError(err, OperationType.UPDATE, path);
+      alert('Não foi possível atualizar a tarefa. Verifique as permissões do Firestore e tente novamente.');
       return false;
     }
   };
@@ -895,11 +910,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user || !id) return false;
     const path = `users/${user.uid}/calendarTasks/${id}`;
     try {
-      await deleteDoc(doc(db, path));
+      await withWriteTimeout(deleteDoc(doc(db, path)), 'Tempo limite excedido ao excluir a tarefa do calendário.');
       return true;
     } catch (err) {
       console.error('Error deleting calendar task:', err);
-      handleFirestoreError(err, OperationType.DELETE, path);
+      alert('Não foi possível excluir a tarefa. Verifique as permissões do Firestore e tente novamente.');
       return false;
     }
   };

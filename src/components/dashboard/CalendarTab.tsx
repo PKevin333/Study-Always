@@ -93,6 +93,7 @@ export function CalendarTab({
   const [category, setCategory] = useState<CalendarTaskCategory>('estudo');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const selectedDateKey = getDateKey(selectedDate);
   const monthDays = useMemo(() => buildMonthDays(currentMonth), [currentMonth]);
@@ -135,20 +136,31 @@ export function CalendarTab({
     if (!trimmedTitle || saving) return;
 
     setSaving(true);
-    const saved = await addCalendarTask({
-      title: trimmedTitle,
-      date: selectedDateKey,
-      time,
-      category,
-      notes,
-    });
-    setSaving(false);
+    setFeedback(null);
 
-    if (saved) {
-      setTitle('');
-      setTime('');
-      setCategory('estudo');
-      setNotes('');
+    try {
+      const saved = await addCalendarTask({
+        title: trimmedTitle,
+        date: selectedDateKey,
+        time,
+        category,
+        notes,
+      });
+
+      if (saved) {
+        setTitle('');
+        setTime('');
+        setCategory('estudo');
+        setNotes('');
+        setFeedback({ type: 'success', message: 'Tarefa adicionada ao calendário.' });
+      } else {
+        setFeedback({ type: 'error', message: 'Não foi possível salvar a tarefa. Verifique sua conexão e permissões do Firestore.' });
+      }
+    } catch (error) {
+      console.error('Erro ao criar tarefa no calendário:', error);
+      setFeedback({ type: 'error', message: 'Não foi possível salvar a tarefa. Verifique sua conexão e tente novamente.' });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -425,6 +437,16 @@ export function CalendarTab({
               >
                 {saving ? 'Salvando...' : 'Adicionar tarefa'}
               </button>
+
+              {feedback && (
+                <div className={`rounded-xl border px-3 py-2 text-xs font-semibold ${
+                  feedback.type === 'success'
+                    ? 'border-brand-green/30 bg-brand-green/10 text-brand-green'
+                    : 'border-brand-red/30 bg-brand-red/10 text-brand-red'
+                }`}>
+                  {feedback.message}
+                </div>
+              )}
             </div>
           </form>
 
