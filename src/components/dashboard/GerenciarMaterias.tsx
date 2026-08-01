@@ -245,7 +245,7 @@ export function GerenciarMaterias({ userId }: GerenciarMateriasProps) {
                           <button
                             onClick={() => handleDeleteConfirm(materia.id)}
                             disabled={isProcessing}
-                            className="p-1 px-3 bg-brand-red text-white text-sm font-bold rounded-md hover:bg-red-600 transition-colors flex justify-center items-center h-7 min-w-[70px]"
+                            className="p-1 px-3 bg-brand-red text-white text-sm font-bold rounded-md hover:bg-brand-red/80 transition-colors flex justify-center items-center h-7 min-w-[70px]"
                           >
                             {isProcessing ? <Loader2 size={14} className="animate-spin" /> : 'Excluir'}
                           </button>
@@ -262,7 +262,7 @@ export function GerenciarMaterias({ userId }: GerenciarMateriasProps) {
                           <button
                             onClick={() => handleEditSubmit(materia.id)}
                             disabled={isProcessing}
-                            className="p-2 text-green-500 hover:bg-green-500/10 rounded-lg transition-colors flex items-center justify-center min-w-[34px]"
+                            className="p-2 text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors flex items-center justify-center min-w-[34px]"
                           >
                             {isProcessing ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                           </button>

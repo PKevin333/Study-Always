@@ -69,7 +69,7 @@ export function FocusTab({
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowWeaknessPlan(false)}
-                className="text-text-secondary hover:text-white transition-colors text-sm font-bold"
+                className="text-text-secondary hover:text-text-primary transition-colors text-sm font-bold"
               >
                 Fechar
               </button>
@@ -183,7 +183,7 @@ export function FocusTab({
                 setShowWeaknessPlan(false);
                 setActiveTab('daily');
               }}
-              className="bg-background border border-border text-white px-6 py-3 rounded-xl font-bold hover:bg-border transition-colors"
+              className="bg-background border border-border text-text-primary px-6 py-3 rounded-xl font-bold hover:bg-border transition-colors"
             >
               Salvar no Plano do Dia
             </button>
@@ -227,8 +227,8 @@ export function FocusTab({
                     <p className="text-sm text-text-secondary mb-1">{item.subjectName}</p>
                     
                     <div className="flex gap-4 text-xs text-text-secondary mb-4">
-                      <div><span className="font-bold text-white">{item.errors}</span> erros</div>
-                      <div><span className="font-bold text-white">{Math.round(item.daysSinceLastStudy)}</span> dias sem ver</div>
+                      <div><span className="font-bold text-text-primary">{item.errors}</span> erros</div>
+                      <div><span className="font-bold text-text-primary">{Math.round(item.daysSinceLastStudy)}</span> dias sem ver</div>
                     </div>
                   </div>
                   

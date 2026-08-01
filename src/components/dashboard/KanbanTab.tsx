@@ -320,7 +320,7 @@ export function KanbanTab({
                             <span className="text-xs font-semibold" style={{ color: 'var(--trello-muted-text)' }}>{block.durationMinutes}m</span>
                             <button
                               onClick={() => deleteDailyBlock(block.id)}
-                              className="opacity-0 group-hover:opacity-100 text-[#6B778C] hover:text-brand-red transition-all"
+                              className="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-brand-red transition-all"
                               title="Excluir bloco"
                             >
                               <Trash2 size={14} />

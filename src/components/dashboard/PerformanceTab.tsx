@@ -205,8 +205,8 @@ export function PerformanceTab({
   }, [filteredRecords]);
 
   const pieData = [
-    { name: 'Acertos', value: totals.correct, color: '#22c55e' },
-    { name: 'Erros', value: totals.errors, color: '#ef4444' }
+    { name: 'Acertos', value: totals.correct, color: 'var(--color-brand-green)' },
+    { name: 'Erros', value: totals.errors, color: 'var(--color-brand-red)' }
   ].filter(item => item.value > 0);
 
   return (
