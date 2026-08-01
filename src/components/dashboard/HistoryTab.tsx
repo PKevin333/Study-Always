@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, Clock, Filter, History, ListChecks, Trash2 } from 'lucide-react';
+import { CalendarDays, ChevronDown, Clock, Filter, History, ListChecks, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Session, Subject } from '../../types';
 import { getSubjectBadgeClass } from '../../utils/subjectColors';
@@ -12,6 +12,23 @@ interface HistoryTabProps {
 }
 
 type StudyType = 'teoria' | 'questoes' | 'revisao';
+
+interface SessionGroup {
+  key: string;
+  subjectId: string;
+  subjectName: string;
+  sessions: Session[];
+  totalMinutes: number;
+  types: Set<StudyType>;
+  latestTimestamp: number;
+}
+
+interface PeriodGroup {
+  key: string;
+  label: string;
+  order: number;
+  groups: SessionGroup[];
+}
 
 const studyTypeLabels: Record<StudyType, string> = {
   teoria: 'Teoria',
@@ -53,6 +70,20 @@ const formatDateTime = (value: any) => {
   }).format(date);
 };
 
+const getPeriodInfo = (value: any) => {
+  const date = toDate(value);
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
+  const startOfWeek = startOfToday - today.getDay() * 24 * 60 * 60 * 1000;
+  const timestamp = date?.getTime() || 0;
+
+  if (timestamp >= startOfToday) return { key: 'today', label: 'Hoje', order: 0 };
+  if (timestamp >= startOfYesterday) return { key: 'yesterday', label: 'Ontem', order: 1 };
+  if (timestamp >= startOfWeek) return { key: 'week', label: 'Esta semana', order: 2 };
+  return { key: 'older', label: 'Mais antigo', order: 3 };
+};
+
 const formatDuration = (minutes: number) => {
   const safeMinutes = Math.max(0, Math.floor(minutes || 0));
   const hours = Math.floor(safeMinutes / 60);
@@ -67,6 +98,7 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
   const [subjectFilter, setSubjectFilter] = React.useState('all');
   const [typeFilter, setTypeFilter] = React.useState<'all' | StudyType>('all');
   const [deletingSessionId, setDeletingSessionId] = React.useState<string | null>(null);
+  const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
   const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const sortedSessions = React.useMemo(() => {
@@ -85,7 +117,71 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
     });
   }, [sortedSessions, subjectFilter, typeFilter]);
 
+  const groupedHistory = React.useMemo<PeriodGroup[]>(() => {
+    const periods = new Map<string, Omit<PeriodGroup, 'groups'> & { groups: Map<string, SessionGroup> }>();
+
+    filteredSessions.forEach(session => {
+      const periodInfo = getPeriodInfo(session.timestamp);
+      const period = periods.get(periodInfo.key) ?? {
+        key: periodInfo.key,
+        label: periodInfo.label,
+        order: periodInfo.order,
+        groups: new Map<string, SessionGroup>()
+      };
+      periods.set(periodInfo.key, period);
+
+      const subjectKey = session.subjectId || session.subjectName || 'unknown';
+      const groupKey = `${periodInfo.key}-${subjectKey}`;
+      const group = period.groups.get(groupKey) ?? {
+        key: groupKey,
+        subjectId: session.subjectId,
+        subjectName: session.subjectName || 'Disciplina não encontrada',
+        sessions: [],
+        totalMinutes: 0,
+        types: new Set<StudyType>(),
+        latestTimestamp: 0
+      };
+
+      const timestamp = toDate(session.timestamp)?.getTime() || 0;
+      group.sessions.push(session);
+      group.totalMinutes += session.durationMinutes || 0;
+      group.types.add(normalizeStudyType(session.type));
+      group.latestTimestamp = Math.max(group.latestTimestamp, timestamp);
+      period.groups.set(groupKey, group);
+    });
+
+    return Array.from(periods.values())
+      .sort((a, b) => a.order - b.order)
+      .map(period => ({
+        key: period.key,
+        label: period.label,
+        order: period.order,
+        groups: Array.from(period.groups.values())
+          .map(group => ({
+            ...group,
+            sessions: [...group.sessions].sort((a, b) => {
+              const dateA = toDate(a.timestamp)?.getTime() || 0;
+              const dateB = toDate(b.timestamp)?.getTime() || 0;
+              return dateB - dateA;
+            })
+          }))
+          .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
+      }));
+  }, [filteredSessions]);
+
   const totalMinutes = filteredSessions.reduce((total, session) => total + (session.durationMinutes || 0), 0);
+
+  const toggleGroup = (groupKey: string) => {
+    setExpandedGroups(current => {
+      const next = new Set(current);
+      if (next.has(groupKey)) {
+        next.delete(groupKey);
+      } else {
+        next.add(groupKey);
+      }
+      return next;
+    });
+  };
 
   const handleDeleteSession = async (session: Session) => {
     if (deletingSessionId) return;
@@ -155,55 +251,123 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-5">
         {filteredSessions.length > 0 ? (
-          filteredSessions.map(session => {
-            const sessionType = normalizeStudyType(session.type);
-
-            return (
-              <div
-                key={session.id}
-                className="bg-card border border-border rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={cn(
-                      'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded',
-                      studyTypeClasses[sessionType]
-                    )}>
-                      {studyTypeLabels[sessionType]}
-                    </span>
-                    <span className="text-[10px] text-text-secondary flex items-center gap-1">
-                      <CalendarDays size={12} />
-                      {formatDateTime(session.timestamp)}
-                    </span>
-                  </div>
-                  <span className={cn(
-                    "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
-                    getSubjectBadgeClass(subjectById.get(session.subjectId))
-                  )}>
-                    <span className="truncate">{session.subjectName || 'Disciplina não encontrada'}</span>
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex items-center gap-2 text-text-secondary">
-                    <Clock size={16} />
-                    <span className="font-bold text-text-primary">{formatDuration(session.durationMinutes)}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteSession(session)}
-                    disabled={deletingSessionId === session.id}
-                    className="p-2 rounded-lg text-text-secondary hover:text-brand-red hover:bg-brand-red/10 transition-all disabled:opacity-50"
-                    title="Excluir sessão"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+          groupedHistory.map(period => (
+            <div key={period.key} className="space-y-3">
+              <div className="px-1 text-xs font-bold uppercase tracking-wider text-text-secondary">
+                {period.label}
               </div>
-            );
-          })
+
+              {period.groups.map(group => {
+                const isExpanded = expandedGroups.has(group.key);
+                const hasTypeVariation = group.types.size > 1;
+                const primaryType = Array.from(group.types)[0] as StudyType;
+                const groupSubject = subjectById.get(group.subjectId);
+
+                return (
+                  <div key={group.key} className="overflow-hidden rounded-2xl border border-border bg-card">
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(group.key)}
+                      className="w-full p-4 text-left transition-colors hover:bg-border/20"
+                    >
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="min-w-0">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <span className={cn(
+                              "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-sm font-semibold shadow-sm",
+                              getSubjectBadgeClass(groupSubject)
+                            )}>
+                              <span className="truncate">{group.subjectName}</span>
+                            </span>
+                            <span className="text-xs text-text-secondary">
+                              {group.sessions.length} {group.sessions.length === 1 ? 'sessão' : 'sessões'}
+                            </span>
+                            {hasTypeVariation ? (
+                              <span className="rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-primary">
+                                tipos variados
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                                {studyTypeLabels[primaryType]}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-text-secondary">
+                            <CalendarDays size={13} />
+                            Última sessão: {formatDateTime(group.sessions[0]?.timestamp)}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 md:justify-end">
+                          <div className="flex items-center gap-2 text-text-secondary">
+                            <Clock size={17} />
+                            <span className="text-lg font-black text-brand-primary">{formatDuration(group.totalMinutes)}</span>
+                          </div>
+                          <ChevronDown
+                            size={18}
+                            className={cn(
+                              "text-text-secondary transition-transform",
+                              isExpanded && "rotate-180 text-brand-primary"
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="border-t border-border bg-background/50 p-3">
+                        <div className="space-y-2">
+                          {group.sessions.map(session => {
+                            const sessionType = normalizeStudyType(session.type);
+
+                            return (
+                              <div
+                                key={session.id}
+                                className="group/session flex flex-col gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-brand-primary/30 sm:flex-row sm:items-center sm:justify-between"
+                              >
+                                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                                  {hasTypeVariation && (
+                                    <span className={cn(
+                                      'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded',
+                                      studyTypeClasses[sessionType]
+                                    )}>
+                                      {studyTypeLabels[sessionType]}
+                                    </span>
+                                  )}
+                                  <span className="text-xs text-text-secondary flex items-center gap-1">
+                                    <CalendarDays size={12} />
+                                    {formatDateTime(session.timestamp)}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center justify-between gap-3 text-sm sm:justify-end">
+                                  <div className="flex items-center gap-2 text-text-secondary">
+                                    <Clock size={15} />
+                                    <span className="font-bold text-text-primary">{formatDuration(session.durationMinutes)}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteSession(session)}
+                                    disabled={deletingSessionId === session.id}
+                                    className="rounded-lg p-2 text-text-secondary opacity-100 transition-all hover:bg-brand-red/10 hover:text-brand-red disabled:opacity-50 sm:opacity-0 sm:group-hover/session:opacity-100"
+                                    title="Excluir sessão"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))
         ) : (
           <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
             <div className="w-14 h-14 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center mx-auto mb-4">
