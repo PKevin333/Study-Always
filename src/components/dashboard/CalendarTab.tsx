@@ -175,6 +175,31 @@ export function CalendarTab({
   };
 
   const renderTask = (task: CalendarTask, compact = false) => {
+    if (compact) {
+      return (
+        <div
+          key={task.id}
+          className={`min-w-0 rounded-lg border border-border bg-background/80 px-2 py-1.5 text-left ${
+            task.completed ? 'opacity-60' : ''
+          }`}
+          title={task.title}
+        >
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className={`h-2 w-2 shrink-0 rounded-full ${
+              task.category === 'estudo' ? 'bg-brand-blue' :
+              task.category === 'revisao' ? 'bg-brand-green' :
+              task.category === 'questoes' ? 'bg-brand-orange' :
+              task.category === 'simulado' ? 'bg-brand-magenta' :
+              'bg-border'
+            }`} />
+            <span className={`truncate text-xs font-semibold text-text-primary ${task.completed ? 'line-through' : ''}`}>
+              {task.time ? `${task.time} ` : ''}{task.title}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         key={task.id}
