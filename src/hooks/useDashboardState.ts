@@ -63,6 +63,7 @@ export function useDashboardState(user: any, profile: any) {
   // Cycle settings
   const [cycleFocus, setCycleFocus] = useState('equilibrado');
   const [dailyTime, setDailyTime] = useState(120);
+  const [dailyTimeMax, setDailyTimeMax] = useState(480);
   const [blocksPerDay, setBlocksPerDay] = useState(2);
   const [blockDuration, setBlockDuration] = useState(60);
   const [cycleAutonomy, setCycleAutonomy] = useState('sugerido');
@@ -71,6 +72,7 @@ export function useDashboardState(user: any, profile: any) {
     if (profile) {
       setCycleFocus(profile.cycleFocus || 'equilibrado');
       setDailyTime(profile.dailyTimeMinutes || 120);
+      setDailyTimeMax(Math.min(960, Math.max(60, profile.dailyTimeMaxMinutes || 480, profile.dailyTimeMinutes || 120)));
       setBlocksPerDay(profile.blocksPerDay || 2);
       setBlockDuration(profile.blockDurationMinutes || 60);
       setCycleAutonomy(profile.cycleAutonomy || 'sugerido');
@@ -141,6 +143,7 @@ export function useDashboardState(user: any, profile: any) {
     isMobileMenuOpen, setIsMobileMenuOpen,
     cycleFocus, setCycleFocus,
     dailyTime, setDailyTime,
+    dailyTimeMax, setDailyTimeMax,
     blocksPerDay, setBlocksPerDay,
     blockDuration, setBlockDuration,
     cycleAutonomy, setCycleAutonomy

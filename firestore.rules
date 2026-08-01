@@ -75,6 +75,7 @@ service cloud.firestore {
              (!('coverURL' in data) || data.coverURL == null || (data.coverURL is string && data.coverURL.size() < 2000)) &&
              (!('cycleFocus' in data) || data.cycleFocus == null || data.cycleFocus in ['teoria', 'questoes', 'revisao', 'equilibrado']) &&
              (!('dailyTimeMinutes' in data) || data.dailyTimeMinutes == null || data.dailyTimeMinutes is number) &&
+             (!('dailyTimeMaxMinutes' in data) || data.dailyTimeMaxMinutes == null || data.dailyTimeMaxMinutes is number) &&
              (!('blocksPerDay' in data) || data.blocksPerDay == null || data.blocksPerDay is number) &&
              (!('blockDurationMinutes' in data) || data.blockDurationMinutes == null || data.blockDurationMinutes is number) &&
              (!('cycleAutonomy' in data) || data.cycleAutonomy == null || data.cycleAutonomy in ['sugerido', 'parcial', 'manual']) &&

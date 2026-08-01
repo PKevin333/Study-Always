@@ -37,6 +37,7 @@ interface CycleTabProps {
   updateCycleSettings: (updates: any) => void;
   cycleFocus: string;
   dailyTime: number;
+  dailyTimeMax: number;
   blocksPerDay: number;
   getValidationAlerts: () => any[];
   deleteBlock: (id: string) => void;
@@ -55,6 +56,7 @@ export function CycleTab({
   updateCycleSettings,
   cycleFocus,
   dailyTime,
+  dailyTimeMax,
   blocksPerDay,
   getValidationAlerts,
   deleteBlock,
@@ -126,6 +128,19 @@ export function CycleTab({
     addCycleBlock(subjectId, subjectName, 'teoria', 60, selectedCycleDay);
   };
 
+  const handleDailyTimeChange = (minutes: number) => {
+    const nextMinutes = Math.min(dailyTimeMax, Math.max(30, minutes));
+    updateCycleSettings({ dailyTimeMinutes: nextMinutes });
+  };
+
+  const handleDailyTimeMaxChange = (hours: number) => {
+    const nextMaxMinutes = Math.min(960, Math.max(60, Math.round(hours * 60)));
+    updateCycleSettings({
+      dailyTimeMaxMinutes: nextMaxMinutes,
+      dailyTimeMinutes: Math.min(dailyTime, nextMaxMinutes)
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -185,19 +200,34 @@ export function CycleTab({
             </h3>
             <div className="space-y-6">
               <div>
-                <label className="text-[10px] text-text-secondary block mb-2 uppercase font-bold tracking-wider">Horas por Dia</label>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <label className="text-[10px] text-text-secondary uppercase font-bold tracking-wider">Horas por Dia</label>
+                  <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                    Máx.
+                    <input
+                      type="number"
+                      min={1}
+                      max={16}
+                      step={0.5}
+                      value={Number((dailyTimeMax / 60).toFixed(1))}
+                      onChange={(e) => handleDailyTimeMaxChange(Number(e.target.value) || 1)}
+                      className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-right text-xs font-bold text-text-primary outline-none focus:border-brand-primary"
+                    />
+                    h
+                  </label>
+                </div>
                 <input
                   type="range"
                   min="30"
-                  max="480"
+                  max={dailyTimeMax}
                   step="30"
                   value={dailyTime}
-                  onChange={(e) => updateCycleSettings({ dailyTimeMinutes: parseInt(e.target.value) })}
+                  onChange={(e) => handleDailyTimeChange(parseInt(e.target.value))}
                   className="w-full h-1.5 bg-border rounded-lg appearance-none cursor-pointer accent-brand-primary"
                 />
                 <div className="flex justify-between mt-2 text-sm font-bold">
                   <span>{Math.floor(dailyTime / 60)}h {dailyTime % 60 > 0 ? `${dailyTime % 60}min` : ''}</span>
-                  <span className="text-text-secondary">Máx: 8h</span>
+                  <span className="text-text-secondary">Máx: {Math.floor(dailyTimeMax / 60)}h{dailyTimeMax % 60 ? ` ${dailyTimeMax % 60}min` : ''}</span>
                 </div>
               </div>
 
@@ -225,25 +255,32 @@ export function CycleTab({
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <BookOpen size={18} className="text-brand-primary" /> Matérias Ativas
             </h3>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar [scrollbar-width:thin]">
               {subjects.map(sub => (
                 <div
                   key={sub.id}
                   className={cn(
-                    "flex items-center justify-between p-3 rounded-xl border transition-all",
-                    sub.status === 'active' ? "bg-brand-primary/5 border-brand-primary/20" : "bg-background border-border opacity-60"
+                    "flex items-center justify-between rounded-xl border border-l-4 p-3 transition-all",
+                    sub.status === 'active'
+                      ? "border-brand-primary bg-card"
+                      : "border-border bg-background opacity-70"
                   )}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
                     <input
                       type="checkbox"
                       checked={sub.status === 'active'}
                       onChange={() => updateSubject(sub.id, { status: sub.status === 'active' ? 'optional' : 'active' })}
                       className="w-4 h-4 rounded border-border text-brand-primary focus:ring-brand-primary"
                     />
-                    <div>
-                      <div className="text-xs font-bold">{sub.name}</div>
-                      <div className="text-[10px] text-text-secondary">G{sub.group} • {sub.studentLevel}</div>
+                    <div className="min-w-0">
+                      <span className={cn(
+                        "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-medium shadow-sm",
+                        getSubjectBadgeClass(sub)
+                      )}>
+                        <span className="truncate">{sub.name}</span>
+                      </span>
+                      <div className="mt-1 text-xs text-text-secondary">G{sub.group} • {sub.studentLevel}</div>
                     </div>
                   </div>
                 </div>

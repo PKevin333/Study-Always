@@ -82,6 +82,7 @@ export default function Dashboard() {
     isMobileMenuOpen, setIsMobileMenuOpen,
     cycleFocus, setCycleFocus,
     dailyTime, setDailyTime,
+    dailyTimeMax,
     blocksPerDay, setBlocksPerDay,
     blockDuration, setBlockDuration,
     cycleAutonomy, setCycleAutonomy
@@ -307,6 +308,7 @@ export default function Dashboard() {
           <CycleTab 
             cycleFocus={cycleFocus}
             dailyTime={dailyTime}
+            dailyTimeMax={dailyTimeMax}
             blocksPerDay={blocksPerDay}
             updateCycleSettings={updateCycleSettings}
             generateCycle={() => generateCycle(dailyTime, blocksPerDay, cycleFocus)}
