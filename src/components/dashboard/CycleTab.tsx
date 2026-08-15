@@ -12,8 +12,10 @@ import {
   Trash2,
   ChevronUp,
   ChevronDown,
-  MessageSquare,
-  CheckCircle2
+  CheckCircle2,
+  Play,
+  Lightbulb,
+  Info
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
@@ -75,6 +77,15 @@ export function CycleTab({
   const hasWeeklyBlocks = React.useMemo(
     () => cycleBlocks.some(block => block.dayOfWeek !== undefined && block.dayOfWeek !== null),
     [cycleBlocks]
+  );
+  const validationAlerts = React.useMemo(() => getValidationAlerts(), [getValidationAlerts]);
+  const blockingAlert = React.useMemo(
+    () => validationAlerts.find(alert => alert.type === 'warning') || null,
+    [validationAlerts]
+  );
+  const suggestionAlerts = React.useMemo(
+    () => validationAlerts.filter(alert => alert.type !== 'warning'),
+    [validationAlerts]
   );
   const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
@@ -286,17 +297,30 @@ export function CycleTab({
         </div>
 
         <div className="lg:col-span-8 space-y-6">
-          {getValidationAlerts().length > 0 && (
-            <div className="space-y-2">
-              {getValidationAlerts().map((alert, i) => (
-                <div key={i} className={cn(
-                  "p-4 rounded-xl border flex gap-3 items-center",
-                  alert.type === 'warning' ? "bg-brand-red/5 border-brand-red/20 text-brand-red" : "bg-brand-blue/5 border-brand-blue/20 text-brand-blue"
-                )}>
+          {(blockingAlert || suggestionAlerts.length > 0) && (
+            <div className="space-y-3">
+              {blockingAlert && (
+                <div className="flex items-center gap-3 rounded-xl border border-brand-red/30 bg-brand-red/8 p-4 text-brand-red">
                   <AlertCircle size={18} />
-                  <span className="text-xs font-medium">{alert.message}</span>
+                  <span className="text-xs font-semibold">{blockingAlert.message}</span>
                 </div>
-              ))}
+              )}
+
+              {suggestionAlerts.length > 0 && (
+                <details className="rounded-xl border border-border bg-card/50 px-4 py-3 text-text-secondary">
+                  <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold">
+                    <Lightbulb size={16} className="text-text-secondary" />
+                    <span>{suggestionAlerts.length} sugestões para melhorar seu ciclo</span>
+                  </summary>
+                  <div className="mt-3 space-y-2 pl-6">
+                    {suggestionAlerts.map((alert, i) => (
+                      <p key={i} className="text-xs leading-relaxed text-text-secondary">
+                        {alert.message}
+                      </p>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           )}
 
@@ -331,7 +355,7 @@ export function CycleTab({
                     "rounded-lg border px-3 py-2 text-xs font-bold transition-all",
                     selectedCycleDay === day.value
                       ? "border-brand-primary bg-brand-primary text-white"
-                      : "border-border bg-background text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary"
+                      : "border-border text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary"
                   )}
                 >
                   {day.label}
@@ -440,7 +464,7 @@ export function CycleTab({
                           )}
                           title="Registrar como estudado"
                         >
-                          <CheckCircle2 size={13} />
+                          <Play size={13} fill="currentColor" />
                           {savingBlockId === block.id
                             ? 'Registrando...'
                             : savedBlockId === block.id
@@ -455,6 +479,8 @@ export function CycleTab({
                             updateBlock(prev.id, { order: i });
                           }}
                           className="p-1 hover:text-brand-primary disabled:opacity-20"
+                          aria-label="Mover bloco para cima"
+                          title="Mover bloco para cima"
                         >
                           <ChevronUp size={16} />
                         </button>
@@ -466,6 +492,8 @@ export function CycleTab({
                             updateBlock(next.id, { order: i });
                           }}
                           className="p-1 hover:text-brand-primary disabled:opacity-20"
+                          aria-label="Mover bloco para baixo"
+                          title="Mover bloco para baixo"
                         >
                           <ChevronDown size={16} />
                         </button>
@@ -485,16 +513,11 @@ export function CycleTab({
             )}
           </div>
 
-          <div className="bg-brand-blue/5 border border-brand-blue/20 rounded-2xl p-6 flex gap-4 items-start">
-            <div className="w-10 h-10 bg-brand-blue/10 rounded-xl flex items-center justify-center text-brand-blue shrink-0">
-              <MessageSquare size={20} />
-            </div>
-            <div>
-              <h4 className="font-bold text-brand-blue mb-1">Como funciona o Ciclo?</h4>
-              <p className="text-xs text-brand-blue/80 leading-relaxed">
-                Diferente de um cronograma fixo, o ciclo é uma sequência. Se você parar no bloco 2 hoje, amanhã começa pelo bloco 3. Isso evita o sentimento de matéria acumulada e garante que você estude tudo na proporção correta.
-              </p>
-            </div>
+          <div className="flex items-start gap-2 text-xs leading-relaxed text-text-secondary">
+            <Info size={15} className="mt-0.5 shrink-0 text-text-secondary" />
+            <p>
+              Diferente de um cronograma fixo, o ciclo é uma sequência. Se você parar no bloco 2 hoje, amanhã começa pelo bloco 3. Isso evita o sentimento de matéria acumulada e garante que você estude tudo na proporção correta.
+            </p>
           </div>
         </div>
       </div>
