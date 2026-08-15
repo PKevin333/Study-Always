@@ -3,6 +3,15 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, X, Eye, Check, Sparkles, BookOpen } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { GerenciarMaterias } from './GerenciarMaterias';
+import {
+  AccentPreference,
+  ThemePreference,
+  applyThemePreferences,
+  getStoredAccentPreference,
+  getStoredThemePreference,
+  setStoredAccentPreference,
+  setStoredThemePreference
+} from '../../utils/themePreferences';
 
 interface SettingsTabProps {
   saveStatus: 'idle' | 'saving' | 'success' | 'error';
@@ -19,9 +28,6 @@ interface SettingsTabProps {
   handleSaveProfile: () => void;
   user: any;
   profile: any;
-  updateDoc: any;
-  doc: any;
-  db: any;
 }
 
 export function SettingsTab({
@@ -38,11 +44,30 @@ export function SettingsTab({
   setUrlErrors,
   handleSaveProfile,
   user,
-  profile,
-  updateDoc,
-  doc,
-  db
+  profile
 }: SettingsTabProps) {
+  const [themePreference, setThemePreference] = React.useState<ThemePreference>(() => getStoredThemePreference() || 'dark');
+  const [accentPreference, setAccentPreference] = React.useState<AccentPreference>(() => getStoredAccentPreference() || 'green');
+
+  React.useEffect(() => {
+    const currentTheme = getStoredThemePreference() || 'dark';
+    const currentAccent = getStoredAccentPreference() || 'green';
+    setThemePreference(currentTheme);
+    setAccentPreference(currentAccent);
+  }, []);
+
+  const handleThemeChange = (theme: ThemePreference) => {
+    setThemePreference(theme);
+    setStoredThemePreference(theme);
+    applyThemePreferences(theme, accentPreference);
+  };
+
+  const handleAccentChange = (accent: AccentPreference) => {
+    setAccentPreference(accent);
+    setStoredAccentPreference(accent);
+    applyThemePreferences(themePreference, accent);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -266,21 +291,18 @@ export function SettingsTab({
                 ].map(theme => (
                   <button
                     key={theme.id}
-                    onClick={async () => {
-                      if (!user || !db) return;
-                      await updateDoc(doc(db, 'users', user.uid), { theme: theme.id });
-                    }}
+                    onClick={() => handleThemeChange(theme.id as ThemePreference)}
                     className={cn(
                       "flex flex-col gap-4 p-6 rounded-2xl border transition-all text-left group",
-                      (profile?.theme || 'dark') === theme.id ? "bg-brand-primary/5 border-brand-primary shadow-lg shadow-brand-primary/5" : "bg-background border-border hover:border-brand-primary/30"
+                      themePreference === theme.id ? "bg-brand-primary/5 border-brand-primary shadow-lg shadow-brand-primary/5" : "bg-background border-border hover:border-brand-primary/30"
                     )}
                   >
                     <div className="flex items-center justify-between w-full">
                       {theme.icon}
-                      {(profile?.theme || 'dark') === theme.id && <CheckCircle2 size={20} className="text-brand-primary" />}
+                      {themePreference === theme.id && <CheckCircle2 size={20} className="text-brand-primary" />}
                     </div>
                     <div>
-                      <div className={cn("font-bold mb-1", (profile?.theme || 'dark') === theme.id ? "text-brand-primary" : "text-text-primary")}>{theme.label}</div>
+                      <div className={cn("font-bold mb-1", themePreference === theme.id ? "text-brand-primary" : "text-text-primary")}>{theme.label}</div>
                       <div className="text-xs text-text-secondary leading-relaxed">{theme.desc}</div>
                     </div>
                   </button>
@@ -299,25 +321,22 @@ export function SettingsTab({
                 ].map(accent => (
                   <button
                     key={accent.id}
-                    onClick={async () => {
-                      if (!user || !db) return;
-                      await updateDoc(doc(db, 'users', user.uid), { accentColor: accent.id });
-                    }}
+                    onClick={() => handleAccentChange(accent.id as AccentPreference)}
                     className="flex flex-col items-center gap-3 group"
                   >
                     <div 
                       className={cn(
                         "w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg",
-                        (profile?.accentColor || 'green') === accent.id ? "scale-110 ring-4 ring-offset-4 ring-offset-background" : "hover:scale-105 opacity-60 hover:opacity-100"
+                        accentPreference === accent.id ? "scale-110 ring-4 ring-offset-4 ring-offset-background" : "hover:scale-105 opacity-60 hover:opacity-100"
                       )}
                       style={{ 
                         backgroundColor: accent.color,
                         borderColor: accent.color
                       }}
                     >
-                      {(profile?.accentColor || 'green') === accent.id && <Check size={28} className="text-white" />}
+                      {accentPreference === accent.id && <Check size={28} className="text-white" />}
                     </div>
-                    <span className={cn("text-xs font-bold transition-colors", (profile?.accentColor || 'green') === accent.id ? "text-brand-primary" : "text-text-secondary")}>
+                    <span className={cn("text-xs font-bold transition-colors", accentPreference === accent.id ? "text-brand-primary" : "text-text-secondary")}>
                       {accent.name}
                     </span>
                   </button>

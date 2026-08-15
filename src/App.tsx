@@ -8,18 +8,14 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { Login } from './components/Login';
 import Dashboard from './components/Dashboard';
 import { NetworkBadge } from './components/NetworkBadge';
+import { applyThemePreferences, resolveThemePreferences } from './utils/themePreferences';
 
 function AppContent() {
   const { user, profile, loading, isAuthReady } = useAuth();
 
   useEffect(() => {
-    if (profile) {
-      document.documentElement.setAttribute('data-theme', profile.theme || 'dark');
-      document.documentElement.setAttribute('data-accent', profile.accentColor || 'green');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      document.documentElement.setAttribute('data-accent', 'green');
-    }
+    const { theme, accent } = resolveThemePreferences(profile);
+    applyThemePreferences(theme, accent);
   }, [profile]);
 
   if (!isAuthReady || loading) {

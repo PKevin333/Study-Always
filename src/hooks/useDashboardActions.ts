@@ -938,8 +938,6 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         blocksPerDay: blocksPerDay,
         onboardingCompleted: true,
         createdAt: serverTimestamp(),
-        theme: 'dark',
-        accentColor: 'green',
         area: 'administrativa', // Default area
         currentCycleIndex: 0
       }, { merge: true });

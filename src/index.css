@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: var(--bg-color);
-  --color-card: var(--card-color);
-  --color-border: var(--border-color);
+  --color-background: var(--surface-background);
+  --color-card: var(--surface-card);
+  --color-border: var(--chrome-border);
   
-  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary: var(--chrome-accent);
   --color-brand-green: #22c55e;
   --color-brand-blue: #3b82f6;
   --color-brand-orange: #f97316;
@@ -13,61 +13,69 @@
   --color-brand-red: #ef4444;
   --color-brand-magenta: #d946ef;
   
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
+  --color-text-primary: var(--chrome-text-primary);
+  --color-text-secondary: var(--chrome-text-secondary);
 }
 
 @layer base {
   :root {
-    --bg-color: #0f0f0f;
-    --card-color: #1a1a1a;
-    --border-color: #262626;
-    --text-primary: #ffffff;
-    --text-secondary: #a3a3a3;
-    --brand-primary: #22c55e;
+    --surface-background: #0f0f0f;
+    --surface-card: #1a1a1a;
+    --chrome-border: #262626;
+    --chrome-text-primary: #ffffff;
+    --chrome-text-secondary: #a3a3a3;
+    --chrome-accent: #22c55e;
   }
 
   :root[data-theme="light"] {
-    --bg-color: #f9fafb;
-    --card-color: #ffffff;
-    --border-color: #e5e7eb;
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
+    --surface-background: #f9fafb;
+    --surface-card: #ffffff;
+    --chrome-border: #e5e7eb;
+    --chrome-text-primary: #111827;
+    --chrome-text-secondary: #6b7280;
   }
 
   :root[data-theme="bw"] {
-    --bg-color: #ffffff;
-    --card-color: #ffffff;
-    --border-color: #000000;
-    --text-primary: #000000;
-    --text-secondary: #666666;
-    --brand-primary: #000000;
+    --surface-background: #ffffff;
+    --surface-card: #ffffff;
+    --chrome-border: #000000;
+    --chrome-text-primary: #000000;
+    --chrome-text-secondary: #666666;
+    --chrome-accent: #000000;
   }
 
   :root[data-theme="bw"][data-accent="green"],
   :root[data-theme="bw"][data-accent="blue"],
   :root[data-theme="bw"][data-accent="purple"],
   :root[data-theme="bw"][data-accent="orange"] {
-    /* In BW mode, accent is always black/white depending on background, but let's allow accent if user wants, or force black */
-    --brand-primary: #000000;
+    --chrome-accent: #000000;
   }
 
   :root[data-accent="green"] {
-    --brand-primary: #22c55e;
+    --chrome-accent: #22c55e;
   }
   :root[data-accent="blue"] {
-    --brand-primary: #3b82f6;
+    --chrome-accent: #3b82f6;
   }
   :root[data-accent="purple"] {
-    --brand-primary: #a855f7;
+    --chrome-accent: #a855f7;
   }
   :root[data-accent="orange"] {
-    --brand-primary: #f97316;
+    --chrome-accent: #f97316;
+  }
+
+  :root {
+    --bg-color: var(--surface-background);
+    --card-color: var(--surface-card);
+    --border-color: var(--chrome-border);
+    --text-primary: var(--chrome-text-primary);
+    --text-secondary: var(--chrome-text-secondary);
+    --brand-primary: var(--chrome-accent);
   }
 
   body {
-    background-color: var(--bg-color);
-    color: var(--text-primary);
+    background-color: var(--surface-background);
+    color: var(--chrome-text-primary);
     -webkit-font-smoothing: antialiased;
   }
 }

@@ -39,8 +39,6 @@ const colorHexMap: Record<SubjectColorId, string> = {
   slate: '#334155'
 };
 
-const bwOverride = '[html[data-theme=bw]_&]:bg-card [html[data-theme=bw]_&]:text-text-primary [html[data-theme=bw]_&]:border-border';
-
 export const getSubjectColorId = (subject?: Pick<Subject, 'id' | 'color'> | null): SubjectColorId => {
   if (subject?.color && colorClassMap[subject.color]) {
     return subject.color as SubjectColorId;
@@ -49,10 +47,6 @@ export const getSubjectColorId = (subject?: Pick<Subject, 'id' | 'color'> | null
   if (!subject?.id) return 'purple';
   const index = subject.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % SUBJECT_COLOR_OPTIONS.length;
   return SUBJECT_COLOR_OPTIONS[index].id;
-};
-
-export const getSubjectBadgeClass = (subject?: Pick<Subject, 'id' | 'color'> | null) => {
-  return `${colorClassMap[getSubjectColorId(subject)]} ${bwOverride}`;
 };
 
 export const getSubjectColorClass = (subject?: Pick<Subject, 'id' | 'color'> | null) => {

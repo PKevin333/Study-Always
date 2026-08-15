@@ -1,6 +1,4 @@
 import React from 'react';
-import { auth, db } from '../firebase';
-import { updateDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
 import { AnimatePresence } from 'framer-motion';
 import { Sidebar } from './layout/Sidebar';
@@ -493,9 +491,6 @@ export default function Dashboard() {
             handleSaveProfile={handleProfileSave}
             user={user}
             profile={profile}
-            updateDoc={updateDoc}
-            doc={doc}
-            db={db}
           />
         );
       default:
