@@ -336,6 +336,7 @@ export default function Dashboard() {
             addDailyBlock={addDailyBlock}
             overdueReviewsCount={overdueReviewsCount}
             setActiveTab={setActiveTab}
+            dailyTime={dailyTime}
           />
         );
       case 'kanban':
