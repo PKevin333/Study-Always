@@ -53,6 +53,7 @@ export default function Dashboard() {
     errorSubject, setErrorSubject,
     errors, setErrors,
     sessions, setSessions,
+    weeklySessions,
     savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,
@@ -135,6 +136,7 @@ export default function Dashboard() {
     dailyBlocks,
     questionRecords,
     sessions,
+    weeklySessions,
     ignoredFocusTopics,
     profile,
     dailyTime,
@@ -149,7 +151,7 @@ export default function Dashboard() {
     prioritySubjects,
     focusItems,
     getValidationAlerts,
-    chartData,
+    weeklyActivityData,
     dailyAverage,
     overdueReviewsCount
   } = logic;
@@ -255,8 +257,7 @@ export default function Dashboard() {
             totalHours={totalHours}
             totalQuestions={totalQuestions}
             avgAccuracy={avgAccuracy}
-            chartData={chartData}
-            sessions={sessions}
+            weeklyActivityData={weeklyActivityData}
             subjects={subjects}
             cycleBlocks={cycleBlocks}
             prioritySubjects={prioritySubjects}

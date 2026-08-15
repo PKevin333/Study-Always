@@ -19,17 +19,11 @@ import {
 } from 'lucide-react';
 import { StatCard } from '../ui/StatCard';
 import { cn } from '../../lib/utils';
-import {
-  BarChart,
-  Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts';
 import { Subject, CycleBlock } from '../../types';
-import { getSubjectBadgeClass } from '../../utils/subjectColors';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { WeeklyActivityData } from '../../hooks/useDashboardLogic';
+import { WeeklyActivityChart } from './WeeklyActivityChart';
+import { SubjectTag } from '../shared/SubjectTag';
 
 const WEEK_DAYS = [
   { value: 1, label: 'Seg' },
@@ -54,13 +48,12 @@ interface DashboardHomeProps {
   avgAccuracy: number;
   totalHours: number;
   totalQuestions: number;
-  sessions: any[];
   subjects: Subject[];
   cycleBlocks: CycleBlock[];
   prioritySubjects: any[];
   setSelectedSubject: (id: string) => void;
   setActiveTab: (tab: string) => void;
-  chartData: any[];
+  weeklyActivityData: WeeklyActivityData;
   setTimerActive: (active: boolean) => void;
   dailyAverage: number;
   recordManualStudySession: (subjectId: string, minutes: number, type: string) => Promise<boolean>;
@@ -73,13 +66,12 @@ export function DashboardHome({
   avgAccuracy,
   totalHours,
   totalQuestions,
-  sessions,
   subjects,
   cycleBlocks,
   prioritySubjects,
   setSelectedSubject,
   setActiveTab,
-  chartData,
+  weeklyActivityData,
   setTimerActive,
   dailyAverage,
   recordManualStudySession,
@@ -94,15 +86,6 @@ export function DashboardHome({
   const [draftBlocks, setDraftBlocks] = React.useState<CycleDraftBlock[]>([]);
   const [draggedDraftId, setDraggedDraftId] = React.useState<string | null>(null);
   const [savingCycleDay, setSavingCycleDay] = React.useState(false);
-  const weeklyHours = chartData.map(item => Number(item.horas || 0));
-  const nonZeroHours = weeklyHours.filter(value => value > 0);
-  const minHours = nonZeroHours.length > 0 ? Math.min(...nonZeroHours) : 0;
-  const maxHours = weeklyHours.length > 0 ? Math.max(...weeklyHours) : 0;
-  const yPadding = Math.max(0.2, (maxHours - minHours || maxHours || 1) * 0.2);
-  const yDomain: [number, number] = [
-    minHours > yPadding ? Number((minHours - yPadding).toFixed(1)) : 0,
-    Number((maxHours + yPadding).toFixed(1))
-  ];
   const todayDay = new Date().getDay();
   const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
@@ -279,13 +262,13 @@ export function DashboardHome({
                       {i + 1}º
                     </div>
                     <div className="flex-1 overflow-hidden">
-                      <span className={cn(
-                        "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
-                        getSubjectBadgeClass(subjectById.get(block.subjectId)),
-                        isCompleted && "line-through"
-                      )}>
-                        <span className="truncate">{block.subjectName}</span>
-                      </span>
+                      <div className={cn(isCompleted && 'opacity-60 line-through')}>
+                        <SubjectTag
+                          subjectName={block.subjectName}
+                          color={getSubjectColorHex(subjectById.get(block.subjectId))}
+                          size="sm"
+                        />
+                      </div>
                       <div className="flex gap-2 mt-0.5">
                         <span className={cn(
                           "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
@@ -340,23 +323,11 @@ export function DashboardHome({
             <h3 className="font-bold mb-6 flex items-center gap-2">
               <BarChart3 size={18} className="text-brand-primary" /> Atividade Semanal
             </h3>
-            <div className="h-64">
-              {sessions.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--text-secondary)" fontSize={12} tickLine={false} axisLine={false} domain={yDomain} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: 'var(--card-color)', border: '1px solid var(--border-color)', borderRadius: '8px' }}
-                      itemStyle={{ color: 'var(--brand-primary)' }}
-                      formatter={(value: number) => [`${value}h`, 'Horas']}
-                    />
-                    <Bar dataKey="horas" fill="var(--brand-primary)" radius={[8, 8, 0, 0]} maxBarSize={42} />
-                  </BarChart>
-                </ResponsiveContainer>
+            <div>
+              {weeklyActivityData.subjects.length > 0 ? (
+                <WeeklyActivityChart data={weeklyActivityData} />
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <div className="flex min-h-[320px] flex-col items-center justify-center text-center p-6">
                   <div className="w-12 h-12 bg-brand-blue/10 rounded-full flex items-center justify-center text-brand-blue mb-4">
                     <BarChart3 size={24} />
                   </div>
@@ -394,12 +365,9 @@ export function DashboardHome({
                   <div key={sub.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-background border border-border">
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-brand-primary" />
-                      <span className={cn(
-                        "inline-flex max-w-[150px] sm:max-w-none items-center rounded-full border px-2.5 py-1 text-xs font-bold shadow-sm",
-                        getSubjectBadgeClass(sub)
-                      )}>
-                        <span className="truncate">{sub.name}</span>
-                      </span>
+                      <div className="max-w-[150px] sm:max-w-none">
+                        <SubjectTag subjectName={sub.name} color={getSubjectColorHex(sub)} size="sm" />
+                      </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-xs text-text-secondary">

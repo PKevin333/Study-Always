@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Circle, MoreHorizontal, Play, Plus, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { SubjectTag } from '../shared/SubjectTag';
 
 interface KanbanTabProps {
   dailyBlocks: DailyBlock[];
@@ -39,6 +41,7 @@ export function KanbanTab({
   };
 
   const activeSubjects = subjects.filter(isSubjectAvailable);
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const filterBlock = (block: DailyBlock) => {
     const matchingSubject = subjects.find(item => item.id === block.subjectId);
@@ -327,8 +330,12 @@ export function KanbanTab({
                             </button>
                           </div>
                         </div>
-
-                        <h4 className="font-semibold text-sm leading-5 mb-2">{block.subjectName}</h4>
+                        <div className="mb-2">
+                          <SubjectTag
+                            subjectName={block.subjectName}
+                            color={getSubjectColorHex(subjectById.get(block.subjectId))}
+                          />
+                        </div>
 
                         {column.id === 'pendente' && (
                           <button

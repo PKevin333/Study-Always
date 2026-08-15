@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   CheckCircle2, 
   Circle, 
   Play, 
@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { SubjectTag } from '../shared/SubjectTag';
 
 type StudyBlockType = 'teoria' | 'questoes' | 'revisao';
 
@@ -73,6 +75,7 @@ export function DailyPlanTab({
   const allFilteredOut = dailyBlocks.length > 0 && filteredBlocks.length === 0;
 
   const sortedBlocks = [...filteredBlocks].sort((a, b) => a.order - b.order);
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
   const completedCount = filteredBlocks.filter(b => b.status === 'concluido').length;
   const totalCount = filteredBlocks.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
@@ -427,10 +430,13 @@ export function DailyPlanTab({
                     )}
                   </div>
                   <h4 className={cn(
-                    "font-bold text-lg truncate",
-                    isCompleted ? "text-text-secondary line-through" : "text-text-primary"
+                    "truncate",
+                    isCompleted ? "line-through opacity-60" : ""
                   )}>
-                    {block.subjectName}
+                    <SubjectTag
+                      subjectName={block.subjectName}
+                      color={getSubjectColorHex(subjectById.get(block.subjectId))}
+                    />
                   </h4>
                 </div>
 

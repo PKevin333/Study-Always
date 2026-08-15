@@ -28,6 +28,7 @@ export function useDashboardState(user: any, profile: any) {
   const [errorSubject, setErrorSubject] = useState('');
   const [errors, setErrors] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
+  const [weeklySessions, setWeeklySessions] = useState<any[]>([]);
   const [savingError, setSavingError] = useState(false);
   const [cycleBlocks, setCycleBlocks] = useState<any[]>([]);
   const [dailyBlocks, setDailyBlocks] = useState<any[]>([]);
@@ -114,6 +115,7 @@ export function useDashboardState(user: any, profile: any) {
     errorSubject, setErrorSubject,
     errors, setErrors,
     sessions, setSessions,
+    weeklySessions, setWeeklySessions,
     savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,

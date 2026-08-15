@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { collection, query, onSnapshot, orderBy, limit, where } from 'firebase/firestore';
+import { collection, query, onSnapshot, orderBy, limit, where, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { getTodayLocalDate } from '../utils/date';
 
@@ -10,6 +10,7 @@ export function useDashboardEffects(
 ) {
   const {
     setSessions,
+    setWeeklySessions,
     setSubjects,
     setErrors,
     setCycleBlocks,
@@ -62,6 +63,26 @@ export function useDashboardEffects(
     });
     return () => unsubscribe();
   }, [user]);
+
+  useEffect(() => {
+    if (!user || !db) return;
+
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - 6);
+
+    const q = query(
+      collection(db, `users/${user.uid}/sessions`),
+      where('timestamp', '>=', Timestamp.fromDate(startDate)),
+      orderBy('timestamp', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setWeeklySessions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+
+    return () => unsubscribe();
+  }, [user, setWeeklySessions]);
 
   // Subjects
   useEffect(() => {

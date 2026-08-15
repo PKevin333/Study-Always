@@ -15,7 +15,8 @@ import {
 } from 'lucide-react';
 import { Subject, StudyError } from '../../types';
 import { cn } from '../../lib/utils';
-import { getSubjectBadgeClass } from '../../utils/subjectColors';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { SubjectTag } from '../shared/SubjectTag';
 
 interface ErrorsTabProps {
   errorSubject: string;
@@ -259,12 +260,13 @@ export function ErrorsTab({
                             {formatDate(error.createdAt)}
                           </td>
                           <td className="px-4 py-4">
-                            <span className={cn(
-                              "inline-flex max-w-[180px] rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm",
-                              getSubjectBadgeClass(subjectById.get(error.subjectId))
-                            )}>
-                              <span className="truncate">{error.subjectName}</span>
-                            </span>
+                            <div className="max-w-[180px]">
+                              <SubjectTag
+                                subjectName={error.subjectName}
+                                color={getSubjectColorHex(subjectById.get(error.subjectId))}
+                                size="sm"
+                              />
+                            </div>
                           </td>
                           <td className="px-4 py-4 text-sm text-text-primary">
                             <p className="line-clamp-2 whitespace-pre-wrap">{error.content}</p>

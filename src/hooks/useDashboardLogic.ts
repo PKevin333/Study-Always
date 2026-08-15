@@ -1,6 +1,26 @@
 import { useMemo } from 'react';
 import { Subject, CycleBlock, DailyBlock, QuestionRecord, StudyError } from '../types';
-import { getTodayLocalDate } from '../utils/date';
+import { getSubjectColorHex } from '../utils/subjectColors';
+
+type WeeklyActivityDay = {
+  name: string;
+  dateStr: string;
+  totalHours: number;
+  [subjectId: string]: string | number;
+};
+
+type WeeklyActivitySubject = {
+  subjectId: string;
+  name: string;
+  color: string;
+  totalHours: number;
+};
+
+export type WeeklyActivityData = {
+  days: WeeklyActivityDay[];
+  subjects: WeeklyActivitySubject[];
+  totalHours: number;
+};
 
 export function useDashboardLogic(
   subjects: Subject[],
@@ -8,6 +28,7 @@ export function useDashboardLogic(
   dailyBlocks: DailyBlock[],
   questionRecords: QuestionRecord[],
   sessions: any[],
+  weeklySessions: any[],
   ignoredFocusTopics: string[],
   profile: any,
   dailyTime: number,
@@ -168,39 +189,81 @@ export function useDashboardLogic(
     return alerts;
   }, [cycleBlocks, dailyTime]);
 
-  const chartData = useMemo(() => {
-    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+  const weeklyActivityData = useMemo<WeeklyActivityData>(() => {
+    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     const now = new Date();
+    const subjectById = new Map(subjects.map(subject => [subject.id, subject]));
     const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
+      const d = new Date(now);
+      d.setHours(0, 0, 0, 0);
       d.setDate(now.getDate() - (6 - i));
+
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
-      
+
       return {
         name: days[d.getDay()],
         dateStr,
-        horas: 0
-      };
+        totalHours: 0
+      } as WeeklyActivityDay;
     });
 
-    sessions.forEach(session => {
-      if (!session.timestamp) return;
+    const dayByDate = new Map(last7Days.map(day => [day.dateStr, day]));
+    const subjectTotals = new Map<string, WeeklyActivitySubject>();
+
+    weeklySessions.forEach(session => {
+      if (!session.timestamp || !session.subjectId) return;
+
       const sessionDate = session.timestamp?.toDate ? session.timestamp.toDate() : new Date(session.timestamp);
       const year = sessionDate.getFullYear();
       const month = String(sessionDate.getMonth() + 1).padStart(2, '0');
       const day = String(sessionDate.getDate()).padStart(2, '0');
       const sessionDateStr = `${year}-${month}-${day}`;
-      const dayData = last7Days.find(d => d.dateStr === sessionDateStr);
-      if (dayData) {
-        dayData.horas += (session.durationMinutes || 0) / 60;
+      const dayData = dayByDate.get(sessionDateStr);
+
+      if (!dayData) return;
+
+      const durationHours = (session.durationMinutes || 0) / 60;
+      const subject = subjectById.get(session.subjectId);
+      const currentDayHours = Number(dayData[session.subjectId] || 0);
+
+      dayData[session.subjectId] = Number((currentDayHours + durationHours).toFixed(2));
+      dayData.totalHours = Number((dayData.totalHours + durationHours).toFixed(2));
+
+      const currentSubject = subjectTotals.get(session.subjectId);
+      if (currentSubject) {
+        currentSubject.totalHours = Number((currentSubject.totalHours + durationHours).toFixed(2));
+      } else {
+        subjectTotals.set(session.subjectId, {
+          subjectId: session.subjectId,
+          name: subject?.name || session.subjectName || 'Disciplina',
+          color: getSubjectColorHex(subject),
+          totalHours: Number(durationHours.toFixed(2))
+        });
       }
     });
 
-    return last7Days.map(({ name, horas }) => ({ name, horas: parseFloat(horas.toFixed(1)) }));
-  }, [sessions]);
+    return {
+      days: last7Days.map(day => ({
+        ...day,
+        totalHours: Number(day.totalHours.toFixed(1))
+      })),
+      subjects: Array.from(subjectTotals.values())
+        .filter(subject => subject.totalHours > 0)
+        .sort((a, b) => b.totalHours - a.totalHours)
+        .map(subject => ({
+          ...subject,
+          totalHours: Number(subject.totalHours.toFixed(1))
+        })),
+      totalHours: Number(
+        Array.from(subjectTotals.values())
+          .reduce((acc, subject) => acc + subject.totalHours, 0)
+          .toFixed(1)
+      )
+    };
+  }, [subjects, weeklySessions]);
 
   const dailyAverage = useMemo(() => {
     if (sessions.length === 0) return 0;
@@ -224,7 +287,7 @@ export function useDashboardLogic(
     prioritySubjects,
     focusItems,
     getValidationAlerts,
-    chartData,
+    weeklyActivityData,
     dailyAverage,
     overdueReviewsCount
   };

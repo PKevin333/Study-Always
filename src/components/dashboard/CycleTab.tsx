@@ -17,7 +17,8 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
-import { getSubjectBadgeClass } from '../../utils/subjectColors';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { SubjectTag } from '../shared/SubjectTag';
 
 const WEEK_DAYS = [
   { value: 1, label: 'Seg' },
@@ -274,12 +275,7 @@ export function CycleTab({
                       className="w-4 h-4 rounded border-border text-brand-primary focus:ring-brand-primary"
                     />
                     <div className="min-w-0">
-                      <span className={cn(
-                        "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-xs font-medium shadow-sm",
-                        getSubjectBadgeClass(sub)
-                      )}>
-                        <span className="truncate">{sub.name}</span>
-                      </span>
+                      <SubjectTag subjectName={sub.name} color={getSubjectColorHex(sub)} size="sm" />
                       <div className="mt-1 text-xs text-text-secondary">G{sub.group} • {sub.studentLevel}</div>
                     </div>
                   </div>
@@ -384,12 +380,13 @@ export function CycleTab({
                           ))}
                         </select>
                         <div className="flex gap-2 mt-1">
-                          <span className={cn(
-                            "inline-flex max-w-[150px] items-center rounded-full border px-2 py-0.5 text-[10px] font-bold shadow-sm",
-                            getSubjectBadgeClass(subjectById.get(block.subjectId))
-                          )}>
-                            <span className="truncate">{block.subjectName}</span>
-                          </span>
+                          <div className="max-w-[180px]">
+                            <SubjectTag
+                              subjectName={block.subjectName}
+                              color={getSubjectColorHex(subjectById.get(block.subjectId))}
+                              size="sm"
+                            />
+                          </div>
                           <select
                             value={block.type}
                             onChange={(e) => updateBlock(block.id, { type: e.target.value })}

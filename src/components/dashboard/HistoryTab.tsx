@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { CalendarDays, ChevronDown, Clock, Filter, History, ListChecks, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Session, Subject } from '../../types';
-import { getSubjectBadgeClass } from '../../utils/subjectColors';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { SubjectTag } from '../shared/SubjectTag';
 
 interface HistoryTabProps {
   sessions: Session[];
@@ -275,12 +276,12 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
                       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="min-w-0">
                           <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <span className={cn(
-                              "inline-flex max-w-full items-center rounded-full border px-2.5 py-1 text-sm font-semibold shadow-sm",
-                              getSubjectBadgeClass(groupSubject)
-                            )}>
-                              <span className="truncate">{group.subjectName}</span>
-                            </span>
+                            <div className="max-w-full">
+                              <SubjectTag
+                                subjectName={group.subjectName}
+                                color={getSubjectColorHex(groupSubject)}
+                              />
+                            </div>
                             <span className="text-xs text-text-secondary">
                               {group.sessions.length} {group.sessions.length === 1 ? 'sessão' : 'sessões'}
                             </span>
