@@ -37,6 +37,8 @@ export function Sidebar({
   profile 
 }: SidebarProps) {
   const targetContest = profile?.targetExam || profile?.concursoAlvo || (profile?.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa');
+  const profilePhotoUrl = profile?.photoURL || user?.photoURL || '';
+  const profileInitial = (profile?.displayName || user?.displayName || 'U').trim().charAt(0).toUpperCase();
 
   const handleNavClick = (tab: string) => {
     setActiveTab(tab);
@@ -82,19 +84,24 @@ export function Sidebar({
         </nav>
 
         <div className="pt-6 border-t border-border mt-auto">
-          <div className="flex items-center gap-3 mb-4 px-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => handleNavClick('settings')}>
-            {profile?.photoURL ? (
-              <img src={profile.photoURL} alt="Profile" className="w-8 h-8 rounded-full object-cover" referrerPolicy="no-referrer" />
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 mb-4 px-3 text-left cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => handleNavClick('settings')}
+            aria-label="Abrir configurações do perfil"
+          >
+            {profilePhotoUrl ? (
+              <img src={profilePhotoUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover" referrerPolicy="no-referrer" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-bold">
-                {user?.displayName?.[0] || 'U'}
+                {profileInitial}
               </div>
             )}
             <div className="overflow-hidden">
               <div className="text-sm font-medium truncate">{profile?.displayName || user?.displayName}</div>
               <div className="text-xs text-text-secondary truncate">{targetContest}</div>
             </div>
-          </div>
+          </button>
           <button onClick={() => auth.signOut()} className="w-full flex items-center gap-3 px-3 py-2 text-text-secondary hover:text-text-primary transition-colors">
             <LogOut size={20} />
             <span className="text-sm">Sair</span>

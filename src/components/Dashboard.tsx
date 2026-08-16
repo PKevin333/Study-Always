@@ -113,6 +113,7 @@ export default function Dashboard() {
     updateTopic,
     deleteTopic,
     handleSaveProfile,
+    updateAccentColorPreference,
     fetchMentorAdvice,
     generateDailyPlan,
     finishStudySession,
@@ -490,6 +491,7 @@ export default function Dashboard() {
             urlErrors={urlErrors}
             setUrlErrors={setUrlErrors}
             handleSaveProfile={handleProfileSave}
+            updateAccentColorPreference={updateAccentColorPreference}
             user={user}
             profile={profile}
           />

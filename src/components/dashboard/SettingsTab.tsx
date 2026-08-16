@@ -4,10 +4,10 @@ import { CheckCircle2, X, Eye, Check, Sparkles, BookOpen } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { GerenciarMaterias } from './GerenciarMaterias';
 import {
+  ACCENT_PALETTE,
   AccentPreference,
   ThemePreference,
   applyThemePreferences,
-  getStoredAccentPreference,
   getStoredThemePreference,
   setStoredAccentPreference,
   setStoredThemePreference
@@ -26,6 +26,7 @@ interface SettingsTabProps {
   urlErrors: { photo?: string, cover?: string };
   setUrlErrors: React.Dispatch<React.SetStateAction<{ photo?: string, cover?: string }>>;
   handleSaveProfile: () => void;
+  updateAccentColorPreference: (accent: AccentPreference) => Promise<boolean>;
   user: any;
   profile: any;
 }
@@ -43,18 +44,23 @@ export function SettingsTab({
   urlErrors,
   setUrlErrors,
   handleSaveProfile,
+  updateAccentColorPreference,
   user,
   profile
 }: SettingsTabProps) {
   const [themePreference, setThemePreference] = React.useState<ThemePreference>(() => getStoredThemePreference() || 'dark');
-  const [accentPreference, setAccentPreference] = React.useState<AccentPreference>(() => getStoredAccentPreference() || 'green');
+  const [accentPreference, setAccentPreference] = React.useState<AccentPreference>(() => (profile?.accentColor as AccentPreference) || 'emerald');
 
   React.useEffect(() => {
     const currentTheme = getStoredThemePreference() || 'dark';
-    const currentAccent = getStoredAccentPreference() || 'green';
     setThemePreference(currentTheme);
-    setAccentPreference(currentAccent);
   }, []);
+
+  React.useEffect(() => {
+    if (profile?.accentColor) {
+      setAccentPreference(profile.accentColor as AccentPreference);
+    }
+  }, [profile?.accentColor]);
 
   const handleThemeChange = (theme: ThemePreference) => {
     setThemePreference(theme);
@@ -62,11 +68,21 @@ export function SettingsTab({
     applyThemePreferences(theme, accentPreference);
   };
 
-  const handleAccentChange = (accent: AccentPreference) => {
+  const handleAccentChange = async (accent: AccentPreference) => {
+    const previousAccent = accentPreference;
     setAccentPreference(accent);
     setStoredAccentPreference(accent);
     applyThemePreferences(themePreference, accent);
+    const saved = await updateAccentColorPreference(accent);
+    if (!saved) {
+      setAccentPreference(previousAccent);
+      setStoredAccentPreference(previousAccent);
+      applyThemePreferences(themePreference, previousAccent);
+    }
   };
+
+  const previewProfilePhoto = editProfilePhoto || profile?.photoURL || user?.photoURL || '';
+  const previewProfileInitial = (editProfileName || profile?.displayName || user?.displayName || 'U').trim().charAt(0).toUpperCase();
 
   return (
     <motion.div 
@@ -239,9 +255,9 @@ export function SettingsTab({
                   {/* Foto de Perfil */}
                   <div className="absolute top-20 left-1/2 -translate-x-1/2">
                     <div className="relative">
-                      {editProfilePhoto ? (
+                      {previewProfilePhoto ? (
                         <img 
-                          src={editProfilePhoto} 
+                          src={previewProfilePhoto} 
                           alt="Profile Preview" 
                           className="w-24 h-24 rounded-full object-cover border-4 border-card shadow-xl transition-transform duration-500 group-hover:scale-110" 
                           referrerPolicy="no-referrer"
@@ -250,7 +266,7 @@ export function SettingsTab({
                         />
                       ) : (
                         <div className="w-24 h-24 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-bold text-3xl border-4 border-card shadow-xl">
-                          {editProfileName?.[0] || user?.displayName?.[0] || 'U'}
+                          {previewProfileInitial}
                         </div>
                       )}
                     </div>
@@ -313,15 +329,10 @@ export function SettingsTab({
             <div>
               <label className="block text-sm font-bold text-text-secondary mb-6 uppercase tracking-wider">Cor de Destaque</label>
               <div className="flex flex-wrap gap-6">
-                {[
-                  { id: 'green', color: '#22c55e', name: 'Verde' },
-                  { id: 'blue', color: '#3b82f6', name: 'Azul' },
-                  { id: 'purple', color: '#a855f7', name: 'Roxo' },
-                  { id: 'orange', color: '#f97316', name: 'Laranja' }
-                ].map(accent => (
+                {ACCENT_PALETTE.map(accent => (
                   <button
                     key={accent.id}
-                    onClick={() => handleAccentChange(accent.id as AccentPreference)}
+                    onClick={() => void handleAccentChange(accent.id)}
                     className="flex flex-col items-center gap-3 group"
                   >
                     <div 
@@ -330,11 +341,11 @@ export function SettingsTab({
                         accentPreference === accent.id ? "scale-110 ring-4 ring-offset-4 ring-offset-background" : "hover:scale-105 opacity-60 hover:opacity-100"
                       )}
                       style={{ 
-                        backgroundColor: accent.color,
-                        borderColor: accent.color
+                        backgroundColor: accent.fill,
+                        borderColor: accent.fill
                       }}
                     >
-                      {accentPreference === accent.id && <Check size={28} className="text-white" />}
+                      {accentPreference === accent.id && <Check size={28} style={{ color: accent.text }} />}
                     </div>
                     <span className={cn("text-xs font-bold transition-colors", accentPreference === accent.id ? "text-brand-primary" : "text-text-secondary")}>
                       {accent.name}

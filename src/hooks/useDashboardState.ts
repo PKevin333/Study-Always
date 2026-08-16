@@ -83,7 +83,7 @@ export function useDashboardState(user: any, profile: any) {
   useEffect(() => {
     if (activeTab === 'settings' && profile) {
       setEditProfileName(profile.displayName || user?.displayName || '');
-      setEditProfilePhoto(profile.photoURL || '');
+      setEditProfilePhoto(profile.photoURL || user?.photoURL || '');
       setEditProfileCover(profile.coverURL || '');
       setEditTargetContest(profile.targetExam || profile.concursoAlvo || (profile.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa'));
       setSaveStatus('idle');

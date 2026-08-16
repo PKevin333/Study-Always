@@ -671,6 +671,19 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
+  const updateAccentColorPreference = async (accentColor: string) => {
+    if (!user) return false;
+    const path = `users/${user.uid}`;
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { accentColor });
+      return true;
+    } catch (error) {
+      console.error('Error saving accent color:', error);
+      handleFirestoreError(error, OperationType.UPDATE, path);
+      return false;
+    }
+  };
+
   const generateDailyPlan = async (dailyTime: number, blocksPerDay: number): Promise<DailyBlock[]> => {
     if (!user) return [];
     if (cycleBlocks.length === 0) {
@@ -938,6 +951,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         blocksPerDay: blocksPerDay,
         onboardingCompleted: true,
         createdAt: serverTimestamp(),
+        accentColor: 'emerald',
         area: 'administrativa', // Default area
         currentCycleIndex: 0
       }, { merge: true });
@@ -1037,6 +1051,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     setMentorAdvice,
     setLoadingAdvice,
     handleSaveProfile,
+    updateAccentColorPreference,
     fetchMentorAdvice,
     generateDailyPlan,
     finishStudySession,
