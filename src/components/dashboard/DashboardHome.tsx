@@ -24,6 +24,7 @@ import { getSubjectColorHex } from '../../utils/subjectColors';
 import { WeeklyActivityData } from '../../hooks/useDashboardLogic';
 import { WeeklyActivityChart } from './WeeklyActivityChart';
 import { SubjectTag } from '../shared/SubjectTag';
+import { designTokens } from '../../styles/designTokens';
 
 const WEEK_DAYS = [
   { value: 1, label: 'Seg' },
@@ -196,11 +197,11 @@ export function DashboardHome({
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
       key="dashboard" 
-      className="pb-20"
+      className={designTokens.page}
     >
-      <header className="mb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Olá, {user?.displayName?.split(' ')[0]}! 👋</h1>
-        <p className="text-text-secondary text-sm sm:text-base">Foco total na sua preparação para <span className="text-brand-primary font-bold">{targetContest}</span>.</p>
+      <header className="mb-8">
+        <h1 className={designTokens.pageTitle}>Olá, {user?.displayName?.split(' ')[0]}! 👋</h1>
+        <p className={designTokens.pageIntro}>Foco total na sua preparação para <span className="text-brand-primary font-bold">{targetContest}</span>.</p>
       </header>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
@@ -234,15 +235,15 @@ export function DashboardHome({
         />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <div className="xl:col-span-7 space-y-6">
-          <div className="bg-card border border-brand-primary/20 rounded-3xl p-6 shadow-lg shadow-brand-primary/5">
+      <div className={`grid grid-cols-1 xl:grid-cols-12 ${designTokens.sectionGrid}`}>
+        <div className={`xl:col-span-7 ${designTokens.pageSectionStack}`}>
+          <div className={`${designTokens.sectionCard} border-brand-primary/20 shadow-lg shadow-brand-primary/5`}>
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
                 <h3 className="font-bold flex items-center gap-2">
                   <History size={18} className="text-brand-primary" /> Ciclo de Hoje
                 </h3>
-                <p className="text-xs text-text-secondary mt-1">Sua ação imediata para continuar o estudo de hoje.</p>
+                <p className="mt-1 text-xs text-text-secondary">Sua ação imediata para continuar o estudo de hoje.</p>
               </div>
               <button
                 onClick={openCycleEditor}
@@ -251,13 +252,13 @@ export function DashboardHome({
                 Ajustar ciclo
               </button>
             </div>
-            <div className="space-y-4">
+            <div className={designTokens.listStackRelaxed}>
               {todayCycleBlocks.length > 0 ? (
                 todayCycleBlocks.slice(0, 4).map((block, i) => {
                   const isCompleted = completedBlockIds.has(block.id);
 
                   return (
-                  <div key={block.id} className="flex items-center gap-4 p-3 rounded-xl bg-background border border-border group hover:border-brand-primary/30 transition-colors">
+                  <div key={block.id} className={`${designTokens.itemCardCompact} flex items-center gap-4 bg-background group hover:border-brand-primary/30 transition-colors`}>
                     <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-xs">
                       {i + 1}º
                     </div>
@@ -271,11 +272,11 @@ export function DashboardHome({
                       </div>
                       <div className="flex gap-2 mt-0.5">
                         <span className={cn(
-                          "text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
+                          `${designTokens.microBadge} rounded px-1.5 py-0.5`,
                           block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" : 
                           block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
                         )}>{block.type}</span>
-                        <span className="text-[10px] text-text-secondary">{block.durationMinutes} min</span>
+                        <span className={designTokens.metaText}>{block.durationMinutes} min</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -303,7 +304,7 @@ export function DashboardHome({
                   );
                 })
               ) : (
-                <div className="py-8 text-center bg-brand-primary/5 rounded-2xl border border-dashed border-brand-primary/20">
+                <div className="rounded-2xl border border-dashed border-brand-primary/20 bg-brand-primary/5 py-8 text-center">
                   <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary mx-auto mb-3">
                     <History size={20} />
                   </div>
@@ -319,8 +320,8 @@ export function DashboardHome({
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-3xl p-6">
-            <h3 className="font-bold mb-6 flex items-center gap-2">
+          <div className={designTokens.sectionCard}>
+            <h3 className={`${designTokens.cardTitle} mb-6 flex items-center gap-2`}>
               <BarChart3 size={18} className="text-brand-primary" /> Atividade Semanal
             </h3>
             <div>
@@ -339,11 +340,11 @@ export function DashboardHome({
           </div>
         </div>
 
-        <div className="xl:col-span-5 space-y-6">
-          <div className="bg-card border border-border rounded-3xl p-6">
+        <div className={`xl:col-span-5 ${designTokens.pageSectionStack}`}>
+          <div className={designTokens.sectionCard}>
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <h3 className="font-bold flex items-center gap-2">
+                <h3 className={`${designTokens.cardTitle} flex items-center gap-2`}>
                   <AlertCircle size={18} className="text-brand-primary" /> Acompanhamento
                 </h3>
                 <p className="text-xs text-text-secondary mt-1">Mostra matérias ativas que ainda ficaram fora do ciclo de hoje.</p>
@@ -362,7 +363,7 @@ export function DashboardHome({
             <div className="space-y-4">
               {subjectsOutsideTodayCycle.length > 0 ? (
                 subjectsOutsideTodayCycle.slice(0, 5).map((sub) => (
-                  <div key={sub.id} className="flex items-center justify-between gap-3 p-3 rounded-xl bg-background border border-border">
+                  <div key={sub.id} className={`${designTokens.itemCardCompact} flex items-center justify-between gap-3 bg-background`}>
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-brand-primary" />
                       <div className="max-w-[150px] sm:max-w-none">
@@ -405,7 +406,7 @@ export function DashboardHome({
             </div>
           </div>
 
-          <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-3xl p-6 shadow-sm">
+          <div className={`${designTokens.sectionCard} border-brand-primary/20 bg-brand-primary/5`}>
             <h3 className="font-bold text-brand-primary mb-3 flex items-center gap-2">
               <Sparkles size={18} /> Dica de Estudo do Mentor
             </h3>
@@ -418,10 +419,10 @@ export function DashboardHome({
 
       {isCycleEditorOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 px-4 py-6">
-          <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+          <div className={`max-h-[90vh] w-full max-w-3xl overflow-hidden ${designTokens.modalPanelWide}`}>
             <div className="flex items-start justify-between gap-4 border-b border-border p-5">
               <div>
-                <h3 className="text-lg font-bold text-text-primary">Ajustar ciclo do dia</h3>
+                <h3 className={designTokens.cardTitle}>Ajustar ciclo do dia</h3>
                 <p className="mt-1 text-xs text-text-secondary">
                   Cada dia da semana salva sua própria sequência de matérias.
                 </p>
@@ -520,7 +521,7 @@ export function DashboardHome({
                 ))}
 
                 {draftBlocks.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-border bg-background p-8 text-center text-sm text-text-secondary">
+                <div className="rounded-2xl border border-dashed border-border bg-background p-8 text-center text-sm text-text-secondary">
                     Nenhuma matéria configurada para este dia.
                   </div>
                 )}

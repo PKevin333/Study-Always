@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { CalendarTask } from '../../types';
+import { designTokens } from '../../styles/designTokens';
 
 interface CalendarTabProps {
   tasks: CalendarTask[];
@@ -256,19 +257,19 @@ export function CalendarTab({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className={designTokens.pageSectionStack}>
+      <div className={`flex flex-col ${designTokens.toolbarGap} lg:flex-row lg:items-center lg:justify-between`}>
         <div>
-          <h1 className="flex items-center gap-3 text-3xl font-bold text-text-primary">
+          <h1 className={`flex items-center gap-3 ${designTokens.pageTitle} text-text-primary`}>
             <CalendarDays className="h-8 w-8 text-brand-primary" />
             Calendário
           </h1>
-          <p className="mt-2 text-text-secondary">
+          <p className={designTokens.pageIntro}>
             Organize tarefas livres, compromissos e revisões que você quiser acompanhar.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className={`flex flex-col ${designTokens.toolbarGap} sm:flex-row sm:items-center`}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
             <input
@@ -297,7 +298,7 @@ export function CalendarTab({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-text-secondary">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
         <span>
           <span className="font-medium text-text-primary">{monthTaskCount}</span> tarefa(s) no mês
         </span>
@@ -318,8 +319,8 @@ export function CalendarTab({
         </span>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="rounded-2xl border border-border bg-card">
+      <div className={`grid ${designTokens.sectionGrid} xl:grid-cols-[minmax(0,1fr)_380px]`}>
+        <div className={designTokens.sectionCard}>
           <div className="flex flex-col gap-4 border-b border-border p-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
               <button
@@ -344,7 +345,7 @@ export function CalendarTab({
               </button>
             </div>
 
-            <h2 className="text-center text-xl font-bold tracking-wide text-text-primary">{formatMonthTitle(currentMonth)}</h2>
+            <h2 className={`text-center tracking-wide text-text-primary ${designTokens.cardTitle}`}>{formatMonthTitle(currentMonth)}</h2>
 
             <span className="text-sm font-semibold text-text-secondary">Clique em um dia para adicionar tarefas</span>
           </div>
@@ -416,11 +417,11 @@ export function CalendarTab({
           )}
         </div>
 
-        <aside className="space-y-4">
-          <form onSubmit={handleCreateTask} className="rounded-2xl border border-border bg-card p-5">
+        <aside className={designTokens.listStackRelaxed}>
+          <form onSubmit={handleCreateTask} className={designTokens.sectionCardDense}>
             <div className="mb-4 flex items-center gap-2">
               <Plus className="h-5 w-5 text-brand-primary" />
-              <h3 className="font-bold text-text-primary">Nova tarefa</h3>
+              <h3 className={designTokens.cardTitle}>Nova tarefa</h3>
             </div>
             <p className="mb-4 text-sm capitalize text-text-secondary">{formatSelectedDate(selectedDate)}</p>
 
@@ -429,7 +430,7 @@ export function CalendarTab({
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Ex: resolver questões de português"
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary outline-none transition-colors focus:border-brand-primary"
+                className={designTokens.input}
               />
 
               <div className="grid grid-cols-2 gap-3">
@@ -437,12 +438,12 @@ export function CalendarTab({
                   value={time}
                   onChange={(event) => setTime(event.target.value)}
                   type="time"
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-text-primary outline-none transition-colors focus:border-brand-primary"
+                  className={designTokens.input}
                 />
                 <select
                   value={category}
                   onChange={(event) => setCategory(event.target.value as CalendarTaskCategory)}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-text-primary outline-none transition-colors focus:border-brand-primary"
+                  className={designTokens.input}
                 >
                   {Object.entries(categoryLabels).map(([value, label]) => (
                     <option key={value} value={value}>{label}</option>
@@ -455,7 +456,7 @@ export function CalendarTab({
                 onChange={(event) => setNotes(event.target.value)}
                 placeholder="Observação opcional"
                 rows={3}
-                className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary outline-none transition-colors focus:border-brand-primary"
+                className={`${designTokens.input} resize-none text-sm placeholder:text-text-secondary`}
               />
 
               <button
@@ -478,9 +479,9 @@ export function CalendarTab({
             </div>
           </form>
 
-          <div className="rounded-2xl border border-border bg-card p-5">
+          <div className={designTokens.sectionCardDense}>
             <div className="mb-4">
-              <h3 className="font-bold text-text-primary">Tarefas do dia</h3>
+              <h3 className={designTokens.cardTitle}>Tarefas do dia</h3>
               <p className="text-sm capitalize text-text-secondary">{formatSelectedDate(selectedDate)}</p>
             </div>
 

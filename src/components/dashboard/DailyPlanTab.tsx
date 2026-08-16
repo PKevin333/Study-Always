@@ -25,6 +25,7 @@ import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
 import { SubjectTag } from '../shared/SubjectTag';
+import { designTokens } from '../../styles/designTokens';
 
 type StudyBlockType = 'teoria' | 'questoes' | 'revisao';
 
@@ -240,7 +241,7 @@ export function DailyPlanTab({
       initial={{ opacity: 0, y: 10 }} 
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
-      className="max-w-4xl mx-auto pb-20 relative"
+      className={`relative mx-auto max-w-4xl ${designTokens.page}`}
     >
       {/* Add Block Modal */}
       <AnimatePresence>
@@ -257,7 +258,7 @@ export function DailyPlanTab({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md rounded-[2rem] border border-border bg-card p-8 shadow-2xl"
+              className={designTokens.modalPanel}
             >
               <div className="mb-5 flex items-center gap-3 text-brand-red">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-red/10">
@@ -302,7 +303,7 @@ export function DailyPlanTab({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-card border border-border rounded-[2rem] p-8 shadow-2xl w-full max-w-md"
+              className={designTokens.modalPanel}
             >
               <div className="mb-6 flex items-center justify-between gap-3">
                 <h3 className="text-2xl font-bold">Editar Bloco</h3>
@@ -395,7 +396,7 @@ export function DailyPlanTab({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-card border border-border rounded-[2rem] p-8 shadow-2xl w-full max-w-md"
+              className={designTokens.modalPanel}
             >
               <h3 className="text-2xl font-bold mb-6">Novo Bloco Manual</h3>
               
@@ -484,10 +485,10 @@ export function DailyPlanTab({
       </AnimatePresence>
 
       <header className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div className={`${designTokens.pageHeader} mb-6`}>
           <div>
-            <h2 className="text-3xl font-bold mb-2">Plano do Dia</h2>
-            <p className="text-text-secondary">Sua jornada de hoje. Foco na execução, um passo de cada vez.</p>
+            <h2 className={designTokens.pageTitle}>Plano do Dia</h2>
+            <p className={designTokens.pageIntro}>Sua jornada de hoje. Foco na execução, um passo de cada vez.</p>
           </div>
           
           {totalCount === 0 ? (
@@ -507,12 +508,12 @@ export function DailyPlanTab({
                 {isGenerating ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Zap size={20} />}
                 Gerar Plano de Hoje
               </button>
-              <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest animate-pulse">
+              <p className={`${designTokens.microBadge} animate-pulse text-brand-primary`}>
                 Clique aqui para começar seu dia →
               </p>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center ${designTokens.toolbarGap}`}>
                <button 
                 onClick={() => setShowAddModal(true)}
                 className="p-3 border border-border rounded-xl text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all"
@@ -556,7 +557,7 @@ export function DailyPlanTab({
         )}
 
         {totalCount > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm relative overflow-hidden">
+          <div className={`${designTokens.sectionCard} relative overflow-hidden rounded-3xl`}>
             {isDayFinished && (
               <motion.div 
                 initial={{ opacity: 0 }}
@@ -566,7 +567,7 @@ export function DailyPlanTab({
             )}
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-text-secondary uppercase tracking-wider">Progresso Diário</span>
+                <span className={`${designTokens.microBadge} text-text-secondary`}>Progresso Diário</span>
                 {isDayFinished && (
                   <span className="flex items-center gap-1 text-xs font-bold text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full">
                     <Trophy size={12} /> Dia Finalizado!
@@ -591,7 +592,7 @@ export function DailyPlanTab({
         )}
       </header>
 
-      <div className="space-y-4">
+      <div className={designTokens.listStackRelaxed}>
         {isDayFinished && (
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -625,7 +626,7 @@ export function DailyPlanTab({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  "group relative flex items-center gap-4 p-4 sm:p-5 rounded-2xl border transition-all",
+                  `${designTokens.itemCard} group relative flex items-center gap-4 transition-all`,
                   isCurrent 
                     ? "bg-brand-primary/5 border-brand-primary shadow-md ring-1 ring-brand-primary/20" 
                   : isCompleted 
@@ -644,9 +645,9 @@ export function DailyPlanTab({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-text-secondary">
+                  <div className={`mb-1 flex flex-wrap items-center gap-2 ${designTokens.metaText}`}>
                     <span className={cn(
-                      "font-bold uppercase tracking-widest",
+                      designTokens.microBadge,
                       block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" : 
                       block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
                     )}>
@@ -657,7 +658,7 @@ export function DailyPlanTab({
                       <Clock size={12} /> {block.durationMinutes} min
                     </span>
                     {isNext && !isCurrent && (
-                      <span className="text-[10px] font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded uppercase tracking-wider">
+                      <span className={`${designTokens.microBadge} rounded bg-brand-primary/10 px-2 py-0.5 text-brand-primary`}>
                         Próximo
                       </span>
                     )}

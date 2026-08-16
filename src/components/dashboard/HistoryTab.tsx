@@ -5,6 +5,7 @@ import { cn } from '../../lib/utils';
 import { Session, Subject } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
 import { SubjectTag } from '../shared/SubjectTag';
+import { designTokens } from '../../styles/designTokens';
 
 interface HistoryTabProps {
   sessions: Session[];
@@ -232,12 +233,12 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       key="history"
-      className="pb-20"
+      className={designTokens.page}
     >
-      <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <header className={designTokens.pageHeader}>
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Histórico de Sessões</h2>
-          <p className="text-text-secondary text-sm sm:text-base">
+          <h2 className={designTokens.pageTitle}>Histórico de Sessões</h2>
+          <p className={designTokens.pageIntro}>
             Consulte os estudos registrados pelo cronômetro, ciclo, kanban e plano do dia.
           </p>
         </div>
@@ -247,7 +248,7 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
         </div>
       </header>
 
-      <section className="mb-6 rounded-2xl border border-border bg-card p-5">
+      <section className={`mb-6 ${designTokens.sectionCardDense}`}>
         <div className="flex items-center gap-2 mb-4">
           <Filter size={18} className="text-brand-primary" />
           <h3 className="font-bold">Filtros</h3>
@@ -278,7 +279,7 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
         </div>
       </section>
 
-      <section className="space-y-6">
+      <section className={designTokens.pageSectionStack}>
         {filteredSessions.length > 0 ? (
           groupedHistory.map(period => (
             <div key={period.key} className="space-y-3">

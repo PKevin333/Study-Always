@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronUp, Plus, Trash2, Target, MessageSquare } from 'lucide-react';
 import { Subject, Topic } from '../../types';
 import { cn } from '../../lib/utils';
+import { designTokens } from '../../styles/designTokens';
 
 interface TopicsTabProps {
   selectedSubjectForTopics: Subject | null;
@@ -45,9 +46,9 @@ export function TopicsTab({
       animate={{ opacity: 1, scale: 1 }} 
       exit={{ opacity: 0, scale: 0.98 }} 
       key="topics" 
-      className="pb-20"
+      className={designTokens.page}
     >
-      <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <header className={designTokens.pageHeader}>
         <div>
           <button 
             onClick={() => setActiveTab('subjects')} 
@@ -55,29 +56,29 @@ export function TopicsTab({
           >
             <ChevronUp className="-rotate-90" size={14} /> Voltar para Disciplinas
           </button>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">{selectedSubjectForTopics.name}</h2>
-          <p className="text-text-secondary text-sm sm:text-base">Controle de conteúdo e progresso detalhado.</p>
+          <h2 className={designTokens.pageTitle}>{selectedSubjectForTopics.name}</h2>
+          <p className={designTokens.pageIntro}>Controle de conteúdo e progresso detalhado.</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl px-6 py-3 flex items-center gap-6 w-full sm:w-auto">
+        <div className="flex w-full items-center gap-6 rounded-2xl border border-border bg-card px-6 py-3 sm:w-auto">
           <div className="text-center flex-1 sm:flex-none">
-            <div className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-1">Concluído</div>
+            <div className={`${designTokens.microBadge} mb-1 text-text-secondary`}>Concluído</div>
             <div className="text-lg font-bold text-brand-primary">{selectedSubjectForTopics.progressPercent || 0}%</div>
           </div>
           <div className="w-px h-8 bg-border" />
           <div className="text-center flex-1 sm:flex-none">
-            <div className="text-[10px] text-text-secondary uppercase font-bold tracking-wider mb-1">Tópicos</div>
+            <div className={`${designTokens.microBadge} mb-1 text-text-secondary`}>Tópicos</div>
             <div className="text-lg font-bold">{topics.filter(t => t.status === 'concluido').length}/{topics.length}</div>
           </div>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-bold mb-6 flex items-center gap-2">
+      <div className={`grid grid-cols-1 lg:grid-cols-3 ${designTokens.sectionGrid}`}>
+        <div className={`lg:col-span-2 ${designTokens.pageSectionStack}`}>
+          <div className={designTokens.sectionCard}>
+            <h3 className={`${designTokens.cardTitle} mb-6 flex items-center gap-2`}>
               <Plus size={18} className="text-brand-primary" /> Adicionar Novo Tópico
             </h3>
-            <div className="flex gap-3">
+            <div className={`flex ${designTokens.toolbarGap}`}>
               <input 
                 type="text" 
                 placeholder="Nome do tópico (ex: Crase, Regência...)"
@@ -90,7 +91,7 @@ export function TopicsTab({
                   }
                 }}
                 disabled={isAddingTopic}
-                className="flex-1 bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary"
+                className={`flex-1 ${designTokens.input}`}
               />
               <button 
                 onClick={handleAddTopic}
@@ -102,15 +103,15 @@ export function TopicsTab({
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className={designTokens.listStack}>
             {topics.length === 0 ? (
-              <div className="text-center py-20 bg-card border border-border border-dashed rounded-3xl text-text-secondary">
+              <div className="rounded-3xl border border-border border-dashed bg-card py-20 text-center text-text-secondary">
                 Nenhum tópico cadastrado para esta matéria.
               </div>
             ) : (
               topics.map((topic, i) => (
                 <div key={topic.id} className={cn(
-                  "bg-card border border-border rounded-2xl p-5 flex items-center gap-4 transition-all",
+                  `${designTokens.itemCard} flex items-center gap-4 bg-card transition-all`,
                   topic.status === 'concluido' ? "opacity-60" : "hover:border-brand-primary/30"
                 )}>
                   <div className="w-8 h-8 rounded-lg bg-background border border-border flex items-center justify-center text-[10px] font-bold text-text-secondary shrink-0">
@@ -121,7 +122,7 @@ export function TopicsTab({
                       type="text" 
                       value={topic.name}
                       onChange={(e) => updateTopic(topic.id, { name: e.target.value })}
-                      className="bg-transparent font-bold text-sm outline-none w-full focus:text-brand-primary truncate"
+                      className="w-full truncate bg-transparent text-sm font-bold outline-none focus:text-brand-primary"
                     />
                     <div className="flex flex-wrap gap-2 mt-2">
                       {[
@@ -135,7 +136,7 @@ export function TopicsTab({
                           // [FIX]: envia só campos aceitos pelo contrato mínimo das regras de tópicos.
                           onClick={() => updateTopic(topic.id, { status: s.id as Topic['status'] })}
                           className={cn(
-                            "text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded transition-all",
+                            `${designTokens.microBadge} rounded px-2 py-1 transition-all`,
                             topic.status === s.id ? s.color : "text-text-secondary hover:bg-border"
                           )}
                         >
@@ -156,9 +157,9 @@ export function TopicsTab({
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-3xl p-6">
-            <h3 className="font-bold mb-4 flex items-center gap-2">
+        <div className={designTokens.pageSectionStack}>
+          <div className={designTokens.sectionCard}>
+            <h3 className={`${designTokens.cardTitle} mb-4 flex items-center gap-2`}>
               <Target size={18} className="text-brand-primary" /> Status do Conteúdo
             </h3>
             <div className="space-y-4">

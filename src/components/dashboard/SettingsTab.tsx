@@ -12,6 +12,7 @@ import {
   setStoredAccentPreference,
   setStoredThemePreference
 } from '../../utils/themePreferences';
+import { designTokens } from '../../styles/designTokens';
 
 interface SettingsTabProps {
   saveStatus: 'idle' | 'saving' | 'success' | 'error';
@@ -90,14 +91,14 @@ export function SettingsTab({
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
       key="settings" 
-      className="max-w-5xl mx-auto pb-20"
+      className={`mx-auto max-w-5xl ${designTokens.page}`}
     >
-      <header className="mb-10">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-2">Configurações</h2>
-        <p className="text-text-secondary text-sm sm:text-base">Personalize sua experiência e perfil.</p>
+      <header className="mb-8">
+        <h2 className={designTokens.pageTitle}>Configurações</h2>
+        <p className={designTokens.pageIntro}>Personalize sua experiência e perfil.</p>
       </header>
 
-      <div className="space-y-8">
+      <div className={designTokens.pageSectionStack}>
         {/* Matérias do Usuário */}
         {user?.uid && (
           <GerenciarMaterias userId={user.uid} />
@@ -128,7 +129,7 @@ export function SettingsTab({
                   value={editProfileName}
                   onChange={(e) => setEditProfileName(e.target.value)}
                   placeholder="Seu nome"
-                  className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
+                  className={designTokens.input}
                 />
               </div>
 
@@ -140,7 +141,7 @@ export function SettingsTab({
                   onChange={(e) => setEditTargetContest(e.target.value)}
                   placeholder="Ex: INSS, Banco do Brasil, Receita Federal..."
                   maxLength={80}
-                  className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
+                  className={designTokens.input}
                 />
               </div>
 
@@ -154,7 +155,7 @@ export function SettingsTab({
                       value={editProfilePhoto}
                       onChange={(e) => setEditProfilePhoto(e.target.value)}
                       className={cn(
-                        "w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all pr-10",
+                        `${designTokens.input} pr-10`,
                         urlErrors.photo && "border-brand-red focus:border-brand-red"
                       )}
                     />
@@ -189,7 +190,7 @@ export function SettingsTab({
                       value={editProfileCover}
                       onChange={(e) => setEditProfileCover(e.target.value)}
                       className={cn(
-                        "w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all pr-10",
+                        `${designTokens.input} pr-10`,
                         urlErrors.cover && "border-brand-red focus:border-brand-red"
                       )}
                     />
@@ -292,7 +293,7 @@ export function SettingsTab({
 
         {/* Aparência */}
         <section className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm">
-          <h3 className="text-xl font-bold mb-8 flex items-center gap-2">
+          <h3 className={`${designTokens.cardTitle} mb-8 flex items-center gap-2`}>
             <Sparkles size={24} className="text-brand-primary" /> Personalização Visual
           </h3>
           
@@ -337,7 +338,7 @@ export function SettingsTab({
                   >
                     <div 
                       className={cn(
-                        "w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg",
+                        `${designTokens.swatch} shadow-lg`,
                         accentPreference === accent.id ? "scale-110 ring-4 ring-offset-4 ring-offset-background" : "hover:scale-105 opacity-60 hover:opacity-100"
                       )}
                       style={{ 

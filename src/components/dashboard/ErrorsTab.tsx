@@ -17,6 +17,7 @@ import { Subject, StudyError } from '../../types';
 import { cn } from '../../lib/utils';
 import { getSubjectColorHex } from '../../utils/subjectColors';
 import { SubjectTag } from '../shared/SubjectTag';
+import { designTokens } from '../../styles/designTokens';
 
 interface ErrorsTabProps {
   errorSubject: string;
@@ -111,13 +112,13 @@ export function ErrorsTab({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       key="errors"
-      className="min-h-full bg-background pb-20"
+      className={`min-h-full bg-background ${designTokens.page}`}
     >
       <header className="bg-card border-b border-border rounded-3xl overflow-hidden mb-6">
         <div className="p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">Caderno de Erros</h2>
-            <p className="text-text-secondary text-sm sm:text-base">
+            <h2 className={`${designTokens.pageTitle} text-text-primary`}>Caderno de Erros</h2>
+            <p className={designTokens.pageIntro}>
               Registre seus erros para revisão inteligente e prática espaçada.
             </p>
           </div>
@@ -150,14 +151,14 @@ export function ErrorsTab({
         </div>
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <section className="xl:col-span-4 bg-card border border-border rounded-xl p-5 sm:p-6 h-fit">
-          <h3 className="font-bold text-text-primary mb-4">Novo Registro</h3>
+      <div className={`grid grid-cols-1 xl:grid-cols-12 ${designTokens.sectionGrid}`}>
+        <section className={`xl:col-span-4 h-fit ${designTokens.sectionCardDense}`}>
+          <h3 className={`${designTokens.cardTitle} mb-4 text-text-primary`}>Novo Registro</h3>
           <div className="space-y-4">
             <select
               value={errorSubject}
               onChange={(event) => setErrorSubject(event.target.value)}
-              className="w-full bg-card border border-border rounded-lg px-4 py-3 text-text-primary outline-none focus:border-brand-primary"
+              className={designTokens.inputOnCard}
             >
               <option value="">Selecione a Disciplina</option>
               {subjects.map(subject => (
@@ -168,20 +169,20 @@ export function ErrorsTab({
               value={errorText}
               onChange={(event) => setErrorText(event.target.value)}
               placeholder="O que você errou? Seja objetivo, use bullets."
-              className="w-full h-36 bg-card border border-border rounded-lg px-4 py-3 text-text-primary placeholder:text-text-secondary outline-none focus:border-brand-primary resize-none"
+              className={`${designTokens.inputOnCard} h-36 resize-none placeholder:text-text-secondary`}
             />
             <button
               onClick={handleSaveError}
               disabled={savingError || !errorText.trim() || !errorSubject}
-              className="w-full bg-brand-primary text-white font-bold py-3 rounded-lg hover:bg-brand-primary/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-brand-primary py-3 font-bold text-white transition-all hover:bg-brand-primary/80 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingError ? 'Salvando...' : 'Salvar no Caderno'}
             </button>
           </div>
         </section>
 
-        <section className="xl:col-span-8 space-y-4">
-          <div className="bg-card border border-border rounded-xl p-4">
+        <section className={`xl:col-span-8 ${designTokens.listStackRelaxed}`}>
+          <div className={`${designTokens.sectionCardDense} p-4`}>
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3">
               <div className="relative">
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
@@ -189,7 +190,7 @@ export function ErrorsTab({
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Pesquisar por matéria ou conteúdo"
-                  className="w-full bg-card border border-border rounded-lg pl-10 pr-4 py-3 text-text-primary placeholder:text-text-secondary outline-none focus:border-brand-primary"
+                  className="w-full rounded-xl border border-border bg-card py-3 pl-10 pr-4 text-text-primary outline-none placeholder:text-text-secondary focus:border-brand-primary"
                 />
               </div>
 
@@ -212,7 +213,7 @@ export function ErrorsTab({
                 <select
                   value={subjectFilter}
                   onChange={(event) => setSubjectFilter(event.target.value)}
-                  className="bg-card border border-border rounded-lg px-3 py-3 text-text-primary outline-none focus:border-brand-primary"
+                  className="rounded-xl border border-border bg-card px-3 py-3 text-text-primary outline-none focus:border-brand-primary"
                 >
                   <option value="todos">Todas as matérias</option>
                   {subjects.map(subject => (
@@ -222,7 +223,7 @@ export function ErrorsTab({
                 <select
                   value={filter}
                   onChange={(event) => setFilter(event.target.value as 'todos' | 'hoje')}
-                  className="bg-card border border-border rounded-lg px-3 py-3 text-text-primary outline-none focus:border-brand-primary"
+                  className="rounded-xl border border-border bg-card px-3 py-3 text-text-primary outline-none focus:border-brand-primary"
                 >
                   <option value="todos">Todos</option>
                   <option value="hoje">Revisar hoje</option>
@@ -231,7 +232,7 @@ export function ErrorsTab({
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="overflow-hidden rounded-3xl border border-border bg-card">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px]">
                 <thead className="bg-background border-b border-border">
@@ -350,7 +351,7 @@ export function ErrorsTab({
             </div>
           </div>
 
-          <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-xl p-5">
+          <div className="rounded-3xl border border-brand-primary/20 bg-brand-primary/5 p-5 sm:p-6">
             <h4 className="font-bold text-brand-primary mb-2">Dica do Mentor</h4>
             <p className="text-xs text-brand-primary leading-relaxed">
               Não copie o enunciado da questão. Foque em anotar por que você errou e qual regra precisa revisar.

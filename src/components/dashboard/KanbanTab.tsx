@@ -5,6 +5,7 @@ import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
 import { SubjectTag } from '../shared/SubjectTag';
+import { designTokens } from '../../styles/designTokens';
 
 interface KanbanTabProps {
   dailyBlocks: DailyBlock[];
@@ -101,7 +102,7 @@ export function KanbanTab({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       key="kanban"
-      className="pb-20 h-full flex flex-col"
+      className={`${designTokens.page} flex h-full flex-col`}
     >
       <AnimatePresence>
         {showAddModal && (
@@ -117,7 +118,7 @@ export function KanbanTab({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-card border border-border rounded-[2rem] p-8 shadow-2xl w-full max-w-md"
+              className={designTokens.modalPanel}
             >
               <h3 className="text-2xl font-bold mb-6">Novo Bloco no Kanban</h3>
 
@@ -206,12 +207,12 @@ export function KanbanTab({
         )}
       </AnimatePresence>
 
-      <header className="mb-6 flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+      <header className={`${designTokens.pageHeader} mb-6 xl:flex-row xl:items-end`}>
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Quadro Kanban</h2>
-          <p className="text-text-secondary text-sm sm:text-base">Organize visualmente seus blocos de estudo do dia.</p>
+          <h2 className={designTokens.pageTitle}>Quadro Kanban</h2>
+          <p className={designTokens.pageIntro}>Organize visualmente seus blocos de estudo do dia.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+        <div className={`flex w-full flex-col sm:flex-row xl:w-auto ${designTokens.toolbarGap}`}>
           <button
             onClick={generateDailyPlan}
             disabled={isGenerating}

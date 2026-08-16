@@ -16,6 +16,7 @@ import {
 import { cn } from '../../lib/utils';
 import { Subject } from '../../types';
 import { formatTime } from '../../utils/firestore';
+import { designTokens } from '../../styles/designTokens';
 
 type StudySessionType = 'teoria' | 'questoes' | 'revisao';
 type TimerMode = 'study' | 'shortBreak' | 'longBreak';
@@ -251,12 +252,12 @@ export function TimerTab({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       key="timer"
-      className="max-w-6xl mx-auto pb-20"
+      className={`mx-auto max-w-6xl ${designTokens.page}`}
     >
-      <header className="mb-8 flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+      <header className={`${designTokens.pageHeader} xl:flex-row xl:items-end`}>
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Cronômetro Pomodoro</h2>
-          <p className="text-text-secondary text-sm sm:text-base">
+          <h2 className={designTokens.pageTitle}>Cronômetro Pomodoro</h2>
+          <p className={designTokens.pageIntro}>
             Organize foco, pausas e registros de estudo sem sair do seu fluxo.
           </p>
         </div>
@@ -528,7 +529,7 @@ export function TimerTab({
                   type="button"
                   onClick={() => setPomodoroColor(option.id)}
                   className={cn(
-                    'w-11 h-11 rounded-2xl border border-border flex items-center justify-center transition-all',
+                    `${designTokens.swatch} border border-border`,
                     pomodoroColor === option.id ? cn('scale-110 ring-2 ring-offset-2 ring-offset-background', styles.ring) : 'opacity-70 hover:opacity-100 hover:scale-105'
                   )}
                   title={option.label}

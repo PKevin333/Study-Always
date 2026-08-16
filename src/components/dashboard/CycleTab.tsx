@@ -21,6 +21,7 @@ import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
 import { SubjectTag } from '../shared/SubjectTag';
+import { designTokens } from '../../styles/designTokens';
 
 const WEEK_DAYS = [
   { value: 1, label: 'Seg' },
@@ -159,14 +160,14 @@ export function CycleTab({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       key="cycle"
-      className="pb-20"
+      className={designTokens.page}
     >
-      <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <header className={designTokens.pageHeader}>
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Ciclo de Estudos</h2>
-          <p className="text-text-secondary text-sm sm:text-base">Monte seu plano flexível com orientação inteligente.</p>
+          <h2 className={designTokens.pageTitle}>Ciclo de Estudos</h2>
+          <p className={designTokens.pageIntro}>Monte seu plano flexível com orientação inteligente.</p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
+        <div className={`flex w-full sm:w-auto ${designTokens.toolbarGap}`}>
           <button
             onClick={generateCycle}
             disabled={isGenerating}
@@ -178,10 +179,10 @@ export function CycleTab({
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-4 space-y-8">
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-bold mb-4 flex items-center gap-2">
+      <div className={`grid grid-cols-1 lg:grid-cols-12 ${designTokens.sectionGrid}`}>
+        <div className={`lg:col-span-4 ${designTokens.pageSectionStack}`}>
+          <div className={designTokens.sectionCard}>
+            <h3 className={`${designTokens.cardTitle} mb-4 flex items-center gap-2`}>
               <Target size={18} className="text-brand-primary" /> Foco do Estudo
             </h3>
             <div className="grid grid-cols-1 gap-3">
@@ -206,8 +207,8 @@ export function CycleTab({
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-bold mb-6 flex items-center gap-2">
+          <div className={designTokens.sectionCard}>
+            <h3 className={`${designTokens.cardTitle} mb-6 flex items-center gap-2`}>
               <Clock size={18} className="text-brand-primary" /> Disponibilidade
             </h3>
             <div className="space-y-6">
@@ -263,8 +264,8 @@ export function CycleTab({
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <h3 className="font-bold mb-4 flex items-center gap-2">
+          <div className={designTokens.sectionCard}>
+            <h3 className={`${designTokens.cardTitle} mb-4 flex items-center gap-2`}>
               <BookOpen size={18} className="text-brand-primary" /> Matérias Ativas
             </h3>
             <div className="space-y-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar [scrollbar-width:thin]">
@@ -296,7 +297,7 @@ export function CycleTab({
           </div>
         </div>
 
-        <div className="lg:col-span-8 space-y-6">
+        <div className={`lg:col-span-8 ${designTokens.pageSectionStack}`}>
           {(blockingAlert || suggestionAlerts.length > 0) && (
             <div className="space-y-3">
               {blockingAlert && (
@@ -324,10 +325,10 @@ export function CycleTab({
             </div>
           )}
 
-          <div className="bg-card border border-border rounded-2xl p-4 sm:p-8">
+          <div className={`${designTokens.sectionCard} p-4 sm:p-8`}>
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
               <div>
-                <h3 className="font-bold text-xl flex items-center gap-2">
+                <h3 className={`${designTokens.cardTitle} flex items-center gap-2`}>
                   <History size={22} className="text-brand-primary" /> Prévia do Ciclo
                 </h3>
                 <p className="mt-1 text-xs text-text-secondary">
@@ -383,7 +384,7 @@ export function CycleTab({
                   <motion.div
                     layout
                     key={block.id}
-                    className="group bg-background border border-border rounded-xl p-5 hover:border-brand-primary/50 transition-all relative"
+                    className={`${designTokens.itemCard} group relative bg-background hover:border-brand-primary/50 transition-all`}
                   >
                     <div className="absolute -top-2 -left-2 w-6 h-6 bg-brand-primary rounded-lg flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
                       {i + 1}
@@ -415,7 +416,7 @@ export function CycleTab({
                             value={block.type}
                             onChange={(e) => updateBlock(block.id, { type: e.target.value })}
                             className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded outline-none appearance-none cursor-pointer",
+                              `${designTokens.microBadge} rounded px-2 py-0.5 outline-none appearance-none cursor-pointer`,
                               block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" :
                               block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
                             )}
@@ -504,7 +505,7 @@ export function CycleTab({
 
                 <button
                   onClick={handleAddBlock}
-                  className="border-2 border-dashed border-border rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary transition-all"
+                  className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border p-5 text-text-secondary transition-all hover:border-brand-primary/50 hover:text-brand-primary"
                 >
                   <Plus size={24} />
                   <span className="text-xs font-bold">Adicionar Bloco</span>

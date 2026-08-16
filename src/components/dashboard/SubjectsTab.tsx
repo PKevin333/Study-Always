@@ -4,6 +4,7 @@ import { Plus, BookMarked, ChevronUp, ChevronDown, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Subject } from '../../types';
 import { getSubjectColorClass, getSubjectColorId, SUBJECT_COLOR_OPTIONS } from '../../utils/subjectColors';
+import { designTokens } from '../../styles/designTokens';
 
 interface SubjectsTabProps {
   newSubjectName: string;
@@ -64,28 +65,28 @@ export function SubjectsTab({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -10 }}
       key="subjects"
-      className="pb-20"
+      className={designTokens.page}
     >
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <h2 className="text-2xl font-bold">Gerenciar Disciplinas</h2>
-        <div className="flex w-full flex-wrap gap-4 sm:w-auto">
+      <div className={designTokens.pageHeader}>
+        <h2 className={designTokens.pageTitle}>Gerenciar Disciplinas</h2>
+        <div className={`flex w-full flex-wrap sm:w-auto ${designTokens.toolbarGap}`}>
           <input
             type="text"
             placeholder="Nova matéria..."
             value={newSubjectName}
             onChange={(e) => setNewSubjectName(e.target.value)}
-            className="flex-1 rounded-xl border border-white/10 bg-card px-4 py-2 text-sm outline-none focus:border-brand-primary sm:flex-none"
+            className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none transition-all focus:border-brand-primary sm:flex-none"
           />
           <select
             value={newSubjectGroup}
             onChange={(e) => setNewSubjectGroup(parseInt(e.target.value, 10))}
-            className="rounded-xl border border-white/10 bg-card px-4 py-2 text-sm outline-none"
+            className="rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none"
           >
             <option value={1}>Grupo 1</option>
             <option value={2}>Grupo 2</option>
             <option value={3}>Grupo 3</option>
           </select>
-          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-card px-2 py-2">
+          <div className="flex items-center gap-1 rounded-xl border border-border bg-card px-2 py-2">
             {SUBJECT_COLOR_OPTIONS.map((option) => (
               <button
                 key={option.id}
@@ -109,22 +110,22 @@ export function SubjectsTab({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className={`grid grid-cols-1 lg:grid-cols-3 ${designTokens.sectionGrid}`}>
         {[1, 2, 3].map((groupNum) => {
           const groupKey = groupNum as 1 | 2 | 3;
           const groupSubjects = subjects.filter((subject) => subject.group === groupNum);
 
           return (
-            <div key={groupNum} className="rounded-2xl border border-white/10 bg-card/75 p-5">
+            <div key={groupNum} className={designTokens.sectionCardDense}>
               <div className="mb-5 flex items-center gap-2">
                 <span className={cn('h-2.5 w-2.5 rounded-full', groupConfig[groupKey].dot)} />
-                <h3 className="font-semibold text-text-primary">{groupConfig[groupKey].label}</h3>
+                <h3 className={designTokens.cardTitle}>{groupConfig[groupKey].label}</h3>
                 <span className="text-sm text-text-secondary">({groupSubjects.length})</span>
               </div>
 
-              <div className="min-h-[220px] space-y-3">
+              <div className={`min-h-[220px] ${designTokens.listStack}`}>
                 {groupSubjects.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-white/10 bg-background/25 px-4 py-8 text-center text-sm text-text-secondary">
+                  <div className="rounded-2xl border border-dashed border-border bg-background/25 px-4 py-8 text-center text-sm text-text-secondary">
                     Crie uma disciplina ou mova uma existente para este grupo.
                   </div>
                 ) : (
@@ -137,7 +138,7 @@ export function SubjectsTab({
                       <div
                         key={sub.id}
                         className={cn(
-                          'rounded-xl border border-white/10 bg-background/65 p-4 transition-all',
+                          `${designTokens.itemCardCompact} bg-background/65 transition-all`,
                           sub.status === 'active' ? 'opacity-100' : 'opacity-75'
                         )}
                       >

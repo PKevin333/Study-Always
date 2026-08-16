@@ -26,6 +26,7 @@ import {
 } from 'recharts';
 import { Subject, QuestionRecord } from '../../types';
 import { cn } from '../../lib/utils';
+import { designTokens } from '../../styles/designTokens';
 
 interface PerformanceTabProps {
   newRecordSubject: string;
@@ -215,12 +216,12 @@ export function PerformanceTab({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       key="performance"
-      className="pb-20"
+      className={designTokens.page}
     >
-      <header className="mb-8 flex flex-col xl:flex-row xl:items-end justify-between gap-5">
+      <header className={`${designTokens.pageHeader} xl:flex-row xl:items-end`}>
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Desempenho em Questões</h2>
-          <p className="text-text-secondary text-sm sm:text-base">
+          <h2 className={designTokens.pageTitle}>Desempenho em Questões</h2>
+          <p className={designTokens.pageIntro}>
             Registre resoluções, acompanhe acertos e identifique onde seu rendimento está evoluindo.
           </p>
         </div>

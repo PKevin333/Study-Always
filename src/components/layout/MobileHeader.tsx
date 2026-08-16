@@ -1,5 +1,6 @@
 import React from 'react';
 import { Target, X, Menu } from 'lucide-react';
+import { designTokens } from '../../styles/designTokens';
 
 interface MobileHeaderProps {
   isMobileMenuOpen: boolean;
@@ -10,8 +11,8 @@ export function MobileHeader({ isMobileMenuOpen, setIsMobileMenuOpen }: MobileHe
   return (
     <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-          <Target className="text-white w-5 h-5" />
+        <div className={`${designTokens.brandMark} bg-brand-primary`}>
+          <Target className={`text-white ${designTokens.brandMarkIcon}`} />
         </div>
         <span className="font-bold text-lg tracking-tight">Study Always</span>
       </div>
