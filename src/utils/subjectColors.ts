@@ -18,6 +18,7 @@ export const SUBJECT_COLOR_OPTIONS = [
 export type SubjectColorId = typeof SUBJECT_COLOR_OPTIONS[number]['id'];
 
 export const SUBJECT_NEUTRAL_COLOR = '#94a3b8';
+const HEX_COLOR_REGEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
 const colorClassMap = SUBJECT_COLOR_OPTIONS.reduce<Record<string, string>>((acc, option) => {
   acc[option.id] = option.className;
@@ -39,9 +40,37 @@ const colorHexMap: Record<SubjectColorId, string> = {
   slate: '#334155'
 };
 
+const legacyClassToColorIdMap = SUBJECT_COLOR_OPTIONS.reduce<Record<string, SubjectColorId>>((acc, option) => {
+  acc[option.className] = option.id;
+  return acc;
+}, {});
+
+const normalizeStoredSubjectColor = (color?: string | null): SubjectColorId | string | null => {
+  if (!color) return null;
+
+  const trimmedColor = color.trim();
+  if (!trimmedColor) return null;
+
+  if (trimmedColor in colorHexMap) {
+    return trimmedColor as SubjectColorId;
+  }
+
+  if (trimmedColor in legacyClassToColorIdMap) {
+    return legacyClassToColorIdMap[trimmedColor];
+  }
+
+  if (HEX_COLOR_REGEX.test(trimmedColor)) {
+    return trimmedColor;
+  }
+
+  return null;
+};
+
 export const getSubjectColorId = (subject?: Pick<Subject, 'id' | 'color'> | null): SubjectColorId => {
-  if (subject?.color && colorClassMap[subject.color]) {
-    return subject.color as SubjectColorId;
+  const normalizedColor = normalizeStoredSubjectColor(subject?.color);
+
+  if (normalizedColor && normalizedColor in colorClassMap) {
+    return normalizedColor as SubjectColorId;
   }
 
   if (!subject?.id) return 'purple';
@@ -54,8 +83,18 @@ export const getSubjectColorClass = (subject?: Pick<Subject, 'id' | 'color'> | n
 };
 
 export const getSubjectColorHex = (subject?: Pick<Subject, 'color'> | null) => {
-  if (subject?.color && subject.color in colorHexMap) {
-    return colorHexMap[subject.color as SubjectColorId];
+  const normalizedColor = normalizeStoredSubjectColor(subject?.color);
+
+  if (!normalizedColor) {
+    return SUBJECT_NEUTRAL_COLOR;
+  }
+
+  if (normalizedColor in colorHexMap) {
+    return colorHexMap[normalizedColor as SubjectColorId];
+  }
+
+  if (HEX_COLOR_REGEX.test(normalizedColor)) {
+    return normalizedColor;
   }
 
   return SUBJECT_NEUTRAL_COLOR;
