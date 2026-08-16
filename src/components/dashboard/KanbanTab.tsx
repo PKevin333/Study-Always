@@ -4,6 +4,8 @@ import { CheckCircle2, Circle, MoreHorizontal, Play, Plus, Trash2 } from 'lucide
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
+import { DailyBlockForm } from '../shared/DailyBlockForm';
+import { StudyTypeBadge } from '../shared/StudyTypeBadge';
 import { SubjectTag } from '../shared/SubjectTag';
 import { designTokens } from '../../styles/designTokens';
 
@@ -105,106 +107,22 @@ export function KanbanTab({
       className={`${designTokens.page} flex h-full flex-col`}
     >
       <AnimatePresence>
-        {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAddModal(false)}
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={designTokens.modalPanel}
-            >
-              <h3 className="text-2xl font-bold mb-6">Novo Bloco no Kanban</h3>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Disciplina</label>
-                  <select
-                    value={newBlock.subjectId}
-                    onChange={(e) => setNewBlock({ ...newBlock, subjectId: e.target.value })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
-                  >
-                    <option value="">Selecione uma disciplina</option>
-                    {activeSubjects.map(subject => (
-                      <option key={subject.id} value={subject.id}>{subject.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Tipo de Estudo</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['teoria', 'questoes', 'revisao'].map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setNewBlock({ ...newBlock, type })}
-                        className={cn(
-                          'py-2 rounded-lg text-xs font-bold border transition-all capitalize',
-                          newBlock.type === type
-                            ? 'bg-brand-primary/10 border-brand-primary text-brand-primary'
-                            : 'bg-background border-border text-text-secondary hover:border-brand-primary/30'
-                        )}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Duração (minutos)</label>
-                  <div className="grid grid-cols-4 gap-2 mb-3">
-                    {[30, 40, 50, 60].map((minutes) => (
-                      <button
-                        key={minutes}
-                        onClick={() => setNewBlock({ ...newBlock, durationMinutes: minutes })}
-                        className={cn(
-                          'py-2 rounded-lg text-xs font-bold border transition-all',
-                          newBlock.durationMinutes === minutes
-                            ? 'bg-brand-primary/10 border-brand-primary text-brand-primary'
-                            : 'bg-background border-border text-text-secondary hover:border-brand-primary/30'
-                        )}
-                      >
-                        {minutes}'
-                      </button>
-                    ))}
-                  </div>
-                  <input
-                    type="number"
-                    min={1}
-                    value={newBlock.durationMinutes}
-                    onChange={(e) => setNewBlock({ ...newBlock, durationMinutes: parseInt(e.target.value, 10) || 0 })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all text-center font-bold"
-                    placeholder="Outro tempo..."
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => setShowAddModal(false)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border font-bold hover:bg-background transition-all"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleAddManual}
-                    // [FIX]: bloqueia cliques consecutivos para não criar blocos duplicados enquanto salva.
-                    disabled={isAddingBlock || !newBlock.subjectId || newBlock.durationMinutes <= 0}
-                    className="flex-1 px-4 py-3 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
-                  >
-                    {isAddingBlock ? 'Adicionando...' : 'Adicionar'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
+        <DailyBlockForm
+          open={showAddModal}
+          title="Novo Bloco no Kanban"
+          subjects={activeSubjects}
+          subjectId={newBlock.subjectId}
+          type={newBlock.type as 'teoria' | 'questoes' | 'revisao'}
+          durationMinutes={newBlock.durationMinutes}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleAddManual}
+          onSubjectChange={(subjectId) => setNewBlock({ ...newBlock, subjectId })}
+          onTypeChange={(type) => setNewBlock({ ...newBlock, type })}
+          onDurationChange={(durationMinutes) => setNewBlock({ ...newBlock, durationMinutes })}
+          submitLabel={isAddingBlock ? 'Adicionando...' : 'Adicionar'}
+          submitDisabled={isAddingBlock || !newBlock.subjectId || newBlock.durationMinutes <= 0}
+          durationPresets={[30, 40, 50, 60]}
+        />
       </AnimatePresence>
 
       <header className={`${designTokens.pageHeader} mb-6 xl:flex-row xl:items-end`}>
@@ -314,11 +232,7 @@ export function KanbanTab({
                         }}
                       >
                         <div className="flex justify-between items-start gap-2 mb-2">
-                          <span className={cn(
-                            'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded',
-                            block.type === 'teoria' ? 'bg-brand-blue/10 text-brand-blue' :
-                            block.type === 'questoes' ? 'bg-brand-primary/10 text-brand-primary' : 'bg-brand-orange/10 text-brand-orange'
-                          )}>{block.type}</span>
+                          <StudyTypeBadge type={block.type as 'teoria' | 'questoes' | 'revisao'} />
 
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-semibold" style={{ color: 'var(--trello-muted-text)' }}>{block.durationMinutes}m</span>

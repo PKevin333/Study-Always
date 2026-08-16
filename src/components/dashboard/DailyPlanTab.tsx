@@ -24,6 +24,9 @@ import {
 import { cn } from '../../lib/utils';
 import { DailyBlock, Subject } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
+import { DailyBlockForm } from '../shared/DailyBlockForm';
+import { Modal } from '../shared/Modal';
+import { StudyTypeBadge, getStudyTypeBadgeLabel } from '../shared/StudyTypeBadge';
 import { SubjectTag } from '../shared/SubjectTag';
 import { designTokens } from '../../styles/designTokens';
 
@@ -41,6 +44,54 @@ interface DailyPlanTabProps {
   overdueReviewsCount: number;
   setActiveTab: (tab: string) => void;
   dailyTime: number;
+}
+
+interface BlockActionsMenuProps {
+  block: DailyBlock;
+  isOpen: boolean;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  onToggle: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+function BlockActionsMenu({
+  block,
+  isOpen,
+  menuRef,
+  onToggle,
+  onEdit,
+  onDelete
+}: BlockActionsMenuProps) {
+  return (
+    <div className="relative" ref={isOpen ? menuRef : null}>
+      <button
+        onClick={onToggle}
+        className="rounded-lg p-2 text-text-secondary hover:bg-background hover:text-text-primary transition-all"
+        title="Mais opções"
+      >
+        <MoreVertical size={18} />
+      </button>
+      {isOpen && (
+        <div className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-border bg-card p-1.5 shadow-xl">
+          <button
+            onClick={onEdit}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-primary hover:bg-background transition-all"
+          >
+            <Pencil size={15} />
+            Editar
+          </button>
+          <button
+            onClick={onDelete}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-red hover:bg-brand-red/10 transition-all"
+          >
+            <Trash2 size={15} />
+            Excluir bloco
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function DailyPlanTab({
@@ -224,12 +275,6 @@ export function DailyPlanTab({
     await deleteDailyBlock(targetId);
   };
 
-  const getBlockTypeLabel = (type: string) => {
-    if (type === 'questoes') return 'Questões';
-    if (type === 'revisao') return 'Revisão';
-    return 'Teoria';
-  };
-
   const getBlockTypeIcon = (type: string) => {
     if (type === 'questoes') return ListChecks;
     if (type === 'revisao') return RefreshCw;
@@ -246,242 +291,68 @@ export function DailyPlanTab({
       {/* Add Block Modal */}
       <AnimatePresence>
         {deleteTargetBlock && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setDeleteTargetBlock(null)}
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={designTokens.modalPanel}
-            >
-              <div className="mb-5 flex items-center gap-3 text-brand-red">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-red/10">
-                  <TriangleAlert size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-text-primary">Excluir este bloco?</h3>
-                  <p className="text-sm text-text-secondary">Esta ação não pode ser desfeita.</p>
-                </div>
+          <Modal open={Boolean(deleteTargetBlock)} onClose={() => setDeleteTargetBlock(null)} hideCloseButton>
+            <div className="mb-5 flex items-center gap-3 text-brand-red">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-red/10">
+                <TriangleAlert size={24} />
               </div>
-              <p className="text-sm leading-relaxed text-text-secondary">
-                O bloco <span className="font-semibold text-text-primary">{deleteTargetBlock.subjectName}</span> será removido do plano do dia e o progresso diário será atualizado imediatamente.
-              </p>
-              <div className="mt-8 flex gap-3">
-                <button
-                  onClick={() => setDeleteTargetBlock(null)}
-                  className="flex-1 rounded-xl border border-border px-4 py-3 font-bold hover:bg-background transition-all"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleConfirmDelete}
-                  className="flex-1 rounded-xl bg-brand-red px-4 py-3 font-bold text-white hover:bg-brand-red/80 transition-all"
-                >
-                  Excluir
-                </button>
+              <div>
+                <h3 className="text-xl font-bold text-text-primary">Excluir este bloco?</h3>
+                <p className="text-sm text-text-secondary">Esta ação não pode ser desfeita.</p>
               </div>
-            </motion.div>
-          </div>
+            </div>
+            <p className="text-sm leading-relaxed text-text-secondary">
+              O bloco <span className="font-semibold text-text-primary">{deleteTargetBlock.subjectName}</span> será removido do plano do dia e o progresso diário será atualizado imediatamente.
+            </p>
+            <div className="mt-8 flex gap-3">
+              <button
+                onClick={() => setDeleteTargetBlock(null)}
+                className="flex-1 rounded-xl border border-border px-4 py-3 font-bold hover:bg-background transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 rounded-xl bg-brand-red px-4 py-3 font-bold text-white hover:bg-brand-red/80 transition-all"
+              >
+                Excluir
+              </button>
+            </div>
+          </Modal>
         )}
 
-        {editingBlock && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setEditingBlock(null)}
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={designTokens.modalPanel}
-            >
-              <div className="mb-6 flex items-center justify-between gap-3">
-                <h3 className="text-2xl font-bold">Editar Bloco</h3>
-                <button
-                  onClick={() => setEditingBlock(null)}
-                  className="rounded-xl border border-border p-2 text-text-secondary hover:text-text-primary transition-all"
-                  title="Fechar"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+        <DailyBlockForm
+          open={Boolean(editingBlock)}
+          title="Editar Bloco"
+          subjects={subjects.filter(isSubjectAvailable)}
+          subjectId={editForm.subjectId}
+          type={editForm.type}
+          durationMinutes={editForm.durationMinutes}
+          onClose={() => setEditingBlock(null)}
+          onSubmit={handleSaveEdit}
+          onSubjectChange={(subjectId) => setEditForm({ ...editForm, subjectId })}
+          onTypeChange={(type) => setEditForm({ ...editForm, type })}
+          onDurationChange={(durationMinutes) => setEditForm({ ...editForm, durationMinutes })}
+          submitLabel="Salvar"
+          submitDisabled={!editForm.subjectId || editForm.durationMinutes <= 0}
+        />
 
-              <div className="space-y-6">
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Disciplina</label>
-                  <select 
-                    value={editForm.subjectId}
-                    onChange={(e) => setEditForm({ ...editForm, subjectId: e.target.value })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
-                  >
-                    <option value="">Selecione uma matéria</option>
-                    {subjects.filter(isSubjectAvailable).map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Tipo de Estudo</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['teoria', 'questoes', 'revisao'] as StudyBlockType[]).map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setEditForm({ ...editForm, type })}
-                        className={cn(
-                          "py-2 rounded-lg text-xs font-bold border transition-all capitalize",
-                          editForm.type === type 
-                            ? "bg-brand-primary/10 border-brand-primary text-brand-primary" 
-                            : "bg-background border-border text-text-secondary hover:border-brand-primary/30"
-                        )}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Duração (minutos)</label>
-                  <input 
-                    type="number"
-                    min={5}
-                    step={5}
-                    value={editForm.durationMinutes}
-                    onChange={(e) => setEditForm({ ...editForm, durationMinutes: parseInt(e.target.value, 10) || 0 })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all text-center font-bold"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button 
-                    onClick={() => setEditingBlock(null)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border font-bold hover:bg-background transition-all"
-                  >
-                    Cancelar
-                  </button>
-                  <button 
-                    onClick={handleSaveEdit}
-                    disabled={!editForm.subjectId || editForm.durationMinutes <= 0}
-                    className="flex-1 px-4 py-3 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
-                  >
-                    Salvar
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-
-        {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAddModal(false)}
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={designTokens.modalPanel}
-            >
-              <h3 className="text-2xl font-bold mb-6">Novo Bloco Manual</h3>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Disciplina</label>
-                  <select 
-                    value={newBlock.subjectId}
-                    onChange={(e) => setNewBlock({ ...newBlock, subjectId: e.target.value })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all"
-                  >
-                    <option value="">Selecione uma matéria</option>
-                    {subjects.filter(isSubjectAvailable).map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Tipo de Estudo</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['teoria', 'questoes', 'revisao'] as StudyBlockType[]).map((type) => (
-                      <button
-                        key={type}
-                        onClick={() => setNewBlock({ ...newBlock, type })}
-                        className={cn(
-                          "py-2 rounded-lg text-xs font-bold border transition-all capitalize",
-                          newBlock.type === type 
-                            ? "bg-brand-primary/10 border-brand-primary text-brand-primary" 
-                            : "bg-background border-border text-text-secondary hover:border-brand-primary/30"
-                        )}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2 block">Duração (minutos)</label>
-                  <div className="grid grid-cols-4 gap-2 mb-3">
-                    {[30, 40, 50, 60].map((min) => (
-                      <button
-                        key={min}
-                        onClick={() => setNewBlock({ ...newBlock, durationMinutes: min })}
-                        className={cn(
-                          "py-2 rounded-lg text-xs font-bold border transition-all",
-                          newBlock.durationMinutes === min 
-                            ? "bg-brand-primary/10 border-brand-primary text-brand-primary" 
-                            : "bg-background border-border text-text-secondary hover:border-brand-primary/30"
-                        )}
-                      >
-                        {min}'
-                      </button>
-                    ))}
-                  </div>
-                  <input 
-                    type="number" 
-                    value={newBlock.durationMinutes}
-                    onChange={(e) => setNewBlock({ ...newBlock, durationMinutes: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary transition-all text-center font-bold"
-                    placeholder="Outro tempo..."
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button 
-                    onClick={() => setShowAddModal(false)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border font-bold hover:bg-background transition-all"
-                  >
-                    Cancelar
-                  </button>
-                  <button 
-                    onClick={handleAddManual}
-                    // [FIX]: bloqueia cliques consecutivos para não criar blocos duplicados enquanto salva.
-                    disabled={isAddingBlock || !newBlock.subjectId || newBlock.durationMinutes <= 0}
-                    className="flex-1 px-4 py-3 rounded-xl bg-brand-primary text-white font-bold hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
-                  >
-                    {isAddingBlock ? 'Adicionando...' : 'Adicionar'}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
+        <DailyBlockForm
+          open={showAddModal}
+          title="Novo Bloco Manual"
+          subjects={subjects.filter(isSubjectAvailable)}
+          subjectId={newBlock.subjectId}
+          type={newBlock.type}
+          durationMinutes={newBlock.durationMinutes}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleAddManual}
+          onSubjectChange={(subjectId) => setNewBlock({ ...newBlock, subjectId })}
+          onTypeChange={(type) => setNewBlock({ ...newBlock, type })}
+          onDurationChange={(durationMinutes) => setNewBlock({ ...newBlock, durationMinutes })}
+          submitLabel={isAddingBlock ? 'Adicionando...' : 'Adicionar'}
+          submitDisabled={isAddingBlock || !newBlock.subjectId || newBlock.durationMinutes <= 0}
+          durationPresets={[30, 40, 50, 60]}
+        />
       </AnimatePresence>
 
       <header className="mb-8">
@@ -646,13 +517,7 @@ export function DailyPlanTab({
 
                 <div className="flex-1 min-w-0">
                   <div className={`mb-1 flex flex-wrap items-center gap-2 ${designTokens.metaText}`}>
-                    <span className={cn(
-                      designTokens.microBadge,
-                      block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" : 
-                      block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
-                    )}>
-                      {getBlockTypeLabel(block.type)}
-                    </span>
+                    <StudyTypeBadge type={block.type as StudyBlockType} label={getStudyTypeBadgeLabel(block.type as StudyBlockType)} />
                     <span>·</span>
                     <span className="font-medium flex items-center gap-1">
                       <Clock size={12} /> {block.durationMinutes} min
@@ -700,36 +565,17 @@ export function DailyPlanTab({
                         <Play size={18} fill="currentColor" />
                         <span className="hidden sm:inline">Iniciar</span>
                       </button>
-                      <div className="relative" ref={openMenuBlockId === block.id ? menuRef : null}>
-                        <button
-                          onClick={() => setOpenMenuBlockId(current => current === block.id ? null : block.id)}
-                          className="rounded-lg p-2 text-text-secondary hover:bg-background hover:text-text-primary transition-all"
-                          title="Mais opções"
-                        >
-                          <MoreVertical size={18} />
-                        </button>
-                        {openMenuBlockId === block.id && (
-                          <div className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-border bg-card p-1.5 shadow-xl">
-                            <button
-                              onClick={() => openEditModal(block)}
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-primary hover:bg-background transition-all"
-                            >
-                              <Pencil size={15} />
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => {
-                                setDeleteTargetBlock(block);
-                                setOpenMenuBlockId(null);
-                              }}
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-red hover:bg-brand-red/10 transition-all"
-                            >
-                              <Trash2 size={15} />
-                              Excluir bloco
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <BlockActionsMenu
+                        block={block}
+                        isOpen={openMenuBlockId === block.id}
+                        menuRef={menuRef}
+                        onToggle={() => setOpenMenuBlockId(current => current === block.id ? null : block.id)}
+                        onEdit={() => openEditModal(block)}
+                        onDelete={() => {
+                          setDeleteTargetBlock(block);
+                          setOpenMenuBlockId(null);
+                        }}
+                      />
                     </>
                   )}
                   
@@ -745,36 +591,17 @@ export function DailyPlanTab({
                   )}
 
                   {isCompleted && (
-                    <div className="relative" ref={openMenuBlockId === block.id ? menuRef : null}>
-                      <button
-                        onClick={() => setOpenMenuBlockId(current => current === block.id ? null : block.id)}
-                        className="rounded-lg p-2 text-text-secondary hover:bg-background hover:text-text-primary transition-all"
-                        title="Mais opções"
-                      >
-                        <MoreVertical size={18} />
-                      </button>
-                      {openMenuBlockId === block.id && (
-                        <div className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-border bg-card p-1.5 shadow-xl">
-                          <button
-                            onClick={() => openEditModal(block)}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-primary hover:bg-background transition-all"
-                          >
-                            <Pencil size={15} />
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => {
-                              setDeleteTargetBlock(block);
-                              setOpenMenuBlockId(null);
-                            }}
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-brand-red hover:bg-brand-red/10 transition-all"
-                          >
-                            <Trash2 size={15} />
-                            Excluir bloco
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <BlockActionsMenu
+                      block={block}
+                      isOpen={openMenuBlockId === block.id}
+                      menuRef={menuRef}
+                      onToggle={() => setOpenMenuBlockId(current => current === block.id ? null : block.id)}
+                      onEdit={() => openEditModal(block)}
+                      onDelete={() => {
+                        setDeleteTargetBlock(block);
+                        setOpenMenuBlockId(null);
+                      }}
+                    />
                   )}
                 </div>
               </motion.div>

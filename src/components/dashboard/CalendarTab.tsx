@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { CalendarTask } from '../../types';
 import { designTokens } from '../../styles/designTokens';
+import { StudyTypeBadge } from '../shared/StudyTypeBadge';
 
 interface CalendarTabProps {
   tasks: CalendarTask[];
@@ -30,14 +31,6 @@ const categoryLabels: Record<CalendarTaskCategory, string> = {
   questoes: 'Questões',
   simulado: 'Simulado',
   outro: 'Outro',
-};
-
-const categoryClassNames: Record<CalendarTaskCategory, string> = {
-  estudo: 'bg-brand-blue/10 text-brand-blue',
-  revisao: 'bg-brand-green/10 text-brand-green',
-  questoes: 'bg-brand-orange/10 text-brand-orange',
-  simulado: 'bg-brand-magenta/10 text-brand-magenta',
-  outro: 'bg-border/40 text-text-secondary',
 };
 
 const pad = (value: number) => String(value).padStart(2, '0');
@@ -224,9 +217,7 @@ export function CalendarTab({
               <p className={`truncate font-semibold text-text-primary ${task.completed ? 'line-through' : ''}`}>
                 {task.title}
               </p>
-              <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${categoryClassNames[task.category]}`}>
-                {categoryLabels[task.category]}
-              </span>
+              <StudyTypeBadge type={task.category} label={categoryLabels[task.category]} />
             </div>
 
             {!compact && (

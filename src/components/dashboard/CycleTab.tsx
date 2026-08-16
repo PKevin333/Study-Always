@@ -20,6 +20,7 @@ import {
 import { cn } from '../../lib/utils';
 import { Subject, CycleBlock } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
+import { getStudyTypeBadgeClasses, StudyTypeBadge } from '../shared/StudyTypeBadge';
 import { SubjectTag } from '../shared/SubjectTag';
 import { designTokens } from '../../styles/designTokens';
 
@@ -415,19 +416,13 @@ export function CycleTab({
                           <select
                             value={block.type}
                             onChange={(e) => updateBlock(block.id, { type: e.target.value })}
-                            className={cn(
-                              `${designTokens.microBadge} rounded px-2 py-0.5 outline-none appearance-none cursor-pointer`,
-                              block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" :
-                              block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
-                            )}
+                            className={cn(getStudyTypeBadgeClasses(block.type, 'outline-none appearance-none cursor-pointer'))}
                           >
                             <option value="teoria">Teoria</option>
                             <option value="questoes">Questões</option>
                             <option value="revisao">Revisão</option>
                           </select>
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-green/10 text-brand-green">
-                            Manual
-                          </span>
+                          <StudyTypeBadge type="outro" label="Manual" />
                         </div>
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

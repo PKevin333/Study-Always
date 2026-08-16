@@ -16,6 +16,9 @@ import {
 import { cn } from '../../lib/utils';
 import { Subject } from '../../types';
 import { formatTime } from '../../utils/firestore';
+import { Modal } from '../shared/Modal';
+import { StudyTypeBadge } from '../shared/StudyTypeBadge';
+import { SwatchPicker } from '../shared/SwatchPicker';
 import { designTokens } from '../../styles/designTokens';
 
 type StudySessionType = 'teoria' | 'questoes' | 'revisao';
@@ -349,38 +352,31 @@ export function TimerTab({
             </div>
           </div>
 
-          {showResetConfirm && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="absolute inset-0 z-50 flex items-center justify-center p-6"
-            >
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
-              <div className="relative bg-card border border-border rounded-3xl p-8 shadow-2xl max-w-sm w-full text-center">
-                <div className="w-16 h-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-red">
-                  <AlertTriangle size={32} />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Reiniciar cronômetro?</h3>
-                <p className="text-text-secondary text-sm mb-8">
-                  O tempo de estudo atual será perdido e não será registrado.
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowResetConfirm(false)}
-                    className="flex-1 px-4 py-3 rounded-xl border border-border font-bold hover:bg-background transition-all"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={confirmReset}
-                    className="flex-1 px-4 py-3 rounded-xl bg-brand-red text-white font-bold hover:bg-brand-red/80 transition-all"
-                  >
-                    Reiniciar
-                  </button>
-                </div>
+          <Modal open={showResetConfirm} onClose={() => setShowResetConfirm(false)} hideCloseButton maxWidthClassName="max-w-sm">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-red/10 text-brand-red">
+                <AlertTriangle size={32} />
               </div>
-            </motion.div>
-          )}
+              <h3 className="mb-2 text-xl font-bold">Reiniciar cronômetro?</h3>
+              <p className="mb-8 text-sm text-text-secondary">
+                O tempo de estudo atual será perdido e não será registrado.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  className="flex-1 px-4 py-3 rounded-xl border border-border font-bold hover:bg-background transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmReset}
+                  className="flex-1 px-4 py-3 rounded-xl bg-brand-red text-white font-bold hover:bg-brand-red/80 transition-all"
+                >
+                  Reiniciar
+                </button>
+              </div>
+            </div>
+          </Modal>
         </section>
 
         <aside className="xl:col-span-7 space-y-6">
@@ -393,8 +389,8 @@ export function TimerTab({
               <div className="bg-background border border-border rounded-2xl p-4 text-center">
                 <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Plano do Dia</div>
                 <div className="font-bold text-lg">{activeSessionBlock.subjectName}</div>
-                <div className="mt-2 inline-flex px-3 py-1 rounded-full bg-card border border-border text-[10px] font-bold uppercase tracking-wider text-text-secondary">
-                  {studyTypeOptions.find(option => option.id === activeSessionBlock.type)?.label || 'Teoria'}
+                <div className="mt-2">
+                  <StudyTypeBadge type={activeSessionBlock.type} label={studyTypeOptions.find(option => option.id === activeSessionBlock.type)?.label || 'Teoria'} />
                 </div>
               </div>
             ) : (
@@ -522,22 +518,17 @@ export function TimerTab({
             <h3 className="font-bold mb-4 flex items-center gap-2">
               <Palette size={18} className={styles.text} /> Cor do Pomodoro
             </h3>
-            <div className="flex flex-wrap gap-3">
-              {colorOptions.map(option => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => setPomodoroColor(option.id)}
-                  className={cn(
-                    `${designTokens.swatch} border border-border`,
-                    pomodoroColor === option.id ? cn('scale-110 ring-2 ring-offset-2 ring-offset-background', styles.ring) : 'opacity-70 hover:opacity-100 hover:scale-105'
-                  )}
-                  title={option.label}
-                >
-                  <span className={cn('w-6 h-6 rounded-xl', option.swatch)} />
-                </button>
-              ))}
-            </div>
+            <SwatchPicker
+              options={colorOptions.map(option => ({
+                value: option.id,
+                label: option.label,
+                swatchClassName: cn(option.swatch, 'border border-border'),
+                iconColor: 'white'
+              }))}
+              value={pomodoroColor}
+              onChange={setPomodoroColor}
+              showLabels={false}
+            />
           </section>
         </aside>
       </div>

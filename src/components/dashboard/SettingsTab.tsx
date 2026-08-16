@@ -12,6 +12,7 @@ import {
   setStoredAccentPreference,
   setStoredThemePreference
 } from '../../utils/themePreferences';
+import { SwatchPicker } from '../shared/SwatchPicker';
 import { designTokens } from '../../styles/designTokens';
 
 interface SettingsTabProps {
@@ -329,31 +330,18 @@ export function SettingsTab({
 
             <div>
               <label className="block text-sm font-bold text-text-secondary mb-6 uppercase tracking-wider">Cor de Destaque</label>
-              <div className="flex flex-wrap gap-6">
-                {ACCENT_PALETTE.map(accent => (
-                  <button
-                    key={accent.id}
-                    onClick={() => void handleAccentChange(accent.id)}
-                    className="flex flex-col items-center gap-3 group"
-                  >
-                    <div 
-                      className={cn(
-                        `${designTokens.swatch} shadow-lg`,
-                        accentPreference === accent.id ? "scale-110 ring-4 ring-offset-4 ring-offset-background" : "hover:scale-105 opacity-60 hover:opacity-100"
-                      )}
-                      style={{ 
-                        backgroundColor: accent.fill,
-                        borderColor: accent.fill
-                      }}
-                    >
-                      {accentPreference === accent.id && <Check size={28} style={{ color: accent.text }} />}
-                    </div>
-                    <span className={cn("text-xs font-bold transition-colors", accentPreference === accent.id ? "text-brand-primary" : "text-text-secondary")}>
-                      {accent.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <SwatchPicker
+                options={ACCENT_PALETTE.map(accent => ({
+                  value: accent.id,
+                  label: accent.name,
+                  fill: accent.fill,
+                  iconColor: accent.text
+                }))}
+                value={accentPreference}
+                onChange={(value) => {
+                  void handleAccentChange(value);
+                }}
+              />
             </div>
           </div>
         </section>

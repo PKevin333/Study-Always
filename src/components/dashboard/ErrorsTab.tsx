@@ -16,6 +16,7 @@ import {
 import { Subject, StudyError } from '../../types';
 import { cn } from '../../lib/utils';
 import { getSubjectColorHex } from '../../utils/subjectColors';
+import { MentorTipCallout } from '../shared/MentorTipCallout';
 import { SubjectTag } from '../shared/SubjectTag';
 import { designTokens } from '../../styles/designTokens';
 
@@ -351,12 +352,11 @@ export function ErrorsTab({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-brand-primary/20 bg-brand-primary/5 p-5 sm:p-6">
-            <h4 className="font-bold text-brand-primary mb-2">Dica do Mentor</h4>
-            <p className="text-xs text-brand-primary leading-relaxed">
+          <MentorTipCallout title="Dica do Mentor">
+            <p className="text-xs leading-relaxed">
               Não copie o enunciado da questão. Foque em anotar por que você errou e qual regra precisa revisar.
             </p>
-          </div>
+          </MentorTipCallout>
         </section>
       </div>
 

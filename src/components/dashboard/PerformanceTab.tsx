@@ -27,6 +27,9 @@ import {
 import { Subject, QuestionRecord } from '../../types';
 import { cn } from '../../lib/utils';
 import { designTokens } from '../../styles/designTokens';
+import { SubjectTag } from '../shared/SubjectTag';
+import { getSubjectColorHex } from '../../utils/subjectColors';
+import { StatCard } from '../ui/StatCard';
 
 interface PerformanceTabProps {
   newRecordSubject: string;
@@ -100,35 +103,6 @@ const filterRecordsByPeriod = (records: QuestionRecord[], period: PeriodFilter) 
     return date ? date >= startDate : false;
   });
 };
-
-function StatCard({
-  label,
-  value,
-  icon,
-  tone = 'default'
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-  tone?: 'default' | 'green' | 'red' | 'primary';
-}) {
-  const toneClass = {
-    default: 'text-text-secondary bg-background border-border',
-    green: 'text-brand-green bg-brand-green/5 border-brand-green/10',
-    red: 'text-brand-red bg-brand-red/5 border-brand-red/10',
-    primary: 'text-brand-primary bg-brand-primary/5 border-brand-primary/10'
-  }[tone];
-
-  return (
-    <div className={cn('rounded-2xl border p-4', toneClass)}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
-        {icon}
-      </div>
-      <div className="text-2xl font-black text-text-primary">{value}</div>
-    </div>
-  );
-}
 
 export function PerformanceTab({
   newRecordSubject,
@@ -204,6 +178,7 @@ export function PerformanceTab({
       .sort((a, b) => b.total - a.total)
       .slice(0, 4);
   }, [filteredRecords]);
+  const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
 
   const pieData = [
     { name: 'Acertos', value: totals.correct, color: 'var(--color-brand-green)' },
@@ -245,10 +220,10 @@ export function PerformanceTab({
       </header>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Questões" value={totals.total} icon={<ClipboardList size={18} />} tone="primary" />
-        <StatCard label="Acertos" value={totals.correct} icon={<CheckCircle2 size={18} />} tone="green" />
-        <StatCard label="Erros" value={totals.errors} icon={<XCircle size={18} />} tone="red" />
-        <StatCard label="Média" value={`${totals.accuracy}%`} icon={<Target size={18} />} />
+        <StatCard label="Questões" value={totals.total} icon={<ClipboardList size={18} />} color="green" variant="compact" />
+        <StatCard label="Acertos" value={totals.correct} icon={<CheckCircle2 size={18} />} color="green" variant="compact" />
+        <StatCard label="Erros" value={totals.errors} icon={<XCircle size={18} />} color="red" variant="compact" />
+        <StatCard label="Média" value={`${totals.accuracy}%`} icon={<Target size={18} />} color="blue" variant="compact" />
       </section>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
@@ -367,9 +342,11 @@ export function PerformanceTab({
                     >
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <span className="text-[10px] text-brand-primary font-bold uppercase tracking-wider px-2 py-1 rounded bg-brand-primary/10">
-                            {record.subjectName}
-                          </span>
+                      <SubjectTag
+                        subjectName={record.subjectName}
+                        color={getSubjectColorHex(subjectById.get(record.subjectId))}
+                        size="sm"
+                      />
                           <span className="text-[10px] text-text-secondary">{formatFullDate(record.date)}</span>
                         </div>
                         <div className="font-bold text-sm truncate">{record.topic}</div>

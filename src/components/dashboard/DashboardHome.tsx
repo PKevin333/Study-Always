@@ -23,6 +23,8 @@ import { Subject, CycleBlock } from '../../types';
 import { getSubjectColorHex } from '../../utils/subjectColors';
 import { WeeklyActivityData } from '../../hooks/useDashboardLogic';
 import { WeeklyActivityChart } from './WeeklyActivityChart';
+import { MentorTipCallout } from '../shared/MentorTipCallout';
+import { StudyTypeBadge, getStudyTypeBadgeClasses } from '../shared/StudyTypeBadge';
 import { SubjectTag } from '../shared/SubjectTag';
 import { designTokens } from '../../styles/designTokens';
 
@@ -271,11 +273,7 @@ export function DashboardHome({
                         />
                       </div>
                       <div className="flex gap-2 mt-0.5">
-                        <span className={cn(
-                          `${designTokens.microBadge} rounded px-1.5 py-0.5`,
-                          block.type === 'teoria' ? "bg-brand-blue/10 text-brand-blue" : 
-                          block.type === 'questoes' ? "bg-brand-primary/10 text-brand-primary" : "bg-brand-orange/10 text-brand-orange"
-                        )}>{block.type}</span>
+                        <StudyTypeBadge type={block.type} />
                         <span className={designTokens.metaText}>{block.durationMinutes} min</span>
                       </div>
                     </div>
@@ -406,14 +404,11 @@ export function DashboardHome({
             </div>
           </div>
 
-          <div className={`${designTokens.sectionCard} border-brand-primary/20 bg-brand-primary/5`}>
-            <h3 className="font-bold text-brand-primary mb-3 flex items-center gap-2">
-              <Sparkles size={18} /> Dica de Estudo do Mentor
-            </h3>
-            <p className="text-sm text-brand-primary/90 leading-relaxed">
+          <MentorTipCallout title="Dica de Estudo do Mentor">
+            <p className="text-sm leading-relaxed">
               <strong>Técnica do Ciclo:</strong> Nunca estude apenas uma matéria por dia. A alternância mantém seu cérebro em estado de alerta e melhora a retenção a longo prazo. Hoje, tente intercalar as 3 matérias sugeridas no seu ciclo acima.
             </p>
-          </div>
+          </MentorTipCallout>
         </div>
       </div>
 
@@ -487,12 +482,7 @@ export function DashboardHome({
                       value={block.type}
                       onChange={(event) => updateDraftBlock(block.id, { type: event.target.value as CycleBlock['type'] })}
                       className={cn(
-                        "rounded-lg border border-border px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none focus:border-brand-primary",
-                        block.type === 'teoria'
-                          ? "bg-brand-blue/10 text-brand-blue"
-                          : block.type === 'questoes'
-                            ? "bg-brand-primary/10 text-brand-primary"
-                            : "bg-brand-orange/10 text-brand-orange"
+                        getStudyTypeBadgeClasses(block.type, 'rounded-lg border border-border px-3 py-2 outline-none focus:border-brand-primary')
                       )}
                     >
                       <option value="teoria">TEORIA</option>
