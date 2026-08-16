@@ -297,22 +297,25 @@ export function CalendarTab({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <span className="text-sm font-semibold uppercase tracking-wide text-text-secondary">Tarefas no mês</span>
-          <p className="mt-3 text-3xl font-bold text-text-primary">{monthTaskCount}</p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <span className="text-sm font-semibold uppercase tracking-wide text-text-secondary">Pendentes</span>
-          <p className="mt-3 text-3xl font-bold text-text-primary">{pendingTaskCount}</p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <span className="text-sm font-semibold uppercase tracking-wide text-text-secondary">Dia selecionado</span>
-          <p className="mt-3 text-lg font-bold capitalize text-text-primary">{formatSelectedDate(selectedDate)}</p>
-          <p className="mt-1 text-sm text-text-secondary">{selectedTasks.length} tarefa(s)</p>
-        </div>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-text-secondary">
+        <span>
+          <span className="font-medium text-text-primary">{monthTaskCount}</span> tarefa(s) no mês
+        </span>
+        <span aria-hidden="true">·</span>
+        <span>
+          <span className={pendingTaskCount > 0 ? 'font-medium text-brand-orange' : 'font-medium text-text-primary'}>
+            {pendingTaskCount}
+          </span>{' '}
+          pendente(s)
+        </span>
+        <span aria-hidden="true">·</span>
+        <span>
+          Selecionado:{' '}
+          <span className="font-medium capitalize text-text-primary">
+            {formatSelectedDate(selectedDate)}
+          </span>{' '}
+          — <span className="font-medium text-text-primary">{selectedTasks.length}</span> tarefa(s)
+        </span>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">

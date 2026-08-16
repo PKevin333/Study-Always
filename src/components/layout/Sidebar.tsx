@@ -13,7 +13,9 @@ import {
   Sparkles, 
   Settings, 
   LogOut,
-  ClipboardList
+  ClipboardList,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { NavItem } from '../ui/NavItem';
 import { cn } from '../../lib/utils';
@@ -38,12 +40,45 @@ export function Sidebar({
 }: SidebarProps) {
   const targetContest = profile?.targetExam || profile?.concursoAlvo || (profile?.area === 'controle' ? 'Tribunais de Contas' : 'Área Administrativa');
   const profilePhotoUrl = profile?.photoURL || user?.photoURL || '';
-  const profileInitial = (profile?.displayName || user?.displayName || 'U').trim().charAt(0).toUpperCase();
+  const profileName = profile?.displayName || user?.displayName || 'Usuário';
+  const profileInitial = React.useMemo(() => {
+    const parts = profileName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+    return `${parts[0].slice(0, 1)}${parts[parts.length - 1].slice(0, 1)}`.toUpperCase();
+  }, [profileName]);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
+  const profileMenuRef = React.useRef<HTMLDivElement | null>(null);
 
   const handleNavClick = (tab: string) => {
     setActiveTab(tab);
     setIsMobileMenuOpen(false);
+    setIsProfileMenuOpen(false);
   };
+
+  React.useEffect(() => {
+    if (!isProfileMenuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!profileMenuRef.current?.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isProfileMenuOpen]);
 
   return (
     <>
@@ -84,28 +119,69 @@ export function Sidebar({
         </nav>
 
         <div className="pt-6 border-t border-border mt-auto">
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 mb-4 px-3 text-left cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => handleNavClick('settings')}
-            aria-label="Abrir configurações do perfil"
-          >
-            {profilePhotoUrl ? (
-              <img src={profilePhotoUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-bold">
-                {profileInitial}
+          <div className="relative" ref={profileMenuRef}>
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-background/70"
+              onClick={() => setIsProfileMenuOpen((current) => !current)}
+              aria-haspopup="menu"
+              aria-expanded={isProfileMenuOpen}
+              aria-label="Abrir menu do perfil"
+            >
+              {profilePhotoUrl ? (
+                <img src={profilePhotoUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover" referrerPolicy="no-referrer" />
+              ) : (
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-full font-bold"
+                  style={{
+                    backgroundColor: 'var(--bg-accent)',
+                    color: 'var(--text-accent)'
+                  }}
+                >
+                  {profileInitial}
+                </div>
+              )}
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <div className="truncate text-sm font-medium text-text-primary">{profileName}</div>
+                <div className="truncate text-xs text-text-secondary">{targetContest}</div>
+              </div>
+              {isProfileMenuOpen ? (
+                <ChevronUp size={18} className="shrink-0 text-text-secondary" />
+              ) : (
+                <ChevronDown size={18} className="shrink-0 text-text-secondary" />
+              )}
+            </button>
+
+            {isProfileMenuOpen && (
+              <div
+                className="absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-xl"
+                role="menu"
+                aria-label="Menu do perfil"
+              >
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-text-primary transition-colors hover:bg-background/70"
+                  onClick={() => handleNavClick('settings')}
+                  role="menuitem"
+                >
+                  <Settings size={18} />
+                  <span>Configurações</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-brand-red transition-colors hover:bg-brand-red/10"
+                  onClick={() => {
+                    setIsProfileMenuOpen(false);
+                    void auth.signOut();
+                  }}
+                  role="menuitem"
+                >
+                  <LogOut size={18} />
+                  <span>Sair</span>
+                </button>
               </div>
             )}
-            <div className="overflow-hidden">
-              <div className="text-sm font-medium truncate">{profile?.displayName || user?.displayName}</div>
-              <div className="text-xs text-text-secondary truncate">{targetContest}</div>
-            </div>
-          </button>
-          <button onClick={() => auth.signOut()} className="w-full flex items-center gap-3 px-3 py-2 text-text-secondary hover:text-text-primary transition-colors">
-            <LogOut size={20} />
-            <span className="text-sm">Sair</span>
-          </button>
+          </div>
         </div>
       </aside>
     </>
