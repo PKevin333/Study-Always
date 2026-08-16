@@ -118,6 +118,15 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
   const [deletingSessionId, setDeletingSessionId] = React.useState<string | null>(null);
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
   const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
+  const resolveSubjectPresentation = React.useCallback((subjectId?: string, fallbackName?: string) => {
+    const subject = subjectId ? subjectById.get(subjectId) : undefined;
+
+    return {
+      subject,
+      name: subject?.name || fallbackName || 'Disciplina não encontrada',
+      color: getSubjectColorHex(subject)
+    };
+  }, [subjectById]);
 
   const sortedSessions = React.useMemo(() => {
     return [...sessions].sort((a, b) => {
@@ -282,7 +291,7 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
                   const isExpanded = expandedGroups.has(group.key);
                   const hasTypeVariation = group.types.size > 1;
                   const primaryType = Array.from(group.types)[0] as StudyType;
-                  const groupSubject = subjectById.get(group.subjectId);
+                  const groupPresentation = resolveSubjectPresentation(group.subjectId, group.subjectName);
 
                   return (
                     <div
@@ -299,8 +308,8 @@ export function HistoryTab({ sessions, subjects, deleteStudySession }: HistoryTa
                             <div className="mb-1 flex min-w-0 items-center gap-2">
                               <div className="max-w-full flex-1">
                                 <SubjectTag
-                                  subjectName={group.subjectName}
-                                  color={getSubjectColorHex(groupSubject)}
+                                  subjectName={groupPresentation.name}
+                                  color={groupPresentation.color}
                                 />
                               </div>
                               <span className="truncate text-sm text-text-secondary">
