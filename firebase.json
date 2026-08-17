@@ -18,5 +18,11 @@
       "database": "ai-studio-cf04fd2b-889a-44f8-b35b-965ca983e446",
       "rules": "firestore.rules"
     }
-  ]
+  ],
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "singleProjectMode": true
+  }
 }

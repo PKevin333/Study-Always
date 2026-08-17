@@ -54,6 +54,11 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function subjectExists(userId, subjectId) {
+      return subjectId is string &&
+             exists(/databases/$(database)/documents/users/$(userId)/subjects/$(subjectId));
+    }
+
     function isValidEmail(email) {
       return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     }
@@ -63,14 +68,40 @@ service cloud.firestore {
     // ===============================================================
 
     function isValidUser(data) {
-      return (!('uid' in data) || data.uid == request.auth.uid) &&
+      return data.keys().hasOnly([
+               'uid',
+               'email',
+               'displayName',
+               'studentLevel',
+               'area',
+               'targetExam',
+               'concursoAlvo',
+               'weeklyGoalHours',
+               'onboardingCompleted',
+               'theme',
+               'accentColor',
+               'photoURL',
+               'coverURL',
+               'cycleFocus',
+               'dailyTimeMinutes',
+               'dailyTimeMaxMinutes',
+               'blocksPerDay',
+               'blockDurationMinutes',
+               'cycleAutonomy',
+               'currentCycleIndex',
+               'createdAt'
+             ]) &&
+             (!('uid' in data) || data.uid == request.auth.uid) &&
              (!('email' in data) || isValidEmail(data.email)) &&
              (!('area' in data) || data.area in ['administrativa', 'controle']) &&
              (!('displayName' in data) || data.displayName == null || (data.displayName is string && data.displayName.size() < 200)) &&
+             (!('studentLevel' in data) || data.studentLevel == null || (data.studentLevel is string && data.studentLevel.size() < 100)) &&
+             (!('targetExam' in data) || data.targetExam == null || (data.targetExam is string && data.targetExam.size() < 200)) &&
+             (!('concursoAlvo' in data) || data.concursoAlvo == null || (data.concursoAlvo is string && data.concursoAlvo.size() < 200)) &&
              (!('weeklyGoalHours' in data) || data.weeklyGoalHours == null || data.weeklyGoalHours is number) &&
              (!('onboardingCompleted' in data) || data.onboardingCompleted == null || data.onboardingCompleted is bool) &&
              (!('theme' in data) || data.theme == null || data.theme in ['dark', 'light', 'bw']) &&
-             (!('accentColor' in data) || data.accentColor == null || data.accentColor in ['green', 'blue', 'purple', 'orange']) &&
+             (!('accentColor' in data) || data.accentColor == null || data.accentColor in ['emerald', 'blue', 'violet', 'rose', 'orange', 'cyan', 'amber', 'slate']) &&
              (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() < 2000)) &&
              (!('coverURL' in data) || data.coverURL == null || (data.coverURL is string && data.coverURL.size() < 2000)) &&
              (!('cycleFocus' in data) || data.cycleFocus == null || data.cycleFocus in ['teoria', 'questoes', 'revisao', 'equilibrado']) &&
@@ -89,6 +120,26 @@ service cloud.firestore {
 
     function isValidSubject(data) {
       return data.keys().hasAll(['userId', 'name', 'group', 'status']) &&
+             data.keys().hasOnly([
+               'userId',
+               'name',
+               'group',
+               'status',
+               'weight',
+               'order',
+               'studentLevel',
+               'performancePercent',
+               'studyFrequency',
+               'dynamicPriority',
+               'totalHours',
+               'questionsSolved',
+               'accuracy',
+               'lastStudied',
+               'color',
+               'completedTopics',
+               'totalTopics',
+               'progressPercent'
+             ]) &&
              data.userId == request.auth.uid &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
              data.group in [1, 2, 3] &&
@@ -102,34 +153,92 @@ service cloud.firestore {
              (!('performancePercent' in data) || data.performancePercent is number) &&
              (!('studyFrequency' in data) || data.studyFrequency is number) &&
              (!('dynamicPriority' in data) || data.dynamicPriority is number) &&
-             (!('lastStudied' in data) || data.lastStudied == null || data.lastStudied is timestamp);
+             (!('lastStudied' in data) || data.lastStudied == null || data.lastStudied is timestamp) &&
+             (!('color' in data) || data.color == null || (data.color is string && data.color.size() < 64)) &&
+             (!('completedTopics' in data) || data.completedTopics is number) &&
+             (!('totalTopics' in data) || data.totalTopics is number) &&
+             (!('progressPercent' in data) || data.progressPercent is number);
     }
 
     function isValidSession(data) {
       return data.keys().hasAll(['userId', 'subjectId', 'durationMinutes', 'timestamp']) &&
+             data.keys().hasOnly(['userId', 'subjectId', 'subjectName', 'durationMinutes', 'type', 'timestamp']) &&
              data.userId == request.auth.uid &&
+             subjectExists(request.auth.uid, data.subjectId) &&
              data.durationMinutes is number && data.durationMinutes > 0 &&
-             (data.type == null || data.type in ['teoria', 'questoes', 'revisao']);
+             (data.type == null || data.type in ['teoria', 'questoes', 'revisao']) &&
+             (!('subjectName' in data) || (data.subjectName is string && data.subjectName.size() > 0 && data.subjectName.size() < 100));
     }
 
     function isValidError(data) {
       return data.keys().hasAll(['subjectId', 'content', 'createdAt']) &&
+             data.keys().hasOnly([
+               'subjectId',
+               'subjectName',
+               'content',
+               'date',
+               'createdAt',
+               'reviewed',
+               'nextReview',
+               'proximaRevisao',
+               'intervalo',
+               'facilidade',
+               'totalRevisoes',
+               'historico'
+             ]) &&
+             subjectExists(request.auth.uid, data.subjectId) &&
              data.subjectId is string &&
+             (!('subjectName' in data) || (data.subjectName is string && data.subjectName.size() > 0 && data.subjectName.size() < 100)) &&
              data.content is string && data.content.size() > 0 && data.content.size() < 5000 &&
-             (data.reviewed == null || data.reviewed is bool);
+             (!('date' in data) || data.date == null || data.date is string) &&
+             (data.reviewed == null || data.reviewed is bool) &&
+             (!('nextReview' in data) || data.nextReview == null || data.nextReview is timestamp || data.nextReview is string) &&
+             (!('proximaRevisao' in data) || data.proximaRevisao == null || data.proximaRevisao is timestamp || data.proximaRevisao is string) &&
+             (!('intervalo' in data) || data.intervalo == null || data.intervalo is number) &&
+             (!('facilidade' in data) || data.facilidade == null || data.facilidade is number) &&
+             (!('totalRevisoes' in data) || data.totalRevisoes == null || data.totalRevisoes is number) &&
+             (!('historico' in data) || data.historico == null || data.historico is list);
     }
 
     function isValidCycleBlock(data) {
       return data.keys().hasAll(['subjectId', 'subjectName', 'type', 'durationMinutes', 'order']) &&
+             data.keys().hasOnly(['subjectId', 'subjectName', 'type', 'durationMinutes', 'order', 'difficulty', 'dayOfWeek']) &&
+             subjectExists(request.auth.uid, data.subjectId) &&
              data.subjectId is string &&
-             data.subjectName is string &&
+             data.subjectName is string && data.subjectName.size() > 0 && data.subjectName.size() < 100 &&
              data.type in ['teoria', 'questoes', 'revisao'] &&
-             data.durationMinutes is number &&
-             data.order is number;
+             data.durationMinutes is number && data.durationMinutes > 0 &&
+             data.order is number &&
+             (!('dayOfWeek' in data) || data.dayOfWeek == null || (data.dayOfWeek is number && data.dayOfWeek >= 0 && data.dayOfWeek <= 6)) &&
+             (!('difficulty' in data) || data.difficulty == null || data.difficulty in ['facil', 'media', 'dificil']);
+    }
+
+    function isValidDailyBlock(data) {
+      return data.keys().hasAll(['subjectId', 'subjectName', 'type', 'durationMinutes', 'order', 'status', 'date']) &&
+             data.keys().hasOnly([
+               'subjectId',
+               'subjectName',
+               'type',
+               'durationMinutes',
+               'order',
+               'status',
+               'date',
+               'actualMinutes'
+             ]) &&
+             subjectExists(request.auth.uid, data.subjectId) &&
+             data.subjectId is string &&
+             data.subjectName is string && data.subjectName.size() > 0 && data.subjectName.size() < 100 &&
+             data.type in ['teoria', 'questoes', 'revisao'] &&
+             data.durationMinutes is number && data.durationMinutes > 0 &&
+             data.order is number &&
+             data.status in ['pendente', 'em_andamento', 'concluido'] &&
+             data.date is string && data.date.size() > 0 && data.date.size() < 32 &&
+             (!('actualMinutes' in data) || data.actualMinutes == null || (data.actualMinutes is number && data.actualMinutes >= 0));
     }
 
     function isValidTopic(data) {
       return data.keys().hasAll(['name', 'status', 'order']) &&
+             data.keys().hasOnly(['name', 'status', 'order', 'createdAt', 'completedAt', 'notes']) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
              data.status in ['nao_iniciado', 'em_estudo', 'concluido', 'revisar'] &&
              data.order is number &&
@@ -141,6 +250,7 @@ service cloud.firestore {
     function isValidMateria(data) {
       // [FIX]: a UI usa users/{uid}/materias; sem este validador a coleção ficava bloqueada.
       return data.keys().hasAll(['nome', 'origem', 'ativa', 'criadaEm']) &&
+             data.keys().hasOnly(['nome', 'origem', 'ativa', 'criadaEm', 'cor']) &&
              data.nome is string && data.nome.size() > 0 && data.nome.size() < 100 &&
              data.origem in ['base', 'custom'] &&
              data.ativa is bool &&
@@ -150,8 +260,10 @@ service cloud.firestore {
 
     function isValidQuestionRecord(data) {
       return data.keys().hasAll(['subjectId', 'subjectName', 'topic', 'total', 'correct', 'errors', 'percentage', 'date']) &&
+             data.keys().hasOnly(['subjectId', 'subjectName', 'topic', 'total', 'correct', 'errors', 'percentage', 'date']) &&
+             subjectExists(request.auth.uid, data.subjectId) &&
              data.subjectId is string &&
-             data.subjectName is string &&
+             data.subjectName is string && data.subjectName.size() > 0 && data.subjectName.size() < 100 &&
              data.topic is string && data.topic.size() > 0 && data.topic.size() < 200 &&
              data.total is number && data.total > 0 &&
              data.correct is number && data.correct >= 0 && data.correct <= data.total &&
@@ -162,6 +274,7 @@ service cloud.firestore {
 
     function isValidCalendarTask(data) {
       return data.keys().hasAll(['userId', 'title', 'date', 'category', 'completed']) &&
+             data.keys().hasOnly(['userId', 'title', 'date', 'time', 'category', 'notes', 'completed', 'createdAt', 'updatedAt']) &&
              data.userId == request.auth.uid &&
              data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
              data.date is string &&
@@ -185,8 +298,7 @@ service cloud.firestore {
       match /subjects/{subjectId} {
         allow read: if isOwner(userId);
         allow create: if isOwner(userId) && isValidSubject(request.resource.data);
-        // [FIX]: atualizações operacionais, como somar horas estudadas, não devem falhar por campos legados da disciplina.
-        allow update: if isOwner(userId);
+        allow update: if isOwner(userId) && isValidSubject(request.resource.data);
         allow delete: if isOwner(userId);
 
         match /topics/{topicId} {
@@ -228,8 +340,7 @@ service cloud.firestore {
 
       match /dailyBlocks/{blockId} {
         allow read: if isOwner(userId);
-        // [FIX]: dailyBlocks é dado operacional do próprio usuário. Validação rígida estava rejeitando planos legados e fazendo a UI "sumir".
-        allow create, update: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidDailyBlock(request.resource.data);
         allow delete: if isOwner(userId);
       }
 

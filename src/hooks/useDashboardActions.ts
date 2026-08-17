@@ -31,6 +31,14 @@ import { handleFirestoreError } from '../utils/firestore';
 import { getTodayLocalDate } from '../utils/date';
 import { sanitizeCycleIndex } from '../utils/cycle';
 import { getSubjectColorId } from '../utils/subjectColors';
+import {
+  getOptionalUrlError,
+  MAX_CALENDAR_NOTES_LENGTH,
+  MAX_CALENDAR_TITLE_LENGTH,
+  MAX_ERROR_CONTENT_LENGTH,
+  MAX_PROFILE_NAME_LENGTH,
+  MAX_TARGET_EXAM_LENGTH,
+} from '../utils/inputValidation';
 
 import { getMentorAdvice } from '../services/geminiService';
 import { calcularSRS } from '../utils/srsCalculator';
@@ -49,6 +57,13 @@ const withWriteTimeout = async <T,>(promise: Promise<T>, message: string): Promi
     if (timeoutId) clearTimeout(timeoutId);
   }
 };
+
+const allowedCycleFocuses = ['teoria', 'questoes', 'revisao', 'equilibrado'] as const;
+const allowedCycleAutonomies = ['sugerido', 'parcial', 'manual'] as const;
+const allowedCalendarCategories = ['estudo', 'revisao', 'questoes', 'simulado', 'outro'] as const;
+
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
 
 export const persistirRevisaoSRS = async (
   userId: string,
@@ -84,7 +99,18 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!profile) return;
     setLoadingAdvice(true);
     try {
-      const advice = await getMentorAdvice(profile, subjects, sessions);
+      const normalizedSessions = sessions.map((session) => ({
+        subjectId: session.subjectId,
+        subjectName: session.subjectName,
+        durationMinutes: session.durationMinutes,
+        type: session.type,
+        timestamp: session.timestamp?.toDate
+          ? session.timestamp.toDate().toISOString()
+          : session.timestamp instanceof Date
+            ? session.timestamp.toISOString()
+            : session.timestamp || null
+      }));
+      const advice = await getMentorAdvice(profile, subjects, normalizedSessions);
       setMentorAdvice(advice);
     } catch (err) {
       console.error("Error fetching mentor advice:", err);
@@ -431,9 +457,14 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   // Errors
   const saveError = async (subjectId: string, text: string) => {
     if (!user) return;
+    const trimmedText = text.trim();
     // [FIX]: garante que chamadas fora da UI não gravem erro sem disciplina ou conteúdo.
-    if (!subjectId || !text.trim()) {
+    if (!subjectId || !trimmedText) {
       alert('Selecione a disciplina e descreva o erro antes de salvar.');
+      return;
+    }
+    if (trimmedText.length > MAX_ERROR_CONTENT_LENGTH) {
+      alert(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
       return;
     }
     setSavingError(true);
@@ -443,7 +474,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       await addDoc(collection(db, path), {
         subjectId,
         subjectName: subjects.find(s => s.id === subjectId)?.name || 'Desconhecida',
-        content: text.trim(),
+        content: trimmedText,
         date: now.toISOString(),
         createdAt: serverTimestamp(),
         reviewed: false,
@@ -503,8 +534,55 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   const updateError = async (id: string, updates: Partial<StudyError>) => {
     if (!user) return;
     const path = `users/${user.uid}/errors/${id}`;
+    const allowedUpdates: Partial<StudyError> = {};
+
+    if (typeof updates.content === 'string') {
+      const trimmedContent = updates.content.trim();
+      if (!trimmedContent) {
+        alert('A anotação do erro não pode ficar vazia.');
+        return;
+      }
+      if (trimmedContent.length > MAX_ERROR_CONTENT_LENGTH) {
+        alert(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
+        return;
+      }
+      allowedUpdates.content = trimmedContent;
+    }
+
+    if (typeof updates.reviewed === 'boolean') {
+      allowedUpdates.reviewed = updates.reviewed;
+    }
+
+    if (updates.nextReview !== undefined) {
+      allowedUpdates.nextReview = updates.nextReview;
+    }
+
+    if (updates.proximaRevisao !== undefined) {
+      allowedUpdates.proximaRevisao = updates.proximaRevisao;
+    }
+
+    if (isFiniteNumber(updates.intervalo)) {
+      allowedUpdates.intervalo = updates.intervalo;
+    }
+
+    if (isFiniteNumber(updates.facilidade)) {
+      allowedUpdates.facilidade = updates.facilidade;
+    }
+
+    if (isFiniteNumber(updates.totalRevisoes)) {
+      allowedUpdates.totalRevisoes = updates.totalRevisoes;
+    }
+
+    if (Array.isArray(updates.historico)) {
+      allowedUpdates.historico = updates.historico;
+    }
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      return;
+    }
+
     try {
-      await updateDoc(doc(db, path), updates);
+      await updateDoc(doc(db, path), allowedUpdates);
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, path);
     }
@@ -653,12 +731,35 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   const handleSaveProfile = async (name: string, photo: string, cover: string, targetContest: string) => {
     if (!user) return;
     const path = `users/${user.uid}`;
+    const trimmedName = name.trim();
+    const trimmedPhoto = photo.trim();
+    const trimmedCover = cover.trim();
     const trimmedTargetContest = targetContest.trim();
+    const photoError = getOptionalUrlError(trimmedPhoto);
+    const coverError = getOptionalUrlError(trimmedCover);
+
+    if (trimmedName.length > MAX_PROFILE_NAME_LENGTH) {
+      alert(`O nome de exibição deve ter no máximo ${MAX_PROFILE_NAME_LENGTH} caracteres.`);
+      return false;
+    }
+    if (trimmedTargetContest.length > MAX_TARGET_EXAM_LENGTH) {
+      alert(`O concurso alvo deve ter no máximo ${MAX_TARGET_EXAM_LENGTH} caracteres.`);
+      return false;
+    }
+    if (photoError) {
+      alert(photoError);
+      return false;
+    }
+    if (coverError) {
+      alert(coverError);
+      return false;
+    }
+
     try {
       await updateDoc(doc(db, 'users', user.uid), {
-        displayName: name,
-        photoURL: photo,
-        coverURL: cover,
+        displayName: trimmedName,
+        photoURL: trimmedPhoto,
+        coverURL: trimmedCover,
         // [FIX]: permite personalizar o concurso alvo exibido no perfil em vez de prender o usuário em "Tribunal de Contas".
         targetExam: trimmedTargetContest || 'Área Administrativa',
         concursoAlvo: trimmedTargetContest || 'Área Administrativa'
@@ -863,11 +964,51 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
-  const updateCycleSettings = async (updates: any) => {
+  const updateCycleSettings = async (updates: Record<string, unknown>) => {
     if (!user) return;
     const path = `users/${user.uid}`;
+    const allowedUpdates: Record<string, unknown> = {};
+
+    if (isFiniteNumber(updates.dailyTimeMinutes)) {
+      allowedUpdates.dailyTimeMinutes = Math.max(30, Math.round(updates.dailyTimeMinutes));
+    }
+
+    if (isFiniteNumber(updates.dailyTimeMaxMinutes)) {
+      allowedUpdates.dailyTimeMaxMinutes = Math.max(60, Math.round(updates.dailyTimeMaxMinutes));
+    }
+
+    if (isFiniteNumber(updates.blocksPerDay)) {
+      allowedUpdates.blocksPerDay = Math.max(1, Math.round(updates.blocksPerDay));
+    }
+
+    if (isFiniteNumber(updates.blockDurationMinutes)) {
+      allowedUpdates.blockDurationMinutes = Math.max(1, Math.round(updates.blockDurationMinutes));
+    }
+
+    if (
+      typeof updates.cycleFocus === 'string' &&
+      allowedCycleFocuses.includes(updates.cycleFocus as typeof allowedCycleFocuses[number])
+    ) {
+      allowedUpdates.cycleFocus = updates.cycleFocus;
+    }
+
+    if (
+      typeof updates.cycleAutonomy === 'string' &&
+      allowedCycleAutonomies.includes(updates.cycleAutonomy as typeof allowedCycleAutonomies[number])
+    ) {
+      allowedUpdates.cycleAutonomy = updates.cycleAutonomy;
+    }
+
+    if (isFiniteNumber(updates.currentCycleIndex)) {
+      allowedUpdates.currentCycleIndex = Math.max(0, Math.round(updates.currentCycleIndex));
+    }
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      return;
+    }
+
     try {
-      await updateDoc(doc(db, 'users', user.uid), updates);
+      await updateDoc(doc(db, 'users', user.uid), allowedUpdates);
     } catch (error) {
       console.error("Error updating cycle settings:", error);
       handleFirestoreError(error, OperationType.UPDATE, path);
@@ -877,8 +1018,21 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   const addCalendarTask = async (task: Omit<CalendarTask, 'id' | 'userId' | 'completed' | 'createdAt' | 'updatedAt'>) => {
     if (!user) return false;
     const trimmedTitle = task.title.trim();
+    const trimmedNotes = task.notes?.trim() || '';
     if (!trimmedTitle) {
       alert('Informe o título da tarefa antes de salvar.');
+      return false;
+    }
+    if (trimmedTitle.length > MAX_CALENDAR_TITLE_LENGTH) {
+      alert(`O título da tarefa deve ter no máximo ${MAX_CALENDAR_TITLE_LENGTH} caracteres.`);
+      return false;
+    }
+    if (trimmedNotes.length > MAX_CALENDAR_NOTES_LENGTH) {
+      alert(`A observação deve ter no máximo ${MAX_CALENDAR_NOTES_LENGTH} caracteres.`);
+      return false;
+    }
+    if (!allowedCalendarCategories.includes(task.category)) {
+      alert('Selecione uma categoria válida para a tarefa.');
       return false;
     }
 
@@ -890,7 +1044,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         date: task.date,
         time: task.time || '',
         category: task.category,
-        notes: task.notes?.trim() || '',
+        notes: trimmedNotes,
         completed: false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -906,9 +1060,56 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   const updateCalendarTask = async (id: string, updates: Partial<CalendarTask>) => {
     if (!user || !id) return false;
     const path = `users/${user.uid}/calendarTasks/${id}`;
+    const allowedUpdates: Partial<CalendarTask> = {};
+
+    if (typeof updates.title === 'string') {
+      const trimmedTitle = updates.title.trim();
+      if (!trimmedTitle) {
+        alert('O título da tarefa não pode ficar vazio.');
+        return false;
+      }
+      if (trimmedTitle.length > MAX_CALENDAR_TITLE_LENGTH) {
+        alert(`O título da tarefa deve ter no máximo ${MAX_CALENDAR_TITLE_LENGTH} caracteres.`);
+        return false;
+      }
+      allowedUpdates.title = trimmedTitle;
+    }
+
+    if (typeof updates.date === 'string') {
+      allowedUpdates.date = updates.date;
+    }
+
+    if (typeof updates.time === 'string') {
+      allowedUpdates.time = updates.time;
+    }
+
+    if (
+      typeof updates.category === 'string' &&
+      allowedCalendarCategories.includes(updates.category as CalendarTask['category'])
+    ) {
+      allowedUpdates.category = updates.category as CalendarTask['category'];
+    }
+
+    if (typeof updates.notes === 'string') {
+      const trimmedNotes = updates.notes.trim();
+      if (trimmedNotes.length > MAX_CALENDAR_NOTES_LENGTH) {
+        alert(`A observação deve ter no máximo ${MAX_CALENDAR_NOTES_LENGTH} caracteres.`);
+        return false;
+      }
+      allowedUpdates.notes = trimmedNotes;
+    }
+
+    if (typeof updates.completed === 'boolean') {
+      allowedUpdates.completed = updates.completed;
+    }
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      return false;
+    }
+
     try {
       await withWriteTimeout(updateDoc(doc(db, path), {
-        ...updates,
+        ...allowedUpdates,
         updatedAt: serverTimestamp()
       }), 'Tempo limite excedido ao atualizar a tarefa no calendário.');
       return true;

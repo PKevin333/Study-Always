@@ -53,6 +53,40 @@ const formatDate = (value: unknown) => {
   return new Intl.DateTimeFormat('pt-BR').format(date);
 };
 
+const formatReviewStatus = (value: unknown) => {
+  const date = toDate(value);
+  if (!date) {
+    return {
+      label: 'Sem revisão agendada',
+      helper: null
+    };
+  }
+
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startOfReview = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.round((startOfReview.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    return {
+      label: 'Revisar hoje',
+      helper: formatDate(date)
+    };
+  }
+
+  if (diffDays === 1) {
+    return {
+      label: 'Revisar amanhã',
+      helper: formatDate(date)
+    };
+  }
+
+  return {
+    label: `Revisar em ${diffDays} dias`,
+    helper: formatDate(date)
+  };
+};
+
 const getNextReviewDate = (error: StudyError) => {
   return error.proximaRevisao || error.nextReview;
 };
@@ -233,97 +267,84 @@ export function ErrorsTab({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-3xl border border-border bg-card">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px]">
-                <thead className="bg-background border-b border-border">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-primary">Criado em</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-primary">Matéria</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-primary">Conteúdo</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-text-primary">Anotação</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-text-primary">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedErrors.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-12 text-center text-text-secondary">
-                        Você ainda não tem registros na sua caderno de erros.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedErrors.map(error => {
-                      const nextReview = getNextReviewDate(error);
+          <div className="space-y-4">
+            {paginatedErrors.length === 0 ? (
+              <div className={`${designTokens.sectionCardDense} py-12 text-center text-text-secondary`}>
+                Você ainda não tem registros no seu caderno de erros.
+              </div>
+            ) : (
+              paginatedErrors.map(error => {
+                const nextReview = getNextReviewDate(error);
+                const reviewStatus = formatReviewStatus(nextReview);
 
-                      return (
-                        <tr key={error.id} className="border-b border-border last:border-b-0">
-                          <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">
-                            {formatDate(error.createdAt)}
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="max-w-[180px]">
-                              <SubjectTag
-                                subjectName={error.subjectName}
-                                color={getSubjectColorHex(subjectById.get(error.subjectId))}
-                                size="sm"
-                              />
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-text-primary">
-                            <p className="line-clamp-2 whitespace-pre-wrap">{error.content}</p>
-                          </td>
-                          <td className="px-4 py-4 text-sm text-text-secondary">
-                            {nextReview ? (
-                              <span className="inline-flex items-center gap-1 text-brand-primary">
-                                <History size={13} />
-                                Revisar em {formatDate(nextReview)}
-                              </span>
-                            ) : (
-                              'Sem revisão agendada'
-                            )}
-                          </td>
-                          <td className="px-4 py-4">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                onClick={() => rateErrorReview(error.id, 'dificil')}
-                                className="rounded-lg border border-brand-red/20 bg-brand-red/10 px-2 py-1 text-xs font-bold text-brand-red hover:bg-brand-red hover:text-white transition-all"
-                                title="Difícil"
-                              >
-                                Difícil
-                              </button>
-                              <button
-                                onClick={() => rateErrorReview(error.id, 'ok')}
-                                className="rounded-lg border border-brand-yellow/20 bg-brand-yellow/10 px-2 py-1 text-xs font-bold text-brand-yellow hover:bg-brand-yellow hover:text-white transition-all"
-                                title="Ok"
-                              >
-                                Ok
-                              </button>
-                              <button
-                                onClick={() => rateErrorReview(error.id, 'facil')}
-                                className="rounded-lg border border-brand-green/20 bg-brand-green/10 px-2 py-1 text-xs font-bold text-brand-green hover:bg-brand-green hover:text-white transition-all"
-                                title="Fácil"
-                              >
-                                Fácil
-                              </button>
-                              <button
-                                onClick={() => deleteError(error.id)}
-                                className="rounded-lg p-2 text-text-secondary hover:text-brand-red hover:bg-brand-red/10 transition-all"
-                                title="Excluir"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                return (
+                  <article key={error.id} className={`${designTokens.itemCard} bg-card`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 space-y-1">
+                        <SubjectTag
+                          subjectName={error.subjectName}
+                          color={getSubjectColorHex(subjectById.get(error.subjectId))}
+                        />
+                        <p className={designTokens.metaText}>
+                          criado em {formatDate(error.createdAt)}
+                        </p>
+                      </div>
 
-            <div className="border-t border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <button
+                        onClick={() => deleteError(error.id)}
+                        className="rounded-lg p-2 text-text-secondary transition-all hover:bg-brand-red/10 hover:text-brand-red"
+                        title="Excluir"
+                        aria-label="Excluir erro"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div className="mt-4 rounded-xl border border-border/70 bg-background/40 p-4">
+                      <p className="whitespace-pre-line text-sm leading-relaxed text-text-primary">
+                        {error.content}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex min-w-0 items-center gap-2 text-sm text-text-secondary">
+                        <History size={15} className="shrink-0 text-brand-primary" />
+                        <span className="font-medium text-text-primary">{reviewStatus.label}</span>
+                        {reviewStatus.helper && (
+                          <span className="truncate text-text-secondary">· {reviewStatus.helper}</span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={() => rateErrorReview(error.id, 'dificil')}
+                          className="rounded-lg border border-brand-red/40 px-3 py-2 text-xs font-bold text-brand-red transition-all hover:bg-brand-red/10"
+                          title="Difícil"
+                        >
+                          Difícil
+                        </button>
+                        <button
+                          onClick={() => rateErrorReview(error.id, 'ok')}
+                          className="rounded-lg border border-brand-yellow/40 px-3 py-2 text-xs font-bold text-brand-yellow transition-all hover:bg-brand-yellow/10"
+                          title="Ok"
+                        >
+                          Ok
+                        </button>
+                        <button
+                          onClick={() => rateErrorReview(error.id, 'facil')}
+                          className="rounded-lg border border-brand-green/40 px-3 py-2 text-xs font-bold text-brand-green transition-all hover:bg-brand-green/10"
+                          title="Fácil"
+                        >
+                          Fácil
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })
+            )}
+
+            <div className="flex flex-col justify-between gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center">
               <div>
                 <span className="font-bold text-text-primary">Total</span>
                 <span className="ml-2 text-sm text-text-secondary">{filteredErrors.length} erros</span>

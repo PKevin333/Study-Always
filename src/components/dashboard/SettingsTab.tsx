@@ -14,6 +14,7 @@ import {
 } from '../../utils/themePreferences';
 import { SwatchPicker } from '../shared/SwatchPicker';
 import { designTokens } from '../../styles/designTokens';
+import { getOptionalUrlError } from '../../utils/inputValidation';
 
 interface SettingsTabProps {
   saveStatus: 'idle' | 'saving' | 'success' | 'error';
@@ -85,6 +86,14 @@ export function SettingsTab({
 
   const previewProfilePhoto = editProfilePhoto || profile?.photoURL || user?.photoURL || '';
   const previewProfileInitial = (editProfileName || profile?.displayName || user?.displayName || 'U').trim().charAt(0).toUpperCase();
+  const photoFormatError = getOptionalUrlError(editProfilePhoto);
+  const coverFormatError = getOptionalUrlError(editProfileCover);
+  const photoErrorMessage = photoFormatError || urlErrors.photo;
+  const coverErrorMessage = coverFormatError || urlErrors.cover;
+  const canOpenPhotoLink = Boolean(editProfilePhoto.trim()) && !photoFormatError;
+  const canOpenCoverLink = Boolean(editProfileCover.trim()) && !coverFormatError;
+  const previewCoverUrl = coverFormatError ? '' : editProfileCover.trim();
+  const previewPhotoUrl = photoFormatError ? '' : previewProfilePhoto.trim();
 
   return (
     <motion.div 
@@ -154,15 +163,22 @@ export function SettingsTab({
                       type="text" 
                       placeholder="https://exemplo.com/foto.gif"
                       value={editProfilePhoto}
-                      onChange={(e) => setEditProfilePhoto(e.target.value)}
+                      onChange={(e) => {
+                        const nextValue = e.target.value;
+                        setEditProfilePhoto(nextValue);
+                        setUrlErrors(prev => ({ ...prev, photo: undefined }));
+                      }}
                       className={cn(
                         `${designTokens.input} pr-10`,
-                        urlErrors.photo && "border-brand-red focus:border-brand-red"
+                        photoErrorMessage && "border-brand-red focus:border-brand-red"
                       )}
                     />
                     {editProfilePhoto && (
                       <button 
-                        onClick={() => setEditProfilePhoto('')}
+                        onClick={() => {
+                          setEditProfilePhoto('');
+                          setUrlErrors(prev => ({ ...prev, photo: undefined }));
+                        }}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-brand-red transition-colors"
                       >
                         <X size={16} />
@@ -170,15 +186,15 @@ export function SettingsTab({
                     )}
                   </div>
                   <button 
-                    onClick={() => window.open(editProfilePhoto, '_blank')}
-                    disabled={!editProfilePhoto}
+                    onClick={() => window.open(editProfilePhoto.trim(), '_blank', 'noopener,noreferrer')}
+                    disabled={!canOpenPhotoLink}
                     className="p-3 bg-background border border-border rounded-xl hover:border-brand-primary transition-all disabled:opacity-30"
                     title="Visualizar"
                   >
                     <Eye size={20} />
                   </button>
                 </div>
-                {urlErrors.photo && <p className="text-[10px] text-brand-red mt-1 font-bold">{urlErrors.photo}</p>}
+                {photoErrorMessage && <p className="text-[10px] text-brand-red mt-1 font-bold">{photoErrorMessage}</p>}
               </div>
 
               <div>
@@ -189,15 +205,22 @@ export function SettingsTab({
                       type="text" 
                       placeholder="https://exemplo.com/capa.gif"
                       value={editProfileCover}
-                      onChange={(e) => setEditProfileCover(e.target.value)}
+                      onChange={(e) => {
+                        const nextValue = e.target.value;
+                        setEditProfileCover(nextValue);
+                        setUrlErrors(prev => ({ ...prev, cover: undefined }));
+                      }}
                       className={cn(
                         `${designTokens.input} pr-10`,
-                        urlErrors.cover && "border-brand-red focus:border-brand-red"
+                        coverErrorMessage && "border-brand-red focus:border-brand-red"
                       )}
                     />
                     {editProfileCover && (
                       <button 
-                        onClick={() => setEditProfileCover('')}
+                        onClick={() => {
+                          setEditProfileCover('');
+                          setUrlErrors(prev => ({ ...prev, cover: undefined }));
+                        }}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-brand-red transition-colors"
                       >
                         <X size={16} />
@@ -205,15 +228,15 @@ export function SettingsTab({
                     )}
                   </div>
                   <button 
-                    onClick={() => window.open(editProfileCover, '_blank')}
-                    disabled={!editProfileCover}
+                    onClick={() => window.open(editProfileCover.trim(), '_blank', 'noopener,noreferrer')}
+                    disabled={!canOpenCoverLink}
                     className="p-3 bg-background border border-border rounded-xl hover:border-brand-primary transition-all disabled:opacity-30"
                     title="Visualizar"
                   >
                     <Eye size={20} />
                   </button>
                 </div>
-                {urlErrors.cover && <p className="text-[10px] text-brand-red mt-1 font-bold">{urlErrors.cover}</p>}
+                {coverErrorMessage && <p className="text-[10px] text-brand-red mt-1 font-bold">{coverErrorMessage}</p>}
               </div>
 
               <div className="pt-4">
@@ -240,9 +263,9 @@ export function SettingsTab({
                 <div className="relative bg-card border border-border rounded-3xl overflow-hidden shadow-2xl group">
                   {/* Capa */}
                   <div className="h-32 w-full bg-border overflow-hidden relative">
-                    {editProfileCover ? (
+                    {previewCoverUrl ? (
                       <img 
-                        src={editProfileCover} 
+                        src={previewCoverUrl} 
                         alt="Cover Preview" 
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                         referrerPolicy="no-referrer"
@@ -257,9 +280,9 @@ export function SettingsTab({
                   {/* Foto de Perfil */}
                   <div className="absolute top-20 left-1/2 -translate-x-1/2">
                     <div className="relative">
-                      {previewProfilePhoto ? (
+                      {previewPhotoUrl ? (
                         <img 
-                          src={previewProfilePhoto} 
+                          src={previewPhotoUrl} 
                           alt="Profile Preview" 
                           className="w-24 h-24 rounded-full object-cover border-4 border-card shadow-xl transition-transform duration-500 group-hover:scale-110" 
                           referrerPolicy="no-referrer"
