@@ -101,7 +101,7 @@ service cloud.firestore {
              (!('weeklyGoalHours' in data) || data.weeklyGoalHours == null || data.weeklyGoalHours is number) &&
              (!('onboardingCompleted' in data) || data.onboardingCompleted == null || data.onboardingCompleted is bool) &&
              (!('theme' in data) || data.theme == null || data.theme in ['dark', 'light', 'bw']) &&
-             (!('accentColor' in data) || data.accentColor == null || data.accentColor in ['emerald', 'blue', 'violet', 'rose', 'orange', 'cyan', 'amber', 'slate']) &&
+             (!('accentColor' in data) || data.accentColor == null || data.accentColor in ['green', 'blue', 'purple', 'orange', 'emerald', 'violet', 'rose', 'cyan', 'amber', 'slate']) &&
              (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() < 2000)) &&
              (!('coverURL' in data) || data.coverURL == null || (data.coverURL is string && data.coverURL.size() < 2000)) &&
              (!('cycleFocus' in data) || data.cycleFocus == null || data.cycleFocus in ['teoria', 'questoes', 'revisao', 'equilibrado']) &&

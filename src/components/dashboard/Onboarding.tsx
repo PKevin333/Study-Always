@@ -61,13 +61,13 @@ export function Onboarding({ onComplete, isGenerating }: OnboardingProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:items-center sm:p-6">
       <div className="absolute inset-0 bg-background/90 backdrop-blur-md" />
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="relative bg-card border border-border rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden"
+        className="relative my-3 flex max-h-[calc(100vh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-[2.5rem] border border-border bg-card shadow-2xl sm:my-0 sm:max-h-[90vh]"
       >
         {/* Progress Bar */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-background">
@@ -78,7 +78,7 @@ export function Onboarding({ onComplete, isGenerating }: OnboardingProps) {
           />
         </div>
 
-        <div className="p-8 sm:p-12">
+        <div className="overflow-y-auto p-5 sm:p-12">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div

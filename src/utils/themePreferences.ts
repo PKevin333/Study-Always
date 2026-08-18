@@ -17,6 +17,8 @@ type AccentPaletteEntry = {
   text: string;
 };
 
+type LegacyAccentPreference = 'green' | 'blue' | 'purple' | 'orange';
+
 const THEME_STORAGE_KEY = 'study-always:theme-preference';
 const ACCENT_STORAGE_KEY = 'study-always:accent-preference';
 
@@ -37,6 +39,22 @@ export const ACCENT_PALETTE: AccentPaletteEntry[] = [
 ];
 
 const ACCENT_VALUES = ACCENT_PALETTE.map((accent) => accent.id);
+const LEGACY_ACCENT_MAP: Record<LegacyAccentPreference, AccentPreference> = {
+  green: 'emerald',
+  blue: 'blue',
+  purple: 'violet',
+  orange: 'orange'
+};
+const PERSISTED_ACCENT_MAP: Record<AccentPreference, LegacyAccentPreference> = {
+  emerald: 'green',
+  blue: 'blue',
+  violet: 'purple',
+  rose: 'purple',
+  orange: 'orange',
+  cyan: 'blue',
+  amber: 'orange',
+  slate: 'blue'
+};
 
 const isThemePreference = (value: unknown): value is ThemePreference => {
   return typeof value === 'string' && THEME_VALUES.includes(value as ThemePreference);
@@ -44,6 +62,20 @@ const isThemePreference = (value: unknown): value is ThemePreference => {
 
 export const isAccentPreference = (value: unknown): value is AccentPreference => {
   return typeof value === 'string' && ACCENT_VALUES.includes(value as AccentPreference);
+};
+
+const isLegacyAccentPreference = (value: unknown): value is LegacyAccentPreference => {
+  return typeof value === 'string' && value in LEGACY_ACCENT_MAP;
+};
+
+export const normalizeAccentPreference = (value: unknown): AccentPreference | null => {
+  if (isAccentPreference(value)) return value;
+  if (isLegacyAccentPreference(value)) return LEGACY_ACCENT_MAP[value];
+  return null;
+};
+
+export const serializeAccentPreference = (accent: AccentPreference): LegacyAccentPreference => {
+  return PERSISTED_ACCENT_MAP[accent];
 };
 
 export const getAccentPaletteEntry = (accent?: AccentPreference | null) => {
@@ -57,7 +89,7 @@ export const getStoredThemePreference = () => {
 
 export const getStoredAccentPreference = () => {
   const value = window.localStorage.getItem(ACCENT_STORAGE_KEY);
-  return isAccentPreference(value) ? value : null;
+  return normalizeAccentPreference(value);
 };
 
 export const setStoredThemePreference = (theme: ThemePreference) => {
@@ -94,7 +126,7 @@ export const resolveThemePreferences = (profile?: { theme?: unknown; accentColor
   const storedTheme = getStoredThemePreference();
   const theme = storedTheme || (isThemePreference(profile?.theme) ? profile.theme : DEFAULT_THEME);
 
-  const profileAccent = isAccentPreference(profile?.accentColor) ? profile.accentColor : null;
+  const profileAccent = normalizeAccentPreference(profile?.accentColor);
   const storedAccent = getStoredAccentPreference();
   const accent = profileAccent || storedAccent || DEFAULT_ACCENT;
 

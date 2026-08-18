@@ -72,9 +72,9 @@ export function EtapaMaterias({ onConfirmar }: EtapaMateriasProps) {
   }
 
   return (
-    <div className="space-y-8 pb-4">
+    <div className="space-y-6 pb-2 sm:space-y-8 sm:pb-4">
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2">Disciplinas do Ciclo</h2>
+        <h2 className="mb-2 text-2xl font-bold sm:text-3xl">Disciplinas do Ciclo</h2>
         <p className="text-text-secondary">Escolha como deseja começar sua jornada de estudos.</p>
       </div>
 
@@ -116,7 +116,7 @@ export function EtapaMaterias({ onConfirmar }: EtapaMateriasProps) {
         </button>
       </div>
 
-      <div className="min-h-[220px]">
+      <div className="min-h-[220px] pb-24 sm:pb-0">
         <AnimatePresence mode="wait">
           {modo === 'base' ? (
             <motion.div
@@ -165,7 +165,7 @@ export function EtapaMaterias({ onConfirmar }: EtapaMateriasProps) {
                 <button 
                   type="submit" 
                   disabled={!inputCustom.trim()}
-                  className="bg-brand-primary text-white font-bold px-6 rounded-xl hover:bg-brand-primary/80 disabled:opacity-50 transition-colors"
+                  className="shrink-0 bg-brand-primary text-white font-bold px-4 sm:px-6 rounded-xl hover:bg-brand-primary/80 disabled:opacity-50 transition-colors"
                 >
                   Adicionar
                 </button>
@@ -210,11 +210,11 @@ export function EtapaMaterias({ onConfirmar }: EtapaMateriasProps) {
         </AnimatePresence>
       </div>
 
-      <div className="flex justify-end pt-4 border-t border-border">
+      <div className="sticky bottom-0 z-10 -mx-1 border-t border-border bg-card/95 px-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-0">
          <button
             onClick={handleContinuar}
             disabled={!canContinue}
-            className="bg-brand-primary text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-brand-primary/80 transition-all shadow-lg shadow-brand-primary/20 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-8 py-3 font-bold text-white shadow-lg shadow-brand-primary/20 transition-all hover:bg-brand-primary/80 disabled:opacity-50 sm:ml-auto sm:w-auto"
           >
             Continuar
             <ChevronRight size={20} />

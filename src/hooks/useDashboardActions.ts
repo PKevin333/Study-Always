@@ -31,6 +31,7 @@ import { handleFirestoreError } from '../utils/firestore';
 import { getTodayLocalDate } from '../utils/date';
 import { sanitizeCycleIndex } from '../utils/cycle';
 import { getSubjectColorId } from '../utils/subjectColors';
+import { serializeAccentPreference } from '../utils/themePreferences';
 import {
   getOptionalUrlError,
   MAX_CALENDAR_NOTES_LENGTH,
@@ -776,7 +777,9 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user) return false;
     const path = `users/${user.uid}`;
     try {
-      await updateDoc(doc(db, 'users', user.uid), { accentColor });
+      await updateDoc(doc(db, 'users', user.uid), {
+        accentColor: serializeAccentPreference(accentColor as Parameters<typeof serializeAccentPreference>[0])
+      });
       return true;
     } catch (error) {
       console.error('Error saving accent color:', error);
@@ -1164,7 +1167,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         blocksPerDay: blocksPerDay,
         onboardingCompleted: false,
         createdAt: serverTimestamp(),
-        accentColor: 'emerald',
+        accentColor: 'green',
         area: 'administrativa', // Default area
         currentCycleIndex: 0
       }, { merge: true });
