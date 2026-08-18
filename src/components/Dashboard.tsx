@@ -219,7 +219,10 @@ export default function Dashboard() {
       // We can wait a bit or just let the user see the empty state for a second
       // Or we can manually trigger generation once subjects are in state
       setActiveTab('daily');
+      return;
     }
+
+    alert('Não foi possível concluir o cadastro inicial. Tente novamente em alguns instantes.');
   };
 
   const handleAddCustomSubject = async (color?: string) => {

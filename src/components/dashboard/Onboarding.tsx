@@ -11,7 +11,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { Subject } from '../../types';
+import { Materia } from '../../types';
 import { EtapaMaterias } from './EtapaMaterias';
 
 interface OnboardingProps {
@@ -32,6 +32,13 @@ export function Onboarding({ onComplete, isGenerating }: OnboardingProps) {
   const [level, setLevel] = React.useState('iniciante');
   const [hours, setHours] = React.useState(2);
   const [selectedSubjects, setSelectedSubjects] = React.useState<string[]>(SUGGESTED_SUBJECTS);
+  const [selectedSetupSubjects, setSelectedSetupSubjects] = React.useState<Omit<Materia, 'id' | 'criadaEm'>[]>(
+    SUGGESTED_SUBJECTS.map((nome) => ({
+      nome,
+      origem: 'base',
+      ativa: true
+    }))
+  );
 
   const toggleSubject = (name: string) => {
     if (selectedSubjects.includes(name)) {
@@ -45,7 +52,11 @@ export function Onboarding({ onComplete, isGenerating }: OnboardingProps) {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      onComplete({ level, hours, subjects: selectedSubjects });
+      onComplete({
+        level,
+        hours,
+        subjects: selectedSetupSubjects.map((subject) => subject.nome)
+      });
     }
   };
 
@@ -143,11 +154,8 @@ export function Onboarding({ onComplete, isGenerating }: OnboardingProps) {
               >
                 <EtapaMaterias 
                   onConfirmar={(materiasSetup) => {
-                    // For now, we only support string[] in onComplete (legacy)
-                    // The instruction said: onConfirmar vai entregar a lista para o onboarding pai salvar
-                    // But wait, the instruction on part 2 says: "O componente não salva no Firebase — apenas monta e entrega a lista para o onboarding pai salvar."
-                    // Let's store that structured array into Onboarding State so step 3/handleNext can use it.
-                    setSelectedSubjects(materiasSetup as any); 
+                    setSelectedSetupSubjects(materiasSetup);
+                    setSelectedSubjects(materiasSetup.map((materia) => materia.nome));
                     setStep(3);
                   }}
                 />
