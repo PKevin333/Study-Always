@@ -1140,30 +1140,42 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       const today = getTodayLocalDate();
       const dailyTimeMinutes = data.hours * 60;
       const blocksPerDay = data.hours >= 4 ? 4 : 2;
+      const normalizedSubjects = data.subjects
+        .map((subject) => subject.trim())
+        .filter(Boolean)
+        .filter((subject, index, all) => all.findIndex((item) => item.toLowerCase() === subject.toLowerCase()) === index);
 
-      // 1. Create/Update Profile
+      if (normalizedSubjects.length === 0) {
+        alert('Selecione ao menos uma disciplina para concluir o cadastro inicial.');
+        return false;
+      }
+
+      const subLevel = data.level === 'iniciante' ? 'Iniciante' : 'Intermediário';
       const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, {
+      const batch = writeBatch(db);
+
+      // 1. Create/Update Profile base without completing onboarding yet.
+      batch.set(userRef, {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
         studentLevel: data.level,
         dailyTimeMinutes: dailyTimeMinutes,
         blocksPerDay: blocksPerDay,
-        onboardingCompleted: true,
+        onboardingCompleted: false,
         createdAt: serverTimestamp(),
         accentColor: 'emerald',
         area: 'administrativa', // Default area
         currentCycleIndex: 0
       }, { merge: true });
 
-      // 2. Add Subjects and collect their data
+      // 2. Prepare subjects and collect their generated ids before persisting.
       const addedSubjects: { id: string, name: string, studentLevel: string }[] = [];
-      for (let i = 0; i < data.subjects.length; i++) {
-        const name = data.subjects[i];
-        const path = `users/${user.uid}/subjects`;
-        const subLevel = data.level === 'iniciante' ? 'Iniciante' : 'Intermediário';
-        const docRef = await addDoc(collection(db, path), {
+      const subjectsCollection = collection(db, `users/${user.uid}/subjects`);
+      for (let i = 0; i < normalizedSubjects.length; i++) {
+        const name = normalizedSubjects[i];
+        const subjectRef = doc(subjectsCollection);
+        batch.set(subjectRef, {
           userId: user.uid,
           name,
           group: 1,
@@ -1177,19 +1189,24 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
           totalHours: 0,
           questionsSolved: 0,
           accuracy: 0,
-          lastStudied: null
+          lastStudied: null,
+          completedTopics: 0,
+          totalTopics: 0,
+          progressPercent: 0
         });
-        addedSubjects.push({ id: docRef.id, name, studentLevel: subLevel });
+        addedSubjects.push({ id: subjectRef.id, name, studentLevel: subLevel });
       }
 
-      // 3. Generate initial cycle
+      // 3. Prepare initial cycle and today's plan.
       if (addedSubjects.length > 0) {
         const duration = Math.round(dailyTimeMinutes / blocksPerDay);
+        const cycleCollection = collection(db, `users/${user.uid}/cycleBlocks`);
+        const dailyCollection = collection(db, `users/${user.uid}/dailyBlocks`);
         for (let i = 0; i < blocksPerDay; i++) {
           const subject = addedSubjects[i % addedSubjects.length];
           const type = i % 2 === 0 ? 'teoria' : 'questoes';
           
-          await addDoc(collection(db, `users/${user.uid}/cycleBlocks`), {
+          batch.set(doc(cycleCollection), {
             subjectId: subject.id,
             subjectName: subject.name,
             type,
@@ -1198,8 +1215,8 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
             difficulty: subject.studentLevel === 'Iniciante' ? 'facil' : 'media'
           });
 
-          // 4. Also add it to today's plan
-          await addDoc(collection(db, `users/${user.uid}/dailyBlocks`), {
+          // 4. Also add it to today's plan.
+          batch.set(doc(dailyCollection), {
             subjectId: subject.id,
             subjectName: subject.name,
             type,
@@ -1210,7 +1227,13 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
           });
         }
       }
-      
+
+      // 5. Mark onboarding complete only after all dependent writes are ready.
+      batch.set(userRef, {
+        onboardingCompleted: true
+      }, { merge: true });
+
+      await batch.commit();
       return true;
     } catch (err) {
       console.error("Error completing onboarding:", err);

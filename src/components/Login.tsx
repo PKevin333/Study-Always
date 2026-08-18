@@ -5,12 +5,21 @@ import { motion } from 'framer-motion';
 import { Target } from 'lucide-react';
 
 export function Login() {
+  const [isSigningIn, setIsSigningIn] = React.useState(false);
+  const [signInError, setSignInError] = React.useState('');
+
   const handleGoogleSignIn = async () => {
+    if (isSigningIn) return;
     const provider = new GoogleAuthProvider();
+    setIsSigningIn(true);
+    setSignInError('');
     try {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error('Error signing in:', error);
+      setSignInError('Não foi possível entrar com Google. Verifique o popup, sua conexão e tente novamente.');
+    } finally {
+      setIsSigningIn(false);
     }
   };
 
@@ -29,11 +38,17 @@ export function Login() {
           <p className="text-text-secondary mb-10">Sua jornada rumo à aprovação começa aqui. Vamos organizar seus estudos de forma inteligente.</p>
           <button
             onClick={handleGoogleSignIn}
-            className="w-full bg-white text-black font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-lg"
+            disabled={isSigningIn}
+            className="w-full bg-white text-black font-bold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-all shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
           >
             <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-            Entrar com Google
+            {isSigningIn ? 'Entrando...' : 'Entrar com Google'}
           </button>
+          {signInError && (
+            <p className="mt-4 text-sm font-medium text-brand-red">
+              {signInError}
+            </p>
+          )}
         </motion.div>
       </div>
     </div>
