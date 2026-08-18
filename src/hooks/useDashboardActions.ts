@@ -10,6 +10,7 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
   limit,
   orderBy,
   arrayUnion,
@@ -66,6 +67,9 @@ const allowedCalendarCategories = ['estudo', 'revisao', 'questoes', 'simulado', 
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
 
+const isStudyType = (value: unknown): value is 'teoria' | 'questoes' | 'revisao' =>
+  value === 'teoria' || value === 'questoes' || value === 'revisao';
+
 export const persistirRevisaoSRS = async (
   userId: string,
   erroId: string,
@@ -95,6 +99,36 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   const [mentorAdvice, setMentorAdvice] = useState<{ title: string, content: string, actionPoints: string[] } | null>(null);
   const [savingRecord, setSavingRecord] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const resolveSubjectForSession = async (subjectId: string, fallbackName?: string | null) => {
+    const cachedSubject = subjects.find((subject) => subject.id === subjectId);
+    if (cachedSubject) {
+      return {
+        id: cachedSubject.id,
+        name: cachedSubject.name,
+        totalHours: cachedSubject.totalHours || 0
+      };
+    }
+
+    if (!user || !subjectId) return null;
+
+    try {
+      const subjectSnap = await getDoc(doc(db, `users/${user.uid}/subjects`, subjectId));
+      if (!subjectSnap.exists()) {
+        return fallbackName ? { id: subjectId, name: fallbackName, totalHours: 0 } : null;
+      }
+
+      const data = subjectSnap.data() as Partial<Subject>;
+      return {
+        id: subjectSnap.id,
+        name: data.name || fallbackName || 'Disciplina',
+        totalHours: data.totalHours || 0
+      };
+    } catch (error) {
+      console.error('Error resolving subject for session:', error);
+      return fallbackName ? { id: subjectId, name: fallbackName, totalHours: 0 } : null;
+    }
+  };
 
   const fetchMentorAdvice = async (sessions: any[]) => {
     if (!profile) return;
@@ -856,47 +890,65 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (actualMinutes < 1) return;
 
     const subjectId = activeSessionBlock?.subjectId || selectedSubject;
-    const subDoc = subjects.find(s => s.id === subjectId);
-    if (!subDoc) return;
-    const normalizedType = ['teoria', 'questoes', 'revisao'].includes(sessionType) ? sessionType : 'teoria';
+    const subDoc = await resolveSubjectForSession(subjectId, activeSessionBlock?.subjectName || null);
+    if (!subDoc) {
+      alert('Não foi possível localizar a disciplina desta sessão. Atualize a página e tente novamente.');
+      return false;
+    }
+    const normalizedType = isStudyType(sessionType) ? sessionType : 'teoria';
+    const persistedType = isStudyType(activeSessionBlock?.type) ? activeSessionBlock.type : normalizedType;
 
     try {
       // 1. Save Session
       // sessions = fonte de verdade do tempo estudado
       // NÃO calcular tempo a partir de dailyBlocks ou cycleBlocks
-      await addDoc(collection(db, `users/${user.uid}/sessions`), {
+      const sessionRef = doc(collection(db, `users/${user.uid}/sessions`));
+      await setDoc(sessionRef, {
         // [FIX]: as regras exigem userId para criar sessões.
         userId: user.uid,
         subjectId: subjectId,
         subjectName: subDoc.name,
         durationMinutes: actualMinutes,
-        type: activeSessionBlock?.type || normalizedType,
+        type: persistedType,
         timestamp: serverTimestamp()
       });
 
       // 2. Update Daily Block if exists
       if (activeSessionBlock) {
-        await updateDoc(doc(db, `users/${user.uid}/dailyBlocks`, activeSessionBlock.id), { 
-          status: 'concluido',
-          actualMinutes
-        });
+        try {
+          await updateDoc(doc(db, `users/${user.uid}/dailyBlocks`, activeSessionBlock.id), { 
+            status: 'concluido',
+            actualMinutes
+          });
+        } catch (error) {
+          console.error('Error updating daily block after saving session:', error);
+        }
         
         // [FIX]: blocos manuais podem existir sem ciclo base; módulo por zero gravava índice inválido.
         if (cycleBlocks.length > 0) {
           const nextIndex = ((profile?.currentCycleIndex || 0) + 1) % cycleBlocks.length;
-          await updateDoc(doc(db, 'users', user.uid), { currentCycleIndex: nextIndex });
+          try {
+            await updateDoc(doc(db, 'users', user.uid), { currentCycleIndex: nextIndex });
+          } catch (error) {
+            console.error('Error advancing cycle index after saving session:', error);
+          }
         }
       }
 
       // 3. Update Subject Stats
-      const subjectRef = doc(db, `users/${user.uid}/subjects`, subjectId);
-      await updateDoc(subjectRef, {
-        totalHours: (subDoc.totalHours || 0) + (actualMinutes / 60),
-        lastStudied: serverTimestamp()
-      });
+      try {
+        const subjectRef = doc(db, `users/${user.uid}/subjects`, subjectId);
+        await updateDoc(subjectRef, {
+          totalHours: (subDoc.totalHours || 0) + (actualMinutes / 60),
+          lastStudied: serverTimestamp()
+        });
+      } catch (error) {
+        console.error('Error updating subject stats after saving session:', error);
+      }
       return true;
     } catch (err) {
       console.error("Error finishing study session:", err);
+      alert('Não foi possível registrar o tempo estudado. Verifique a conexão e tente novamente.');
       return false;
     }
   };
@@ -909,16 +961,17 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       return false;
     }
 
-    const subDoc = subjects.find(s => s.id === subjectId);
+    const subDoc = await resolveSubjectForSession(subjectId);
     if (!subDoc) {
       alert('Disciplina não encontrada.');
       return false;
     }
 
-    const sessionType = ['teoria', 'questoes', 'revisao'].includes(type) ? type : 'teoria';
+    const sessionType = isStudyType(type) ? type : 'teoria';
 
     try {
-      await addDoc(collection(db, `users/${user.uid}/sessions`), {
+      const sessionRef = doc(collection(db, `users/${user.uid}/sessions`));
+      await setDoc(sessionRef, {
         userId: user.uid,
         subjectId,
         subjectName: subDoc.name,
@@ -927,10 +980,14 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         timestamp: serverTimestamp()
       });
 
-      await updateDoc(doc(db, `users/${user.uid}/subjects`, subjectId), {
-        totalHours: (subDoc.totalHours || 0) + (normalizedMinutes / 60),
-        lastStudied: serverTimestamp()
-      });
+      try {
+        await updateDoc(doc(db, `users/${user.uid}/subjects`, subjectId), {
+          totalHours: (subDoc.totalHours || 0) + (normalizedMinutes / 60),
+          lastStudied: serverTimestamp()
+        });
+      } catch (error) {
+        console.error('Error updating subject stats after manual session:', error);
+      }
 
       return true;
     } catch (err) {
