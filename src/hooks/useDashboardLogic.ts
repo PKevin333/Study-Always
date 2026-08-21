@@ -170,12 +170,7 @@ export function useDashboardLogic(
 
   const getValidationAlerts = useMemo(() => {
     const alerts = [];
-    const totalTime = cycleBlocks.reduce((acc, b) => acc + b.durationMinutes, 0);
-    
-    if (totalTime > dailyTime) {
-      alerts.push({ type: 'warning', message: `Tempo total (${totalTime}min) excede o disponível (${dailyTime}min).` });
-    }
-    
+
     const theoryCount = cycleBlocks.filter(b => b.type === 'teoria').length;
     if (theoryCount > cycleBlocks.length * 0.7) {
       alerts.push({ type: 'info', message: "Muito foco em teoria. Considere adicionar mais blocos de questões." });
@@ -187,7 +182,7 @@ export function useDashboardLogic(
     }
 
     return alerts;
-  }, [cycleBlocks, dailyTime]);
+  }, [cycleBlocks]);
 
   const weeklyActivityData = useMemo<WeeklyActivityData>(() => {
     const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
