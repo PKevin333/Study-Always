@@ -22,6 +22,21 @@ const colorClassMap = SUBJECT_COLOR_OPTIONS.reduce<Record<string, string>>((acc,
   return acc;
 }, {});
 
+const colorHexMap: Record<string, string> = {
+  purple: '#9333ea',
+  blue: '#2563eb',
+  red: '#dc2626',
+  green: '#16a34a',
+  yellow: '#facc15',
+  gold: '#f59e0b',
+  pink: '#db2777',
+  teal: '#0d9488',
+  indigo: '#4f46e5',
+  orange: '#ea580c',
+  cyan: '#06b6d4',
+  slate: '#334155'
+};
+
 const bwOverride = '[html[data-theme=bw]_&]:bg-card [html[data-theme=bw]_&]:text-text-primary [html[data-theme=bw]_&]:border-border';
 
 export const getSubjectColorId = (subject?: Pick<Subject, 'id' | 'color'> | null): SubjectColorId => {
@@ -40,6 +55,11 @@ export const getSubjectBadgeClass = (subject?: Pick<Subject, 'id' | 'color'> | n
 
 export const getSubjectColorClass = (subject?: Pick<Subject, 'id' | 'color'> | null) => {
   return colorClassMap[getSubjectColorId(subject)];
+};
+
+export const getSubjectColorHex = (subject?: Pick<Subject, 'id' | 'color'> | null) => {
+  if (subject?.color?.startsWith('#')) return subject.color;
+  return colorHexMap[getSubjectColorId(subject)] || '#64748b';
 };
 
 export interface SubjectThemeColor {

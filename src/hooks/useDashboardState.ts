@@ -24,12 +24,10 @@ export function useDashboardState(user: any, profile: any) {
   const [newSubjectGroup, setNewSubjectGroup] = useState(1);
   const [mentorAdvice, setMentorAdvice] = useState<MentorAdvice | null>(null);
   const [loadingAdvice, setLoadingAdvice] = useState(false);
-  const [errorText, setErrorText] = useState('');
-  const [errorSubject, setErrorSubject] = useState('');
   const [errors, setErrors] = useState<any[]>([]);
+  const [errorsLoading, setErrorsLoading] = useState(true);
   const [sessions, setSessions] = useState<any[]>([]);
   const [weeklySessions, setWeeklySessions] = useState<any[]>([]);
-  const [savingError, setSavingError] = useState(false);
   const [cycleBlocks, setCycleBlocks] = useState<any[]>([]);
   const [dailyBlocks, setDailyBlocks] = useState<any[]>([]);
   const [calendarTasks, setCalendarTasks] = useState<any[]>([]);
@@ -111,12 +109,10 @@ export function useDashboardState(user: any, profile: any) {
     newSubjectGroup, setNewSubjectGroup,
     mentorAdvice, setMentorAdvice,
     loadingAdvice, setLoadingAdvice,
-    errorText, setErrorText,
-    errorSubject, setErrorSubject,
     errors, setErrors,
+    errorsLoading, setErrorsLoading,
     sessions, setSessions,
     weeklySessions, setWeeklySessions,
-    savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,
     calendarTasks, setCalendarTasks,

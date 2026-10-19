@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { collection, query, onSnapshot, orderBy, limit, where, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { getTodayLocalDate } from '../utils/date';
@@ -13,6 +13,7 @@ export function useDashboardEffects(
     setWeeklySessions,
     setSubjects,
     setErrors,
+    setErrorsLoading,
     setCycleBlocks,
     setDailyBlocks,
     setCalendarTasks,
@@ -45,6 +46,20 @@ export function useDashboardEffects(
   const { finishStudySession } = actions;
   const dailyBlocksLengthRef = useRef(0);
   const dailyPlanGuardUntilRef = useRef(0);
+  const savingSessionRef = useRef(false);
+  const [today, setToday] = useState(getTodayLocalDate);
+
+  useEffect(() => {
+    const refreshDate = () => setToday(getTodayLocalDate());
+    const interval = setInterval(refreshDate, 1000);
+    window.addEventListener('focus', refreshDate);
+    document.addEventListener('visibilitychange', refreshDate);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', refreshDate);
+      document.removeEventListener('visibilitychange', refreshDate);
+    };
+  }, []);
 
   useEffect(() => {
     dailyBlocksLengthRef.current = dailyBlocks.length;
@@ -82,7 +97,7 @@ export function useDashboardEffects(
     });
 
     return () => unsubscribe();
-  }, [user, setWeeklySessions]);
+  }, [user, setWeeklySessions, today]);
 
   // Subjects
   useEffect(() => {
@@ -97,9 +112,13 @@ export function useDashboardEffects(
   // Errors
   useEffect(() => {
     if (!user || !db) return;
-    const q = query(collection(db, `users/${user.uid}/errors`), orderBy('date', 'desc'), limit(10));
+    const q = query(collection(db, `users/${user.uid}/errors`), orderBy('date', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setErrors(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setErrorsLoading(false);
+    }, (error) => {
+      console.error('Error fetching errors:', error);
+      setErrorsLoading(false);
     });
     return () => unsubscribe();
   }, [user]);
@@ -117,7 +136,8 @@ export function useDashboardEffects(
   // Daily Blocks
   useEffect(() => {
     if (!user || !db) return;
-    const today = getTodayLocalDate();
+    dailyPlanGuardUntilRef.current = 0;
+    setDailyPlanGuardUntil(0);
     const q = query(collection(db, `users/${user.uid}/dailyBlocks`), where('date', '==', today));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const blocks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -134,7 +154,7 @@ export function useDashboardEffects(
       console.error('Error fetching dailyBlocks:', error);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, today]);
 
   // Calendar Tasks
   useEffect(() => {
@@ -157,7 +177,7 @@ export function useDashboardEffects(
   // Question Records
   useEffect(() => {
     if (!user || !db) return;
-    const q = query(collection(db, `users/${user.uid}/questionRecords`), orderBy('date', 'desc'), limit(50));
+    const q = query(collection(db, `users/${user.uid}/questionRecords`), orderBy('date', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setQuestionRecords(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
@@ -196,20 +216,31 @@ export function useDashboardEffects(
       
       // Handle phase transition
       if (timerMode === 'study') {
-        // Register session
-        finishStudySession(activeSessionBlock, selectedSubject, seconds, timerStudyType);
-        setSeconds(0);
-        
-        if (currentCycle >= cyclesBeforeLongBreak) {
-          setTimerMode('longBreak');
-          setTimeLeft(longBreakTime * 60);
-          setTotalTimeForMode(longBreakTime * 60);
-          setCurrentCycle(1);
-        } else {
-          setTimerMode('shortBreak');
-          setTimeLeft(shortBreakTime * 60);
-          setTotalTimeForMode(shortBreakTime * 60);
-        }
+        // Preserve elapsed time until the session has actually been saved.
+        if (savingSessionRef.current) return;
+        savingSessionRef.current = true;
+        void (async () => {
+          try {
+            const saved = await finishStudySession(activeSessionBlock, selectedSubject, seconds, timerStudyType);
+            if (!saved) return;
+            setSeconds(0);
+
+            if (currentCycle >= cyclesBeforeLongBreak) {
+              setTimerMode('longBreak');
+              setTimeLeft(longBreakTime * 60);
+              setTotalTimeForMode(longBreakTime * 60);
+              setCurrentCycle(1);
+            } else {
+              setTimerMode('shortBreak');
+              setTimeLeft(shortBreakTime * 60);
+              setTotalTimeForMode(shortBreakTime * 60);
+            }
+          } catch (error) {
+            console.error('Error saving completed timer session:', error);
+          } finally {
+            savingSessionRef.current = false;
+          }
+        })();
       } else {
         setTimerMode('study');
         setTimeLeft(studyTime * 60);

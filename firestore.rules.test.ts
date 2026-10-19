@@ -104,7 +104,7 @@ async function seedAliceTopic(subjectId = 'math', topicId = 'crase') {
   });
 }
 
-describe('firestore.rules hardening', () => {
+describe.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)('firestore.rules hardening', () => {
   beforeAll(async () => {
     testEnv = await initializeTestEnvironment({
       projectId: 'study-always-rules-test',
@@ -117,7 +117,7 @@ describe('firestore.rules hardening', () => {
   });
 
   afterAll(async () => {
-    await testEnv.cleanup();
+    await testEnv?.cleanup();
   });
 
   it('blocks user A from reading user B subject', async () => {

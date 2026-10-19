@@ -184,12 +184,28 @@ service cloud.firestore {
                'intervalo',
                'facilidade',
                'totalRevisoes',
-               'historico'
+               'historico',
+               'disciplina',
+               'assunto',
+               'tipoErro',
+               'conteudo',
+               'anexos',
+               'tags',
+               'criadoEm',
+               'nivel'
              ]) &&
              subjectExists(request.auth.uid, data.subjectId) &&
              data.subjectId is string &&
              (!('subjectName' in data) || (data.subjectName is string && data.subjectName.size() > 0 && data.subjectName.size() < 100)) &&
-             data.content is string && data.content.size() > 0 && data.content.size() < 5000 &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 5000 &&
+             (!('disciplina' in data) || (data.disciplina is string && data.disciplina.size() > 0 && data.disciplina.size() < 100)) &&
+             (!('assunto' in data) || data.assunto == null || (data.assunto is string && data.assunto.size() <= 160)) &&
+             (!('tipoErro' in data) || data.tipoErro in ['atencao', 'nao_sabia', 'confusao', 'pegadinha']) &&
+             (!('conteudo' in data) || (data.conteudo is string && data.conteudo.size() > 0 && data.conteudo.size() <= 5000)) &&
+             (!('anexos' in data) || (data.anexos is list && data.anexos.size() <= 5)) &&
+             (!('tags' in data) || (data.tags is list && data.tags.size() <= 10)) &&
+             (!('criadoEm' in data) || data.criadoEm == null || data.criadoEm is timestamp) &&
+             (!('nivel' in data) || (data.nivel is number && data.nivel >= 1 && data.nivel <= 5)) &&
              (!('date' in data) || data.date == null || data.date is string) &&
              (data.reviewed == null || data.reviewed is bool) &&
              (!('nextReview' in data) || data.nextReview == null || data.nextReview is timestamp || data.nextReview is string) &&

@@ -47,12 +47,9 @@ export default function Dashboard() {
     newSubjectGroup, setNewSubjectGroup,
     mentorAdvice, setMentorAdvice,
     loadingAdvice, setLoadingAdvice,
-    errorText, setErrorText,
-    errorSubject, setErrorSubject,
-    errors, setErrors,
+    errors, setErrors, errorsLoading,
     sessions, setSessions,
     weeklySessions,
-    savingError, setSavingError,
     cycleBlocks, setCycleBlocks,
     dailyBlocks, setDailyBlocks,
     calendarTasks,
@@ -107,6 +104,7 @@ export default function Dashboard() {
     rateErrorReview,
     deleteError,
     updateError,
+    savingError,
     addQuestionRecord,
     deleteQuestionRecord,
     addTopic,
@@ -440,13 +438,11 @@ export default function Dashboard() {
       case 'errors':
         return (
           <ErrorsTab 
-            errorText={errorText}
-            setErrorText={setErrorText}
-            errorSubject={errorSubject}
-            setErrorSubject={setErrorSubject}
+            userId={user.uid}
             subjects={subjects}
-            handleSaveError={() => saveError(errorSubject, errorText)}
+            saveError={saveError}
             savingError={savingError}
+            errorsLoading={errorsLoading}
             errors={errors}
             deleteError={deleteError}
             updateError={updateError}

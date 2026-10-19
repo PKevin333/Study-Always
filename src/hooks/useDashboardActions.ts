@@ -24,6 +24,7 @@ import {
   DailyBlock, 
   Topic, 
   StudyError,
+  StudyErrorDraft,
   Session,
   CalendarTask,
   OperationType 
@@ -78,6 +79,7 @@ export const persistirRevisaoSRS = async (
     facilidade: number;
     proximaRevisao: Date;
     qualidade: number;
+    nivel: number;
   }
 ) => {
   const path = `users/${userId}/errors/${erroId}`;
@@ -89,7 +91,8 @@ export const persistirRevisaoSRS = async (
     proximaRevisao: dadosAtualizados.proximaRevisao,
     nextReview: dadosAtualizados.proximaRevisao, // Campo legado para segurança
     totalRevisoes: increment(1),
-    historico: arrayUnion({ data: new Date(), qualidade: dadosAtualizados.qualidade })
+    historico: arrayUnion({ data: new Date(), qualidade: dadosAtualizados.qualidade }),
+    nivel: dadosAtualizados.nivel
   });
 };
 
@@ -490,26 +493,35 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   };
 
   // Errors
-  const saveError = async (subjectId: string, text: string) => {
-    if (!user) return;
-    const trimmedText = text.trim();
+  const saveError = async (draft: StudyErrorDraft): Promise<boolean> => {
+    if (!user) return false;
+    const trimmedText = draft.conteudo.trim();
     // [FIX]: garante que chamadas fora da UI não gravem erro sem disciplina ou conteúdo.
-    if (!subjectId || !trimmedText) {
+    if (!draft.subjectId || !trimmedText) {
       alert('Selecione a disciplina e descreva o erro antes de salvar.');
-      return;
+      return false;
     }
     if (trimmedText.length > MAX_ERROR_CONTENT_LENGTH) {
       alert(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
-      return;
+      return false;
     }
     setSavingError(true);
     const path = `users/${user.uid}/errors`;
     try {
       const now = new Date();
-      await addDoc(collection(db, path), {
-        subjectId,
-        subjectName: subjects.find(s => s.id === subjectId)?.name || 'Desconhecida',
+      const subjectName = subjects.find(s => s.id === draft.subjectId)?.name || draft.disciplina;
+      const payload = {
+        subjectId: draft.subjectId,
+        subjectName,
         content: trimmedText,
+        disciplina: subjectName,
+        assunto: draft.assunto || null,
+        tipoErro: draft.tipoErro,
+        conteudo: trimmedText,
+        anexos: draft.anexos,
+        tags: draft.tags,
+        criadoEm: serverTimestamp(),
+        nivel: draft.nivel,
         date: now.toISOString(),
         createdAt: serverTimestamp(),
         reviewed: false,
@@ -518,18 +530,21 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         intervalo: 1, // Default interval: 1 day
         facilidade: 2.5, // Default ease factor
         totalRevisoes: 0
-      });
+      };
+      await addDoc(collection(db, path), payload);
+      return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
+      return false;
     } finally {
       setSavingError(false);
     }
   };
 
   const rateErrorReview = async (errorId: string, rating: 'dificil' | 'ok' | 'facil') => {
-    if (!user) return;
+    if (!user) return false;
     const error = errors.find(e => e.id === errorId);
-    if (!error) return;
+    if (!error) return false;
 
     const path = `users/${user.uid}/errors/${errorId}`;
     try {
@@ -544,30 +559,41 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       }
 
       const srsResult = calcularSRS(error, qualidade);
+      const currentLevel = error.nivel || 1;
+      const nextLevel = rating === 'facil'
+        ? Math.min(5, currentLevel + 1)
+        : rating === 'dificil'
+          ? Math.max(1, currentLevel - 1)
+          : currentLevel;
 
       await persistirRevisaoSRS(user.uid, errorId, {
         intervalo: srsResult.intervalo,
         facilidade: srsResult.facilidade,
         proximaRevisao: srsResult.proximaRevisao,
-        qualidade: srsResult.qualidade
+        qualidade: srsResult.qualidade,
+        nivel: nextLevel
       });
+      return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, path);
+      return false;
     }
   };
 
-  const deleteError = async (id: string) => {
-    if (!user) return;
+  const deleteError = async (id: string): Promise<boolean> => {
+    if (!user) return false;
     const path = `users/${user.uid}/errors/${id}`;
     try {
       await deleteDoc(doc(db, path));
+      return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.DELETE, path);
+      return false;
     }
   };
 
-  const updateError = async (id: string, updates: Partial<StudyError>) => {
-    if (!user) return;
+  const updateError = async (id: string, updates: Partial<StudyErrorDraft & StudyError>): Promise<boolean> => {
+    if (!user) return false;
     const path = `users/${user.uid}/errors/${id}`;
     const allowedUpdates: Partial<StudyError> = {};
 
@@ -575,13 +601,48 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       const trimmedContent = updates.content.trim();
       if (!trimmedContent) {
         alert('A anotação do erro não pode ficar vazia.');
-        return;
+        return false;
       }
       if (trimmedContent.length > MAX_ERROR_CONTENT_LENGTH) {
         alert(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
-        return;
+        return false;
       }
       allowedUpdates.content = trimmedContent;
+      allowedUpdates.conteudo = trimmedContent;
+    }
+
+    if (typeof updates.conteudo === 'string') {
+      const trimmedContent = updates.conteudo.trim();
+      if (!trimmedContent || trimmedContent.length > MAX_ERROR_CONTENT_LENGTH) return false;
+      allowedUpdates.conteudo = trimmedContent;
+      allowedUpdates.content = trimmedContent;
+    }
+
+    if (typeof updates.subjectId === 'string' && subjects.some(subject => subject.id === updates.subjectId)) {
+      const subjectName = subjects.find(subject => subject.id === updates.subjectId)?.name || updates.disciplina || 'Desconhecida';
+      allowedUpdates.subjectId = updates.subjectId;
+      allowedUpdates.subjectName = subjectName;
+      allowedUpdates.disciplina = subjectName;
+    }
+
+    if ('assunto' in updates) {
+      allowedUpdates.assunto = updates.assunto?.trim() || '';
+    }
+
+    if (updates.tipoErro && ['atencao', 'nao_sabia', 'confusao', 'pegadinha'].includes(updates.tipoErro)) {
+      allowedUpdates.tipoErro = updates.tipoErro;
+    }
+
+    if (Array.isArray(updates.anexos) && updates.anexos.length <= 5) {
+      allowedUpdates.anexos = updates.anexos;
+    }
+
+    if (Array.isArray(updates.tags)) {
+      allowedUpdates.tags = updates.tags.slice(0, 10);
+    }
+
+    if (isFiniteNumber(updates.nivel)) {
+      allowedUpdates.nivel = Math.min(5, Math.max(1, Math.round(updates.nivel)));
     }
 
     if (typeof updates.reviewed === 'boolean') {
@@ -613,13 +674,15 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
 
     if (Object.keys(allowedUpdates).length === 0) {
-      return;
+      return false;
     }
 
     try {
       await updateDoc(doc(db, path), allowedUpdates);
+      return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, path);
+      return false;
     }
   };
 

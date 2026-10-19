@@ -74,11 +74,39 @@ export interface StudyError {
   createdAt: any;
   reviewed: boolean;
   nextReview: any;
+  disciplina?: string;
+  assunto?: string;
+  tipoErro?: ErrorType;
+  conteudo?: string;
+  anexos?: ErrorAttachment[];
+  tags?: string[];
+  criadoEm?: any;
+  nivel?: number;
   proximaRevisao?: any; // New field for SRS
   intervalo?: number;   // New field for SRS
   facilidade?: number;  // New field for SRS
   totalRevisoes?: number; // New field for SRS
   historico?: { data: any, qualidade: number }[]; // Track over time
+}
+
+export type ErrorType = 'atencao' | 'nao_sabia' | 'confusao' | 'pegadinha';
+
+export interface ErrorAttachment {
+  url: string;
+  nome: string;
+  tipo: string;
+  tamanho: number;
+}
+
+export interface StudyErrorDraft {
+  subjectId: string;
+  disciplina: string;
+  assunto?: string;
+  tipoErro: ErrorType;
+  conteudo: string;
+  anexos: ErrorAttachment[];
+  tags: string[];
+  nivel: number;
 }
 
 export interface CycleBlock {
