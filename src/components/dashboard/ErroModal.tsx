@@ -89,14 +89,22 @@ export function ErroModal({
       return;
     }
 
+    let uploadedAttachments: ErrorAttachment[] = [];
     setUploading(files.length > 0);
     try {
-      const uploadedAttachments = await Promise.all(files.map(file => uploadErrorAttachment(
+      uploadedAttachments = await Promise.all(files.map(file => uploadErrorAttachment(
         userId,
         file,
         value => setProgress(current => ({ ...current, [fileKey(file)]: value }))
       )));
+    } catch (error) {
+      console.error('Error uploading error attachments:', error);
+      setFormError('Não foi possível enviar os anexos. Verifique sua conexão e tente novamente.');
+      setUploading(false);
+      return;
+    }
 
+    try {
       const saved = await onSave({
         subjectId,
         disciplina: subject.name,
@@ -107,10 +115,16 @@ export function ErroModal({
         tags: tagsText.split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 10),
         nivel
       });
-      if (saved) onClose();
+      if (saved) {
+        onClose();
+      } else {
+        setFormError(files.length > 0
+          ? 'Os anexos foram enviados, mas o registro não foi salvo. As regras do Firebase Storage e Firestore precisam estar publicadas.'
+          : 'Não foi possível salvar o registro. Tente novamente em alguns instantes.');
+      }
     } catch (error) {
-      console.error('Error uploading error attachments:', error);
-      setFormError('Não foi possível enviar os anexos. Verifique o Firebase Storage e tente novamente.');
+      console.error('Error saving study error:', error);
+      setFormError('Não foi possível salvar o registro. Tente novamente em alguns instantes.');
     } finally {
       setUploading(false);
     }

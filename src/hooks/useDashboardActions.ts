@@ -71,6 +71,13 @@ const isFiniteNumber = (value: unknown): value is number =>
 const isStudyType = (value: unknown): value is 'teoria' | 'questoes' | 'revisao' =>
   value === 'teoria' || value === 'questoes' || value === 'revisao';
 
+const isPermissionDenied = (error: unknown) => {
+  const code = typeof error === 'object' && error !== null && 'code' in error
+    ? String((error as { code?: unknown }).code)
+    : '';
+  return code === 'permission-denied' || code === 'firestore/permission-denied';
+};
+
 export const persistirRevisaoSRS = async (
   userId: string,
   erroId: string,
@@ -531,10 +538,37 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         facilidade: 2.5, // Default ease factor
         totalRevisoes: 0
       };
-      await addDoc(collection(db, path), payload);
-      return true;
+      try {
+        await addDoc(collection(db, path), payload);
+        return true;
+      } catch (error) {
+        // Vercel does not deploy Firebase rules. Keep basic registration working
+        // while the expanded error schema is being deployed separately.
+        if (!isPermissionDenied(error) || draft.anexos.length > 0) throw error;
+
+        console.warn('Expanded error schema was denied; retrying with the legacy-compatible payload.');
+        await addDoc(collection(db, path), {
+          subjectId: draft.subjectId,
+          subjectName,
+          content: trimmedText,
+          date: now.toISOString(),
+          createdAt: serverTimestamp(),
+          reviewed: false,
+          nextReview: now,
+          proximaRevisao: serverTimestamp(),
+          intervalo: 1,
+          facilidade: 2.5,
+          totalRevisoes: 0
+        });
+        return true;
+      }
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, path);
+      try {
+        handleFirestoreError(err, OperationType.CREATE, path);
+      } catch {
+        // The modal owns the user-facing message; avoid converting a handled
+        // Firestore rejection into an unrelated attachment error.
+      }
       return false;
     } finally {
       setSavingError(false);
