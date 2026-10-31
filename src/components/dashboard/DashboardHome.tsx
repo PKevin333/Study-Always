@@ -201,18 +201,16 @@ export function DashboardHome({
       key="dashboard" 
       className={designTokens.page}
     >
-      <header className="relative mb-6 overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-[var(--app-shadow)] sm:p-8">
-        <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-brand-primary/10 blur-2xl" aria-hidden="true" />
-        <div className="absolute right-20 top-10 h-28 w-28 rounded-full bg-[var(--editorial-accent)]/10 blur-2xl" aria-hidden="true" />
-        <div className="relative">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary">Visão geral</p>
-          <h1 className="text-3xl font-black leading-tight text-text-primary sm:text-4xl">Olá, {user?.displayName?.split(' ')[0] || 'estudante'}.</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base">
-            Seu progresso de hoje para <span className="font-bold text-text-primary">{targetContest}</span>, organizado em um só lugar.
+      <header className="mb-6 flex flex-col justify-between gap-4 border-b border-border pb-5 sm:flex-row sm:items-end">
+        <div>
+          <p className="mb-1 text-xs font-bold text-brand-primary">Olá, {user?.displayName?.split(' ')[0] || 'estudante'}</p>
+          <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">Seu estudo em números</h2>
+          <p className="mt-2 text-sm text-text-secondary">
+            Acompanhe sua preparação para <span className="font-semibold text-text-primary">{targetContest}</span>.
           </p>
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-primary/10 px-3 py-1.5 text-xs font-bold text-brand-primary">
-            <span className="h-2 w-2 rounded-full bg-brand-primary" /> Plano ativo
-          </div>
+        </div>
+        <div className="inline-flex w-fit items-center gap-2 rounded-md border border-brand-primary/20 bg-brand-primary/10 px-3 py-2 text-xs font-bold text-brand-primary">
+          <span className="h-2 w-2 rounded-full bg-brand-primary" /> Plano ativo
         </div>
       </header>
 
@@ -222,14 +220,14 @@ export function DashboardHome({
           label="Desempenho" 
           value={`${avgAccuracy}%`} 
           trend={avgAccuracy > 0 ? "+2%" : ""} 
-          color="green" 
+          color="blue"
         />
         <StatCard 
           icon={<Clock className="text-brand-primary" />}
           label="Horas Totais" 
           value={`${totalHours.toFixed(1)}h`} 
           trend={totalHours > 0 ? "+15%" : ""} 
-          color="green"
+          color="orange"
         />
         <StatCard 
           icon={<CheckCircle2 className="text-brand-primary" />}
@@ -243,7 +241,7 @@ export function DashboardHome({
           label="Média Diária" 
           value={`${dailyAverage.toFixed(1)}h`} 
           trend={dailyAverage > 0 ? "+5%" : ""} 
-          color="green"
+          color="purple"
         />
       </div>
 

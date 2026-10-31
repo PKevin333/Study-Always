@@ -34,17 +34,25 @@
     --chrome-accent: var(--fill-accent);
     --editorial-accent: #7657d6;
     --app-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+    --sidebar-background: #242c3d;
+    --sidebar-text: #d6dbea;
+    --sidebar-muted: #8590a8;
+    --sidebar-hover: rgba(255, 255, 255, 0.07);
   }
 
   :root[data-theme="light"] {
-    --surface-background: #f5f6f1;
+    --surface-background: #f6f8fb;
     --surface-card: #ffffff;
-    --surface-muted: #eef1eb;
+    --surface-muted: #f0f3f7;
     --surface-elevated: #ffffff;
-    --chrome-border: #e3e7df;
+    --chrome-border: #e3e8ef;
     --chrome-text-primary: #252739;
     --chrome-text-secondary: #6e7380;
     --app-shadow: 0 18px 45px rgba(35, 42, 52, 0.07);
+    --sidebar-background: #273043;
+    --sidebar-text: #d9deeb;
+    --sidebar-muted: #8f99af;
+    --sidebar-hover: rgba(255, 255, 255, 0.07);
   }
 
   :root[data-theme="bw"] {
@@ -63,6 +71,10 @@
     --surface-elevated: #ffffff;
     --editorial-accent: #000000;
     --app-shadow: none;
+    --sidebar-background: #000000;
+    --sidebar-text: #ffffff;
+    --sidebar-muted: #bdbdbd;
+    --sidebar-hover: rgba(255, 255, 255, 0.12);
   }
 
   :root {

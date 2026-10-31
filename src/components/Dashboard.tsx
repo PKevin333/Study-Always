@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import { AnimatePresence } from 'framer-motion';
 import { Sidebar } from './layout/Sidebar';
 import { MobileHeader } from './layout/MobileHeader';
+import { DesktopHeader } from './layout/DesktopHeader';
 import { DashboardHome } from './dashboard/DashboardHome';
 import { SubjectsTab } from './dashboard/SubjectsTab';
 import { CycleTab } from './dashboard/CycleTab';
@@ -523,12 +524,18 @@ export default function Dashboard() {
       />
       
       <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+        <DesktopHeader
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          user={user}
+          profile={profile}
+        />
         <MobileHeader 
           isMobileMenuOpen={isMobileMenuOpen} 
           setIsMobileMenuOpen={setIsMobileMenuOpen} 
         />
 
-        <div className="custom-scrollbar flex-1 overflow-y-auto bg-[radial-gradient(circle_at_12%_0%,rgba(var(--fill-accent-rgb),0.08),transparent_28%)] p-4 pt-20 sm:p-6 sm:pt-20 md:p-8 lg:pt-8 xl:p-10">
+        <div className="custom-scrollbar flex-1 overflow-y-auto bg-background p-4 pt-20 sm:p-6 sm:pt-20 md:p-8 lg:pt-7 xl:px-9 xl:pb-10">
           <AnimatePresence mode="wait">
             {renderTabContent()}
           </AnimatePresence>

@@ -92,47 +92,47 @@ export function Sidebar({
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-[17.5rem] transform flex-col border-r border-border bg-card/95 p-4 shadow-2xl backdrop-blur-xl transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none",
+        "fixed inset-y-0 left-0 z-50 flex w-[15.5rem] transform flex-col border-r border-white/10 bg-[var(--sidebar-background)] px-3 py-4 text-[var(--sidebar-text)] shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="mb-7 flex items-center gap-3 rounded-2xl px-2 py-2">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary shadow-lg shadow-brand-primary/20">
+        <div className="mb-7 flex items-center gap-3 border-b border-white/10 px-2 pb-5 pt-1">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-white/5">
             <Target className="text-white w-6 h-6" />
           </div>
           <div>
-            <span className="block text-xl font-black leading-none tracking-tight">Study Always</span>
-            <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[0.18em] text-text-secondary">Seu plano de estudos</span>
+            <span className="block text-lg font-black leading-none tracking-tight text-white">Study Always</span>
+            <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Seu plano de estudos</span>
           </div>
         </div>
 
         <nav className="custom-scrollbar flex-1 space-y-1 overflow-y-auto pr-1">
-          <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.2em] text-text-secondary/70">Hoje</p>
+          <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Hoje</p>
           <NavItem icon={<LayoutDashboard size={20} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => handleNavClick('dashboard')} />
           <NavItem icon={<Target size={20} />} label="Foco de Estudo" active={activeTab === 'focus'} onClick={() => handleNavClick('focus')} />
 
-          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-text-secondary/70">Planejamento</p>
+          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Planejamento</p>
           <NavItem icon={<CalendarCheck size={20} />} label="Plano do Dia" active={activeTab === 'daily'} onClick={() => handleNavClick('daily')} />
           <NavItem icon={<CalendarDays size={20} />} label="Calendário" active={activeTab === 'calendar'} onClick={() => handleNavClick('calendar')} />
           <NavItem icon={<Kanban size={20} />} label="Quadro Kanban" active={activeTab === 'kanban'} onClick={() => handleNavClick('kanban')} />
           <NavItem icon={<History size={20} />} label="Ciclo de Estudos" active={activeTab === 'cycle'} onClick={() => handleNavClick('cycle')} />
           <NavItem icon={<BookOpen size={20} />} label="Disciplinas" active={activeTab === 'subjects'} onClick={() => handleNavClick('subjects')} />
 
-          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-text-secondary/70">Evolução</p>
+          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Evolução</p>
           <NavItem icon={<BarChart3 size={20} />} label="Desempenho" active={activeTab === 'performance'} onClick={() => handleNavClick('performance')} />
           <NavItem icon={<ListChecks size={20} />} label="Caderno de Erros" active={activeTab === 'errors'} onClick={() => handleNavClick('errors')} />
           <NavItem icon={<Timer size={20} />} label="Cronômetro" active={activeTab === 'timer'} onClick={() => handleNavClick('timer')} />
           <NavItem icon={<ClipboardList size={20} />} label="Histórico" active={activeTab === 'history'} onClick={() => handleNavClick('history')} />
           <NavItem icon={<Sparkles size={20} />} label="Mentor IA" badge="IA" active={activeTab === 'mentor'} onClick={() => handleNavClick('mentor')} />
 
-          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-text-secondary/70">Conta</p>
+          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Conta</p>
           <NavItem icon={<Settings size={20} />} label="Configurações" active={activeTab === 'settings'} onClick={() => handleNavClick('settings')} />
         </nav>
 
-        <div className="mt-4 border-t border-border pt-4">
+        <div className="mt-4 border-t border-white/10 pt-4">
           <div className="relative" ref={profileMenuRef}>
             <button
               type="button"
-              className="flex w-full items-center gap-3 rounded-2xl border border-transparent bg-[var(--surface-muted)] px-3 py-3 text-left transition-colors hover:border-brand-primary/20"
+              className="flex w-full items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-3 text-left transition-colors hover:bg-white/10"
               onClick={() => setIsProfileMenuOpen((current) => !current)}
               aria-haspopup="menu"
               aria-expanded={isProfileMenuOpen}
@@ -152,13 +152,13 @@ export function Sidebar({
                 </div>
               )}
               <div className="min-w-0 flex-1 overflow-hidden">
-                <div className="truncate text-sm font-medium text-text-primary">{profileName}</div>
-                <div className="truncate text-xs text-text-secondary">{targetContest}</div>
+                <div className="truncate text-sm font-medium text-white">{profileName}</div>
+                <div className="truncate text-xs text-[var(--sidebar-muted)]">{targetContest}</div>
               </div>
               {isProfileMenuOpen ? (
-                <ChevronUp size={18} className="shrink-0 text-text-secondary" />
+                <ChevronUp size={18} className="shrink-0 text-[var(--sidebar-muted)]" />
               ) : (
-                <ChevronDown size={18} className="shrink-0 text-text-secondary" />
+                <ChevronDown size={18} className="shrink-0 text-[var(--sidebar-muted)]" />
               )}
             </button>
 
