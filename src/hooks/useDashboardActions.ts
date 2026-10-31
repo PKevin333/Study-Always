@@ -17,7 +17,8 @@ import {
   increment,
   writeBatch
 } from 'firebase/firestore';
-import { db, auth } from '../firebase';
+import { db, auth, storage } from '../firebase';
+import { deleteObject, ref as storageRef } from 'firebase/storage';
 import { 
   Subject, 
   CycleBlock, 
@@ -904,6 +905,51 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     }
   };
 
+  const clearAllErrors = async (): Promise<boolean> => {
+    if (!user) return false;
+    const path = `users/${user.uid}/errors`;
+
+    try {
+      while (true) {
+        const snapshot = await getDocs(query(collection(db, path), limit(400)));
+        if (snapshot.empty) break;
+
+        const batch = writeBatch(db);
+        const attachmentUrls: string[] = [];
+        snapshot.docs.forEach(errorDoc => {
+          batch.delete(errorDoc.ref);
+          const attachments = errorDoc.data().anexos;
+          if (Array.isArray(attachments)) {
+            attachments.forEach(attachment => {
+              if (attachment && typeof attachment.url === 'string') {
+                attachmentUrls.push(attachment.url);
+              }
+            });
+          }
+        });
+
+        await batch.commit();
+
+        const cleanupResults = await Promise.allSettled(
+          attachmentUrls.map(url => deleteObject(storageRef(storage, url)))
+        );
+        const failedCleanupCount = cleanupResults.filter(result => result.status === 'rejected').length;
+        if (failedCleanupCount > 0) {
+          console.warn(`${failedCleanupCount} anexo(s) não puderam ser removidos do Storage.`);
+        }
+      }
+
+      return true;
+    } catch (err) {
+      try {
+        handleFirestoreError(err, OperationType.DELETE, path);
+      } catch {
+        // The confirmation modal displays the user-facing error.
+      }
+      return false;
+    }
+  };
+
   const updateAccentColorPreference = async (accentColor: string) => {
     if (!user) return false;
     const path = `users/${user.uid}`;
@@ -1418,6 +1464,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     saveError,
     rateErrorReview,
     deleteError,
+    clearAllErrors,
     updateError,
     savingError,
     addQuestionRecord,

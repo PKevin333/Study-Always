@@ -103,6 +103,7 @@ export default function Dashboard() {
     saveError,
     rateErrorReview,
     deleteError,
+    clearAllErrors,
     updateError,
     savingError,
     addQuestionRecord,
@@ -445,6 +446,7 @@ export default function Dashboard() {
             errorsLoading={errorsLoading}
             errors={errors}
             deleteError={deleteError}
+            clearAllErrors={clearAllErrors}
             updateError={updateError}
             rateErrorReview={rateErrorReview}
           />

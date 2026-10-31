@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpenCheck, Lightbulb, Plus, Sparkles } from 'lucide-react';
+import { AlertTriangle, BookOpenCheck, Lightbulb, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { StudyError, StudyErrorDraft, Subject, ErrorType } from '../../types';
+import { Modal } from '../shared/Modal';
 import { ErroModal } from './ErroModal';
 import { ErroCard } from './ErroCard';
 import { ErrorFilterTab, FiltrosErros } from './FiltrosErros';
@@ -22,6 +23,7 @@ interface ErrorsTabProps {
   errorsLoading?: boolean;
   saveError: (draft: StudyErrorDraft) => Promise<boolean>;
   deleteError: (id: string) => Promise<boolean>;
+  clearAllErrors: () => Promise<boolean>;
   updateError: (id: string, updates: Partial<StudyErrorDraft>) => Promise<boolean>;
   rateErrorReview: (id: string, rating: 'dificil' | 'ok' | 'facil') => Promise<boolean>;
 }
@@ -56,6 +58,7 @@ export function ErrorsTab({
   errorsLoading = false,
   saveError,
   deleteError,
+  clearAllErrors,
   updateError,
   rateErrorReview
 }: ErrorsTabProps) {
@@ -66,6 +69,9 @@ export function ErrorsTab({
   const [tab, setTab] = React.useState<ErrorFilterTab>('todos');
   const [typeFilter, setTypeFilter] = React.useState<ErrorType | 'todos'>('todos');
   const [page, setPage] = React.useState(1);
+  const [clearModalOpen, setClearModalOpen] = React.useState(false);
+  const [clearing, setClearing] = React.useState(false);
+  const [clearError, setClearError] = React.useState('');
 
   const subjectById = React.useMemo(() => new Map(subjects.map(subject => [subject.id, subject])), [subjects]);
   const counts = React.useMemo(() => ({
@@ -115,6 +121,21 @@ export function ErrorsTab({
     return saveError(draft);
   };
 
+  const handleClearAll = async () => {
+    setClearing(true);
+    setClearError('');
+    const cleared = await clearAllErrors();
+    setClearing(false);
+
+    if (cleared) {
+      setClearModalOpen(false);
+      setPage(1);
+      return;
+    }
+
+    setClearError('Não foi possível limpar o caderno. Verifique sua conexão e tente novamente.');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -134,13 +155,27 @@ export function ErrorsTab({
               Transforme cada falha em uma revisão objetiva e acompanhe o que já foi dominado.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={openCreate}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 font-bold text-white shadow-lg shadow-brand-primary/20 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1621]"
-          >
-            <Plus size={18} /> Registrar Erro
-          </button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {errors.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setClearError('');
+                  setClearModalOpen(true);
+                }}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-400/30 px-4 text-sm font-bold text-red-300 transition hover:border-red-400/60 hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+              >
+                <Trash2 size={17} /> Limpar caderno
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={openCreate}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 font-bold text-white shadow-lg shadow-brand-primary/20 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1621]"
+            >
+              <Plus size={18} /> Registrar Erro
+            </button>
+          </div>
         </div>
       </header>
 
@@ -217,6 +252,48 @@ export function ErrorsTab({
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
       />
+
+      <Modal
+        open={clearModalOpen}
+        onClose={() => {
+          if (!clearing) setClearModalOpen(false);
+        }}
+        title="Limpar todo o caderno?"
+        maxWidthClassName="max-w-lg"
+        footer={(
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setClearModalOpen(false)}
+              disabled={clearing}
+              className="h-11 rounded-xl border border-border px-5 text-sm font-bold text-text-primary transition hover:bg-white/5 disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={handleClearAll}
+              disabled={clearing}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-wait disabled:opacity-60"
+            >
+              <Trash2 size={17} /> {clearing ? 'Excluindo...' : `Excluir ${errors.length} registros`}
+            </button>
+          </div>
+        )}
+      >
+        <div className="flex items-start gap-4 rounded-2xl border border-red-400/20 bg-red-500/10 p-4">
+          <AlertTriangle className="mt-0.5 shrink-0 text-red-300" size={22} />
+          <div>
+            <p className="text-sm leading-relaxed text-text-primary">
+              Todos os registros do Caderno de Erros e seus anexos serão excluídos permanentemente.
+            </p>
+            <p className="mt-2 text-xs text-text-secondary">
+              Disciplinas, sessões, calendário, perfil e configurações não serão alterados. Esta ação não pode ser desfeita.
+            </p>
+          </div>
+        </div>
+        {clearError ? <p className="mt-3 text-sm font-medium text-red-300" role="alert">{clearError}</p> : null}
+      </Modal>
     </motion.div>
   );
 }
