@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import { MentorAdvice } from '../services/geminiService';
 
+const getIgnoredFocusTopics = (userId?: string) => {
+  if (!userId || typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem(`study-always:ignored-focus:${userId}`);
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed.filter(value => typeof value === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
 export function useDashboardState(user: any, profile: any) {
   const [subjects, setSubjects] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -54,10 +65,18 @@ export function useDashboardState(user: any, profile: any) {
   const [newRecordTotal, setNewRecordTotal] = useState<number>(0);
   const [newRecordCorrect, setNewRecordCorrect] = useState<number>(0);
   const [savingRecord, setSavingRecord] = useState(false);
-  const [ignoredFocusTopics, setIgnoredFocusTopics] = useState<string[]>([]);
+  const [ignoredFocusTopics, setIgnoredFocusTopics] = useState<string[]>(() => getIgnoredFocusTopics(user?.uid));
   const [weaknessPlan, setWeaknessPlan] = useState<any[]>([]);
   const [showWeaknessPlan, setShowWeaknessPlan] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    window.localStorage.setItem(
+      `study-always:ignored-focus:${user.uid}`,
+      JSON.stringify(ignoredFocusTopics)
+    );
+  }, [ignoredFocusTopics, user?.uid]);
 
   // Cycle settings
   const [cycleFocus, setCycleFocus] = useState('equilibrado');

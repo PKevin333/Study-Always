@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Trash2 } from 'lucide-react';
+import { AlertTriangle, RotateCcw, Target, Trash2 } from 'lucide-react';
 import { Subject, DailyBlock, CycleBlock } from '../../types';
+import { Modal } from '../shared/Modal';
 
 interface FocusTabProps {
   generateWeaknessPlan: () => void;
@@ -18,6 +19,10 @@ interface FocusTabProps {
   setIgnoredFocusTopics: React.Dispatch<React.SetStateAction<string[]>>;
   addDailyBlock: (block: Partial<DailyBlock>) => void;
   addCycleBlock: (subjectId: string, subjectName: string, type: string, duration: number, dayOfWeek?: number) => void;
+  focusSourceCount: number;
+  ignoredFocusCount: number;
+  clearAllFocusItems: () => void;
+  restoreFocusItems: () => void;
 }
 
 export function FocusTab({
@@ -34,8 +39,18 @@ export function FocusTab({
   cycleBlocks,
   setIgnoredFocusTopics,
   addDailyBlock,
-  addCycleBlock
+  addCycleBlock,
+  focusSourceCount,
+  ignoredFocusCount,
+  clearAllFocusItems,
+  restoreFocusItems
 }: FocusTabProps) {
+  const [clearModalOpen, setClearModalOpen] = React.useState(false);
+
+  const ignoreFocusItem = (key: string) => {
+    setIgnoredFocusTopics(current => current.includes(key) ? current : [...current, key]);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }} 
@@ -49,14 +64,34 @@ export function FocusTab({
           <h2 className="text-2xl sm:text-3xl font-bold mb-2">Foco de Estudo</h2>
           <p className="text-text-secondary text-sm sm:text-base">Identifique rapidamente o que revisar com base no seu desempenho real.</p>
         </div>
-        <button
-          onClick={generateWeaknessPlan}
-          disabled={focusItems.focar.length === 0}
-          className="w-full sm:w-auto bg-brand-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          <Target size={20} />
-          Atacar pontos fracos
-        </button>
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+          {ignoredFocusCount > 0 ? (
+            <button
+              type="button"
+              onClick={restoreFocusItems}
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-[var(--surface-muted)] px-4 text-sm font-bold text-text-secondary transition hover:text-brand-primary sm:flex-none"
+            >
+              <RotateCcw size={17} /> Restaurar ocultados
+            </button>
+          ) : null}
+          {focusSourceCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => setClearModalOpen(true)}
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-bold text-brand-red transition hover:bg-brand-red/10 sm:flex-none"
+            >
+              <Trash2 size={17} /> Limpar foco
+            </button>
+          ) : null}
+          <button
+            onClick={generateWeaknessPlan}
+            disabled={focusItems.focar.length === 0}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-brand-primary px-5 font-bold text-white transition-colors hover:bg-brand-primary/80 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            <Target size={18} />
+            Atacar pontos fracos
+          </button>
+        </div>
       </header>
 
       {showWeaknessPlan && (
@@ -261,7 +296,7 @@ export function FocusTab({
                     <div className="flex gap-2">
                       <button 
                         onClick={() => {
-                          setIgnoredFocusTopics(prev => [...prev, item.key]);
+                          ignoreFocusItem(item.key);
                           alert(`Marcado como revisado. O assunto foi removido das prioridades temporariamente.`);
                         }}
                         className="flex-1 bg-background border border-border text-text-secondary text-xs font-bold py-2 rounded-lg hover:bg-border transition-colors"
@@ -269,10 +304,10 @@ export function FocusTab({
                         Já Revisei
                       </button>
                       <button 
-                        onClick={() => setIgnoredFocusTopics(prev => [...prev, item.key])}
-                        className="flex-1 bg-background border border-border text-text-secondary text-xs font-bold py-2 rounded-lg hover:bg-border transition-colors"
+                        onClick={() => ignoreFocusItem(item.key)}
+                        className="flex flex-1 items-center justify-center gap-1.5 bg-background border border-border text-text-secondary text-xs font-bold py-2 rounded-lg hover:bg-brand-red/10 hover:text-brand-red transition-colors"
                       >
-                        Ignorar
+                        <Trash2 size={14} /> Remover do foco
                       </button>
                     </div>
                   </div>
@@ -282,6 +317,43 @@ export function FocusTab({
           )}
         </section>
       </div>
+
+      <Modal
+        open={clearModalOpen}
+        onClose={() => setClearModalOpen(false)}
+        title="Limpar o Foco de Estudo?"
+        footer={(
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setClearModalOpen(false)}
+              className="h-10 rounded-md bg-[var(--surface-muted)] px-4 text-sm font-bold text-text-primary"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                clearAllFocusItems();
+                setClearModalOpen(false);
+              }}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-brand-red px-4 text-sm font-bold text-white hover:brightness-110"
+            >
+              <Trash2 size={16} /> Limpar tudo
+            </button>
+          </div>
+        )}
+      >
+        <div className="flex items-start gap-3 bg-brand-red/5 p-4">
+          <AlertTriangle size={20} className="mt-0.5 shrink-0 text-brand-red" />
+          <div>
+            <p className="text-sm font-semibold text-text-primary">Todos os assuntos serão removidos da lista de foco.</p>
+            <p className="mt-1 text-xs leading-relaxed text-text-secondary">
+              Seus resultados de questões e o histórico de desempenho não serão apagados. Você poderá restaurar os assuntos depois.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </motion.div>
   );
 }

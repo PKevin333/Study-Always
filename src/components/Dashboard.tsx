@@ -225,6 +225,20 @@ export default function Dashboard() {
     alert('Não foi possível concluir o cadastro inicial. Tente novamente em alguns instantes.');
   };
 
+  const handleClearFocusItems = () => {
+    const allFocusKeys = questionRecords
+      .filter(record => record.subjectId && record.topic)
+      .map(record => `${record.subjectId}-${record.topic}`);
+
+    setIgnoredFocusTopics(current => Array.from(new Set([...current, ...allFocusKeys])));
+    setWeaknessPlan([]);
+    setShowWeaknessPlan(false);
+  };
+
+  const handleRestoreFocusItems = () => {
+    setIgnoredFocusTopics([]);
+  };
+
   const handleAddCustomSubject = async (color?: string) => {
     const trimmedName = newSubjectName.trim();
     if (!trimmedName) {
@@ -407,6 +421,10 @@ export default function Dashboard() {
             cycleBlocks={cycleBlocks}
             addDailyBlock={addDailyBlock}
             addCycleBlock={addCycleBlock}
+            focusSourceCount={questionRecords.length}
+            ignoredFocusCount={ignoredFocusTopics.length}
+            clearAllFocusItems={handleClearFocusItems}
+            restoreFocusItems={handleRestoreFocusItems}
             generateWeaknessPlan={() => {}} // Placeholder or implement if needed
           />
         );
