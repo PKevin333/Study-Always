@@ -48,9 +48,9 @@ export function StatCard({
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-4 sm:p-6 hover:border-brand-primary/30 transition-colors group">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <div className="p-1.5 sm:p-2 bg-background rounded-lg group-hover:bg-opacity-80 transition-colors">
+    <div className="group rounded-[1.5rem] border border-border bg-card p-4 shadow-[var(--app-shadow)] transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary/30 sm:p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary transition-colors group-hover:bg-brand-primary group-hover:text-white">
           {React.cloneElement(icon as React.ReactElement, { 
             size: 18, 
             className: (icon as React.ReactElement).props.className + " sm:w-6 sm:h-6" 
@@ -62,8 +62,8 @@ export function StatCard({
           </span>
         )}
       </div>
-      <div className="text-[10px] sm:text-sm text-text-secondary mb-1 truncate">{label}</div>
-      <div className="text-lg sm:text-2xl font-bold truncate">{value}</div>
+      <div className="mb-1 truncate text-[11px] font-bold uppercase tracking-[0.12em] text-text-secondary">{label}</div>
+      <div className="truncate text-2xl font-black tracking-tight text-text-primary sm:text-3xl">{value}</div>
     </div>
   );
 }

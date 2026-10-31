@@ -201,12 +201,22 @@ export function DashboardHome({
       key="dashboard" 
       className={designTokens.page}
     >
-      <header className="mb-8">
-        <h1 className={designTokens.pageTitle}>Olá, {user?.displayName?.split(' ')[0]}! 👋</h1>
-        <p className={designTokens.pageIntro}>Foco total na sua preparação para <span className="text-brand-primary font-bold">{targetContest}</span>.</p>
+      <header className="relative mb-6 overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-[var(--app-shadow)] sm:p-8">
+        <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-brand-primary/10 blur-2xl" aria-hidden="true" />
+        <div className="absolute right-20 top-10 h-28 w-28 rounded-full bg-[var(--editorial-accent)]/10 blur-2xl" aria-hidden="true" />
+        <div className="relative">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary">Visão geral</p>
+          <h1 className="text-3xl font-black leading-tight text-text-primary sm:text-4xl">Olá, {user?.displayName?.split(' ')[0] || 'estudante'}.</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base">
+            Seu progresso de hoje para <span className="font-bold text-text-primary">{targetContest}</span>, organizado em um só lugar.
+          </p>
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-primary/10 px-3 py-1.5 text-xs font-bold text-brand-primary">
+            <span className="h-2 w-2 rounded-full bg-brand-primary" /> Plano ativo
+          </div>
+        </div>
       </header>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard 
           icon={<TrendingUp className="text-brand-primary" />} 
           label="Desempenho" 

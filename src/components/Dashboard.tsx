@@ -503,7 +503,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-background text-text-primary overflow-hidden font-sans">
+    <div className="flex h-screen overflow-hidden bg-background text-text-primary">
       <AnimatePresence>
         {showOnboarding && (
           <Onboarding 
@@ -522,13 +522,13 @@ export default function Dashboard() {
         profile={profile}
       />
       
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <MobileHeader 
           isMobileMenuOpen={isMobileMenuOpen} 
           setIsMobileMenuOpen={setIsMobileMenuOpen} 
         />
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 custom-scrollbar">
+        <div className="custom-scrollbar flex-1 overflow-y-auto bg-[radial-gradient(circle_at_12%_0%,rgba(var(--fill-accent-rgb),0.08),transparent_28%)] p-4 pt-20 sm:p-6 sm:pt-20 md:p-8 lg:pt-8 xl:p-10">
           <AnimatePresence mode="wait">
             {renderTabContent()}
           </AnimatePresence>

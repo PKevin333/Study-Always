@@ -6,6 +6,7 @@ import { GerenciarMaterias } from './GerenciarMaterias';
 import {
   ACCENT_PALETTE,
   AccentPreference,
+  DEFAULT_THEME,
   ThemePreference,
   applyThemePreferences,
   getStoredThemePreference,
@@ -52,11 +53,11 @@ export function SettingsTab({
   user,
   profile
 }: SettingsTabProps) {
-  const [themePreference, setThemePreference] = React.useState<ThemePreference>(() => getStoredThemePreference() || 'dark');
+  const [themePreference, setThemePreference] = React.useState<ThemePreference>(() => getStoredThemePreference() || DEFAULT_THEME);
   const [accentPreference, setAccentPreference] = React.useState<AccentPreference>(() => normalizeAccentPreference(profile?.accentColor) || 'emerald');
 
   React.useEffect(() => {
-    const currentTheme = getStoredThemePreference() || 'dark';
+    const currentTheme = getStoredThemePreference() || DEFAULT_THEME;
     setThemePreference(currentTheme);
   }, []);
 

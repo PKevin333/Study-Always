@@ -14,22 +14,23 @@ export function NavItem({ icon, label, active, badge, onClick }: NavItemProps) {
     <button 
       onClick={onClick}
       className={cn(
-        "group w-full flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-200",
+        "group relative flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all duration-200",
         active
-          ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
-          : "text-text-secondary hover:text-text-primary hover:bg-border/30"
+          ? "bg-brand-primary/10 text-brand-primary"
+          : "text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary"
       )}
     >
+      {active ? <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-brand-primary" aria-hidden="true" /> : null}
       <span className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-all duration-200",
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all duration-200",
         active
-          ? "border-white/20 bg-white/15 text-white"
-          : "border-border bg-card text-text-secondary group-hover:border-brand-primary/30 group-hover:bg-brand-primary/10 group-hover:text-brand-primary"
+          ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/20"
+          : "bg-[var(--surface-muted)] text-text-secondary group-hover:bg-brand-primary/10 group-hover:text-brand-primary"
       )}>
         {icon}
       </span>
       <span className="min-w-0 flex-1 truncate text-left text-sm font-medium">{label}</span>
-      {badge && !active && (
+      {badge && (
         <span className="rounded-full bg-brand-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-primary">
           {badge}
         </span>

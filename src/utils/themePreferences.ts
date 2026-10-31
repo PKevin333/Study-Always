@@ -22,13 +22,13 @@ type LegacyAccentPreference = 'green' | 'blue' | 'purple' | 'orange';
 const THEME_STORAGE_KEY = 'study-always:theme-preference';
 const ACCENT_STORAGE_KEY = 'study-always:accent-preference';
 
-export const DEFAULT_THEME: ThemePreference = 'dark';
+export const DEFAULT_THEME: ThemePreference = 'light';
 export const DEFAULT_ACCENT: AccentPreference = 'emerald';
 
 const THEME_VALUES: ThemePreference[] = ['dark', 'light', 'bw'];
 
 export const ACCENT_PALETTE: AccentPaletteEntry[] = [
-  { id: 'emerald', name: 'Esmeralda', fill: '#22c55e', rgb: '34, 197, 94', text: '#ffffff' },
+  { id: 'emerald', name: 'Turquesa', fill: '#14b8a6', rgb: '20, 184, 166', text: '#ffffff' },
   { id: 'blue', name: 'Azul', fill: '#3b82f6', rgb: '59, 130, 246', text: '#ffffff' },
   { id: 'violet', name: 'Violeta', fill: '#7c3aed', rgb: '124, 58, 237', text: '#ffffff' },
   { id: 'rose', name: 'Rosa', fill: '#f43f5e', rgb: '244, 63, 94', text: '#ffffff' },
