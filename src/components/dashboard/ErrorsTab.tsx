@@ -35,17 +35,17 @@ function ErrorSkeleton() {
     <div className="animate-pulse overflow-hidden rounded-lg border-l-4 border-l-brand-primary bg-card p-6 shadow-sm" aria-hidden="true">
       <div className="flex justify-between gap-4">
         <div className="w-full space-y-3">
-          <div className="h-3 w-40 rounded bg-white/10" />
-          <div className="h-5 w-2/3 rounded bg-white/10" />
+          <div className="h-3 w-40 rounded bg-[var(--surface-muted)]" />
+          <div className="h-5 w-2/3 rounded bg-[var(--surface-muted)]" />
         </div>
-        <div className="h-8 w-20 rounded bg-white/10" />
+        <div className="h-8 w-20 rounded bg-[var(--surface-muted)]" />
       </div>
       <div className="mt-6 space-y-2">
-        <div className="h-3 rounded bg-white/10" />
-        <div className="h-3 rounded bg-white/10" />
-        <div className="h-3 w-4/5 rounded bg-white/10" />
+        <div className="h-3 rounded bg-[var(--surface-muted)]" />
+        <div className="h-3 rounded bg-[var(--surface-muted)]" />
+        <div className="h-3 w-4/5 rounded bg-[var(--surface-muted)]" />
       </div>
-      <div className="mt-6 h-12 rounded-xl bg-white/5" />
+      <div className="mt-6 h-12 rounded-xl bg-[var(--surface-muted)]" />
     </div>
   );
 }
@@ -266,7 +266,7 @@ export function ErrorsTab({
               type="button"
               onClick={() => setClearModalOpen(false)}
               disabled={clearing}
-              className="h-11 rounded-xl border border-border px-5 text-sm font-bold text-text-primary transition hover:bg-white/5 disabled:opacity-50"
+              className="h-11 rounded-xl border border-border px-5 text-sm font-bold text-text-primary transition hover:bg-[var(--surface-muted)] disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -282,7 +282,7 @@ export function ErrorsTab({
         )}
       >
         <div className="flex items-start gap-4 rounded-2xl border border-red-400/20 bg-red-500/10 p-4">
-          <AlertTriangle className="mt-0.5 shrink-0 text-red-300" size={22} />
+          <AlertTriangle className="mt-0.5 shrink-0 text-brand-red" size={22} />
           <div>
             <p className="text-sm leading-relaxed text-text-primary">
               Todos os registros do Caderno de Erros e seus anexos serão excluídos permanentemente.
@@ -292,7 +292,7 @@ export function ErrorsTab({
             </p>
           </div>
         </div>
-        {clearError ? <p className="mt-3 text-sm font-medium text-red-300" role="alert">{clearError}</p> : null}
+        {clearError ? <p className="mt-3 text-sm font-medium text-brand-red" role="alert">{clearError}</p> : null}
       </Modal>
     </motion.div>
   );

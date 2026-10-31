@@ -23,11 +23,11 @@ export function AnexosGrid({ anexos = [] }: AnexosGridProps) {
                 href={anexo.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex min-h-24 flex-col justify-between rounded-xl border border-[#383044] bg-[#17131d] p-3 text-left transition hover:border-brand-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                className="flex min-h-24 flex-col justify-between rounded-xl border border-border bg-background p-3 text-left transition hover:border-brand-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 aria-label={`Abrir PDF ${anexo.nome}`}
               >
-                <FileText className="text-rose-400" size={24} />
-                <span className="mt-3 flex items-center gap-1 truncate text-xs font-medium text-slate-200">
+                <FileText className="text-brand-red" size={24} />
+                <span className="mt-3 flex items-center gap-1 truncate text-xs font-medium text-text-primary">
                   {anexo.nome} <ExternalLink size={12} />
                 </span>
               </a>
@@ -39,7 +39,7 @@ export function AnexosGrid({ anexos = [] }: AnexosGridProps) {
               type="button"
               key={`${anexo.url}-${index}`}
               onClick={() => setActiveAttachment(anexo)}
-              className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-[#383044] bg-[#17131d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-border bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               aria-label={`Ampliar imagem ${anexo.nome}`}
             >
               <img src={anexo.url} alt={anexo.nome} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />

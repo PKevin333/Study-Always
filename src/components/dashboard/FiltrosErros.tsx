@@ -84,7 +84,7 @@ export function FiltrosErros({
               )}
             >
               {item.label}
-              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px]', tab === item.value ? 'bg-white/20' : 'bg-white/5 text-text-secondary')}>
+              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px]', tab === item.value ? 'bg-white/20' : 'bg-card text-text-secondary')}>
                 {counts[item.value]}
               </span>
             </button>

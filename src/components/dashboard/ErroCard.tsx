@@ -23,10 +23,10 @@ interface ErroCardProps {
 }
 
 const TYPE_LABELS: Record<ErrorType, { label: string; classes: string }> = {
-  atencao: { label: 'Falta de atenção', classes: 'border-amber-400/30 bg-amber-400/10 text-amber-300' },
-  nao_sabia: { label: 'Não sabia', classes: 'border-rose-400/30 bg-rose-400/10 text-rose-300' },
-  confusao: { label: 'Confusão', classes: 'border-sky-400/30 bg-sky-400/10 text-sky-300' },
-  pegadinha: { label: 'Pegadinha', classes: 'border-violet-400/30 bg-violet-400/10 text-violet-300' }
+  atencao: { label: 'Falta de atenção', classes: 'border-brand-orange/30 bg-brand-orange/10 text-brand-orange' },
+  nao_sabia: { label: 'Não sabia', classes: 'border-brand-red/30 bg-brand-red/10 text-brand-red' },
+  confusao: { label: 'Confusão', classes: 'border-brand-blue/30 bg-brand-blue/10 text-brand-blue' },
+  pegadinha: { label: 'Pegadinha', classes: 'border-brand-magenta/30 bg-brand-magenta/10 text-brand-magenta' }
 };
 
 export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardProps) {
@@ -75,7 +75,7 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
             <button
               type="button"
               onClick={() => onEdit(error)}
-              className="rounded-lg p-2 text-text-secondary transition hover:bg-violet-500/10 hover:text-violet-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="rounded-lg p-2 text-text-secondary transition hover:bg-brand-primary/10 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               aria-label="Editar registro"
             >
               <Pencil size={17} />
@@ -83,7 +83,7 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded-lg p-2 text-text-secondary transition hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="rounded-lg p-2 text-text-secondary transition hover:bg-brand-red/10 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               aria-label="Excluir registro"
             >
               <Trash2 size={17} />
@@ -117,15 +117,15 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
       </div>
 
       <footer className="flex flex-col gap-3 bg-[var(--surface-muted)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div className={cn('flex items-center gap-2 text-xs font-semibold', dueToday ? 'text-amber-300' : 'text-text-secondary')}>
+        <div className={cn('flex items-center gap-2 text-xs font-semibold', dueToday ? 'text-brand-orange' : 'text-text-secondary')}>
           <CalendarClock size={16} />
           {dueToday ? 'Revisar hoje' : `Próxima revisão: ${formatErrorDate(getErrorNextReview(error))}`}
         </div>
         <div className="grid grid-cols-3 gap-2 sm:flex">
           {([
-            ['dificil', 'Difícil', 'border-rose-500/40 text-rose-300 hover:bg-rose-500 hover:text-white'],
-            ['ok', 'Ok', 'border-amber-500/40 text-amber-300 hover:bg-amber-500 hover:text-slate-950'],
-            ['facil', 'Fácil', 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-500 hover:text-white']
+            ['dificil', 'Difícil', 'border-brand-red/40 text-brand-red hover:bg-brand-red hover:text-white'],
+            ['ok', 'Ok', 'border-brand-orange/40 text-brand-orange hover:bg-brand-orange hover:text-white'],
+            ['facil', 'Fácil', 'border-brand-green/40 text-brand-green hover:bg-brand-green hover:text-white']
           ] as const).map(([rating, label, classes]) => (
             <button
               key={rating}
@@ -134,7 +134,7 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
               className={cn(
                 'inline-flex h-9 min-w-20 items-center justify-center gap-1 rounded-lg border bg-transparent px-3 text-xs font-bold transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
                 classes,
-                activeRating === rating && 'scale-[0.98] bg-white/10'
+                activeRating === rating && 'scale-[0.98] bg-[var(--surface-muted)]'
               )}
               aria-label={`Avaliar revisão como ${label}`}
             >

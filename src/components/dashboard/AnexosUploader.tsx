@@ -89,7 +89,7 @@ export function AnexosUploader({
         }}
         className={cn(
           'cursor-pointer rounded-2xl border border-dashed px-4 py-6 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
-          dragging ? 'border-brand-primary bg-brand-primary/10' : 'border-[#4a4058] bg-[#17131d] hover:border-brand-primary/60',
+          dragging ? 'border-brand-primary bg-brand-primary/10' : 'border-border bg-background hover:border-brand-primary/60',
           disabled && 'cursor-not-allowed opacity-60'
         )}
       >
@@ -106,26 +106,26 @@ export function AnexosUploader({
           }}
         />
         <UploadCloud className="mx-auto mb-2 text-brand-primary" size={26} />
-        <p className="text-sm font-semibold text-white">Clique, arraste ou cole com Ctrl+V</p>
+        <p className="text-sm font-semibold text-text-primary">Clique, arraste ou cole com Ctrl+V</p>
         <p className="mt-1 text-xs text-text-secondary">PNG, JPG, WEBP ou PDF · até 5 MB · {totalCount}/5</p>
       </div>
 
-      {error ? <p className="text-xs text-rose-400" role="alert">{error}</p> : null}
+      {error ? <p className="text-xs text-brand-red" role="alert">{error}</p> : null}
 
       {(existingAttachments.length > 0 || files.length > 0) && (
         <div className="space-y-2">
           {existingAttachments.map((attachment, index) => (
-            <div key={`${attachment.url}-${index}`} className="flex items-center gap-3 rounded-xl border border-[#383044] bg-[#17131d] p-3">
-              {attachment.tipo.startsWith('image/') ? <Image size={18} className="text-violet-300" /> : <FileText size={18} className="text-rose-300" />}
+            <div key={`${attachment.url}-${index}`} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+              {attachment.tipo.startsWith('image/') ? <Image size={18} className="text-brand-primary" /> : <FileText size={18} className="text-brand-red" />}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-slate-200">{attachment.nome}</p>
+                <p className="truncate text-xs font-medium text-text-primary">{attachment.nome}</p>
                 <p className="text-[11px] text-text-secondary">{formatSize(attachment.tamanho)}</p>
               </div>
               <button
                 type="button"
                 onClick={() => onExistingAttachmentsChange(existingAttachments.filter((_, itemIndex) => itemIndex !== index))}
                 disabled={disabled}
-                className="rounded-lg p-2 text-text-secondary hover:bg-rose-500/10 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                className="rounded-lg p-2 text-text-secondary hover:bg-brand-red/10 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 aria-label={`Remover ${attachment.nome}`}
               >
                 <Trash2 size={16} />
@@ -136,18 +136,18 @@ export function AnexosUploader({
           {files.map((file, index) => {
             const currentProgress = progress[fileKey(file)];
             return (
-              <div key={fileKey(file)} className="rounded-xl border border-[#383044] bg-[#17131d] p-3">
+              <div key={fileKey(file)} className="rounded-xl border border-border bg-background p-3">
                 <div className="flex items-center gap-3">
-                  <Paperclip size={18} className="text-violet-300" />
+                  <Paperclip size={18} className="text-brand-primary" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium text-slate-200">{file.name}</p>
+                    <p className="truncate text-xs font-medium text-text-primary">{file.name}</p>
                     <p className="text-[11px] text-text-secondary">{formatSize(file.size)}</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => onFilesChange(files.filter((_, itemIndex) => itemIndex !== index))}
                     disabled={disabled}
-                    className="rounded-lg p-2 text-text-secondary hover:bg-rose-500/10 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                    className="rounded-lg p-2 text-text-secondary hover:bg-brand-red/10 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                     aria-label={`Remover ${file.name}`}
                   >
                     <Trash2 size={16} />
@@ -155,7 +155,7 @@ export function AnexosUploader({
                 </div>
                 {currentProgress !== undefined ? (
                   <div className="mt-2 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--surface-muted)]">
                       <div className="h-full rounded-full bg-brand-primary transition-all" style={{ width: `${currentProgress}%` }} />
                     </div>
                     <span className="w-9 text-right text-[10px] text-text-secondary">{currentProgress}%</span>

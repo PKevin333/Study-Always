@@ -153,13 +153,13 @@ export function ErroModal({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-            className="relative h-full w-[min(94vw,430px)] overflow-y-auto border-l border-[#3b3247] bg-[#17131d] shadow-2xl sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-2xl sm:rounded-[2rem] sm:border"
+            className="relative h-full w-[min(94vw,430px)] overflow-y-auto border-l border-border bg-card shadow-2xl sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-2xl sm:rounded-3xl sm:border"
           >
             <form onSubmit={handleSubmit} className="p-5 sm:p-7">
               <div className="mb-6 flex items-start justify-between gap-4">
                 <div>
-                  <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-violet-300">Caderno de Erros</p>
-                  <h3 id="erro-modal-title" className="text-2xl font-bold text-white">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-brand-primary">Caderno de Erros</p>
+                  <h3 id="erro-modal-title" className="text-2xl font-bold text-text-primary">
                     {editingError ? 'Editar registro' : 'Registrar novo erro'}
                   </h3>
                 </div>
@@ -167,7 +167,7 @@ export function ErroModal({
                   type="button"
                   onClick={onClose}
                   disabled={busy}
-                  className="rounded-xl border border-[#3b3247] p-2 text-text-secondary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                  className="rounded-xl border border-border p-2 text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                   aria-label="Fechar"
                 >
                   <X size={19} />
@@ -181,7 +181,7 @@ export function ErroModal({
                     <select
                       value={subjectId}
                       onChange={event => setSubjectId(event.target.value)}
-                      className="w-full rounded-xl border border-[#3b3247] bg-[#100d15] px-4 py-3 text-sm font-normal normal-case tracking-normal text-white outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-normal normal-case tracking-normal text-text-primary outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
                     >
                       <option value="">Selecione</option>
                       {subjects.map(subject => <option key={subject.id} value={subject.id}>{subject.name}</option>)}
@@ -195,7 +195,7 @@ export function ErroModal({
                       onChange={event => setAssunto(event.target.value)}
                       maxLength={160}
                       placeholder="Ex: Competências da União"
-                      className="w-full rounded-xl border border-[#3b3247] bg-[#100d15] px-4 py-3 text-sm font-normal normal-case tracking-normal text-white outline-none placeholder:text-slate-600 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-normal normal-case tracking-normal text-text-primary outline-none placeholder:text-text-secondary/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
                     />
                   </label>
                 </div>
@@ -208,11 +208,11 @@ export function ErroModal({
                         key={option.value}
                         type="button"
                         onClick={() => setTipoErro(option.value)}
-                        className={`rounded-xl border p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${tipoErro === option.value ? 'border-brand-primary bg-brand-primary/15' : 'border-[#3b3247] bg-[#100d15] hover:border-brand-primary/50'}`}
+                        className={`rounded-xl border p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${tipoErro === option.value ? 'border-brand-primary bg-brand-primary/15' : 'border-border bg-background hover:border-brand-primary/50'}`}
                         aria-pressed={tipoErro === option.value}
                         title={option.helper}
                       >
-                        <span className="block text-xs font-bold text-white">{option.label}</span>
+                        <span className="block text-xs font-bold text-text-primary">{option.label}</span>
                       </button>
                     ))}
                   </div>
@@ -226,7 +226,7 @@ export function ErroModal({
                     maxLength={5000}
                     rows={7}
                     placeholder="Escreva com suas palavras o erro, a regra correta e o que lembrar na próxima vez..."
-                    className="w-full resize-y rounded-xl border border-[#3b3247] bg-[#100d15] px-4 py-3 text-sm font-normal normal-case leading-relaxed tracking-normal text-white outline-none placeholder:text-slate-600 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
+                    className="w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-sm font-normal normal-case leading-relaxed tracking-normal text-text-primary outline-none placeholder:text-text-secondary/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
                   />
                   <span className="block text-right text-[11px] font-normal normal-case tracking-normal text-text-secondary">{conteudo.length}/5000</span>
                 </label>
@@ -238,7 +238,7 @@ export function ErroModal({
                       value={tagsText}
                       onChange={event => setTagsText(event.target.value)}
                       placeholder="lei seca, revisão, prova"
-                      className="w-full rounded-xl border border-[#3b3247] bg-[#100d15] px-4 py-3 text-sm font-normal normal-case tracking-normal text-white outline-none placeholder:text-slate-600 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-normal normal-case tracking-normal text-text-primary outline-none placeholder:text-text-secondary/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
                     />
                   </label>
                   <label className="space-y-2 text-xs font-bold uppercase tracking-wider text-text-secondary">
@@ -246,7 +246,7 @@ export function ErroModal({
                     <select
                       value={nivel}
                       onChange={event => setNivel(Number(event.target.value))}
-                      className="w-full rounded-xl border border-[#3b3247] bg-[#100d15] px-4 py-3 text-sm font-normal normal-case tracking-normal text-white outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-normal normal-case tracking-normal text-text-primary outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/30"
                     >
                       {[1, 2, 3, 4, 5].map(value => <option key={value} value={value}>{value}</option>)}
                     </select>
@@ -266,25 +266,25 @@ export function ErroModal({
                 </div>
 
                 {formError ? (
-                  <div className="flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-300" role="alert">
+                  <div className="flex items-start gap-2 rounded-xl border border-brand-red/30 bg-brand-red/10 p-3 text-sm text-brand-red" role="alert">
                     <AlertCircle size={18} className="mt-0.5 shrink-0" /> {formError}
                   </div>
                 ) : null}
               </div>
 
-              <div className="sticky bottom-0 -mx-5 mt-7 flex gap-3 border-t border-[#3b3247] bg-[#17131d]/95 px-5 pb-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:px-0 sm:pb-0">
+              <div className="sticky bottom-0 -mx-5 mt-7 flex gap-3 border-t border-border bg-card/95 px-5 pb-1 pt-4 backdrop-blur sm:static sm:mx-0 sm:px-0 sm:pb-0">
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={busy}
-                  className="h-11 flex-1 rounded-xl border border-[#3b3247] font-bold text-slate-200 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:opacity-50"
+                  className="h-11 flex-1 rounded-xl border border-border font-bold text-text-primary hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:opacity-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={busy || !subjectId || !conteudo.trim()}
-                  className="h-11 flex-[1.4] rounded-xl bg-brand-primary font-bold text-white shadow-lg shadow-brand-primary/20 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#17131d] disabled:opacity-50"
+                  className="h-11 flex-[1.4] rounded-xl bg-brand-primary font-bold text-white shadow-lg shadow-brand-primary/20 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card disabled:opacity-50"
                 >
                   {uploading ? 'Enviando anexos...' : saving ? 'Salvando...' : editingError ? 'Salvar alterações' : 'Registrar erro'}
                 </button>
