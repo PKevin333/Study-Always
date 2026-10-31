@@ -53,14 +53,14 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
 
   return (
     <article
-      className="relative overflow-hidden rounded-2xl border border-[#352d40] bg-[#1a1621] shadow-sm transition hover:border-[#4a3d5a] hover:shadow-lg hover:shadow-black/10"
+      className="relative overflow-hidden rounded-lg bg-card shadow-sm transition hover:shadow-md"
       style={{ borderLeftWidth: 5, borderLeftColor: color }}
     >
       <div className="p-5 sm:p-6">
         <header className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold text-text-secondary">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
                 {getErrorSubjectName(error)}
               </span>
@@ -68,7 +68,7 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
                 {type.label}
               </span>
             </div>
-            <h3 className="break-words text-base font-semibold leading-snug text-white sm:text-lg">{title}</h3>
+            <h3 className="break-words text-base font-semibold leading-snug text-text-primary sm:text-lg">{title}</h3>
             <p className="mt-1 text-xs text-text-secondary">Criado em {formatErrorDate(getErrorCreatedAt(error))}</p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
@@ -92,14 +92,14 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
         </header>
 
         <div className="mt-4">
-          <p className={cn('whitespace-pre-line break-words text-sm leading-6 text-slate-300', !expanded && canExpand && 'line-clamp-4')}>
+          <p className={cn('whitespace-pre-line break-words text-sm leading-6 text-text-secondary', !expanded && canExpand && 'line-clamp-4')}>
             {content}
           </p>
           {canExpand ? (
             <button
               type="button"
               onClick={() => setExpanded(value => !value)}
-              className="mt-2 text-xs font-bold text-violet-300 hover:text-violet-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="mt-2 text-xs font-bold text-brand-primary hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               aria-expanded={expanded}
             >
               {expanded ? 'Ver menos' : 'Ver mais'}
@@ -109,14 +109,14 @@ export function ErroCard({ error, subject, onEdit, onDelete, onRate }: ErroCardP
 
         {error.tags?.length ? (
           <div className="mt-4 flex flex-wrap gap-2">
-            {error.tags.map(tag => <span key={tag} className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] text-slate-400">#{tag}</span>)}
+            {error.tags.map(tag => <span key={tag} className="rounded bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] text-text-secondary">#{tag}</span>)}
           </div>
         ) : null}
 
         <AnexosGrid anexos={error.anexos} />
       </div>
 
-      <footer className="flex flex-col gap-3 border-t border-[#352d40] bg-[#15111b] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <footer className="flex flex-col gap-3 bg-[var(--surface-muted)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className={cn('flex items-center gap-2 text-xs font-semibold', dueToday ? 'text-amber-300' : 'text-text-secondary')}>
           <CalendarClock size={16} />
           {dueToday ? 'Revisar hoje' : `Próxima revisão: ${formatErrorDate(getErrorNextReview(error))}`}

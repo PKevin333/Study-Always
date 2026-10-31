@@ -32,7 +32,7 @@ const PAGE_SIZE = 8;
 
 function ErrorSkeleton() {
   return (
-    <div className="animate-pulse overflow-hidden rounded-2xl border border-[#352d40] border-l-4 border-l-violet-500 bg-[#1a1621] p-6" aria-hidden="true">
+    <div className="animate-pulse overflow-hidden rounded-lg border-l-4 border-l-brand-primary bg-card p-6 shadow-sm" aria-hidden="true">
       <div className="flex justify-between gap-4">
         <div className="w-full space-y-3">
           <div className="h-3 w-40 rounded bg-white/10" />
@@ -141,17 +141,17 @@ export function ErrorsTab({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="min-h-full bg-[#100d15] p-4 pb-20 text-[#f3f4f6] sm:p-6 sm:pb-20"
+      className="mx-auto min-h-full w-full max-w-[1480px] pb-20 text-text-primary"
     >
-      <header className="relative mb-6 overflow-hidden rounded-3xl border border-[#3a2d49] bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.18),transparent_42%),#1a1621] p-5 shadow-xl shadow-black/10 sm:p-7">
-        <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-violet-400/10" />
-        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <header className="mb-6 border-b border-border pb-5">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
-              <BookOpenCheck size={22} />
+            <div className="mb-2 flex items-center gap-2 text-brand-primary">
+              <BookOpenCheck size={18} />
+              <span className="text-[10px] font-black uppercase tracking-[0.18em]">Revisão inteligente</span>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Caderno de Erros</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
+            <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">Caderno de Erros</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary">
               Transforme cada falha em uma revisão objetiva e acompanhe o que já foi dominado.
             </p>
           </div>
@@ -163,7 +163,7 @@ export function ErrorsTab({
                   setClearError('');
                   setClearModalOpen(true);
                 }}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-red-400/30 px-4 text-sm font-bold text-red-300 transition hover:border-red-400/60 hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-bold text-brand-red transition hover:bg-brand-red/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red"
               >
                 <Trash2 size={17} /> Limpar caderno
               </button>
@@ -171,7 +171,7 @@ export function ErrorsTab({
             <button
               type="button"
               onClick={openCreate}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 font-bold text-white shadow-lg shadow-brand-primary/20 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1621]"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-brand-primary px-5 text-sm font-bold text-white shadow-sm transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             >
               <Plus size={18} /> Registrar Erro
             </button>
@@ -196,11 +196,11 @@ export function ErrorsTab({
         {errorsLoading ? (
           <><ErrorSkeleton /><ErrorSkeleton /><ErrorSkeleton /></>
         ) : visibleErrors.length === 0 ? (
-          <section className="rounded-3xl border border-dashed border-[#4a3d5a] bg-[#1a1621] px-6 py-16 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
+          <section className="rounded-lg bg-card px-6 py-16 text-center shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
               <Sparkles size={28} />
             </div>
-            <h3 className="mt-5 text-lg font-bold text-white">
+            <h3 className="mt-5 text-lg font-bold text-text-primary">
               {errors.length === 0 ? 'Seu caderno está pronto para começar' : 'Nenhum registro com esses filtros'}
             </h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
@@ -209,7 +209,7 @@ export function ErrorsTab({
                 : 'Tente limpar a busca ou selecionar outra disciplina, situação ou tipo de erro.'}
             </p>
             {errors.length === 0 ? (
-              <button type="button" onClick={openCreate} className="mt-6 inline-flex h-10 items-center gap-2 rounded-xl bg-brand-primary px-4 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
+              <button type="button" onClick={openCreate} className="mt-6 inline-flex h-10 items-center gap-2 rounded-md bg-brand-primary px-4 text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
                 <Plus size={16} /> Registrar primeiro erro
               </button>
             ) : null}
@@ -229,18 +229,18 @@ export function ErrorsTab({
       </main>
 
       {!errorsLoading && filteredErrors.length > PAGE_SIZE ? (
-        <div className="mt-5 flex items-center justify-between rounded-2xl border border-[#352d40] bg-[#1a1621] px-4 py-3 text-xs text-text-secondary">
+        <div className="mt-5 flex items-center justify-between px-1 py-3 text-xs text-text-secondary">
           <span>{filteredErrors.length} registros · página {page} de {totalPages}</span>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} className="h-9 rounded-lg border border-[#3b3247] px-3 font-bold text-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Anterior</button>
-            <button type="button" onClick={() => setPage(value => Math.min(totalPages, value + 1))} disabled={page === totalPages} className="h-9 rounded-lg border border-[#3b3247] px-3 font-bold text-white disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Próxima</button>
+            <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} className="h-9 rounded-md bg-[var(--surface-muted)] px-3 font-bold text-text-primary disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Anterior</button>
+            <button type="button" onClick={() => setPage(value => Math.min(totalPages, value + 1))} disabled={page === totalPages} className="h-9 rounded-md bg-[var(--surface-muted)] px-3 font-bold text-text-primary disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Próxima</button>
           </div>
         </div>
       ) : null}
 
-      <aside className="mt-6 flex items-start gap-3 rounded-2xl border border-violet-400/20 bg-violet-500/[0.06] p-4 text-sm text-slate-300">
-        <Lightbulb size={18} className="mt-0.5 shrink-0 text-violet-300" />
-        <p><strong className="text-violet-200">Dica do Mentor:</strong> registre por que você errou e qual sinal ajudará a reconhecer a resposta certa na próxima vez.</p>
+      <aside className="mt-6 flex items-start gap-3 border-l-2 border-brand-primary bg-brand-primary/5 px-4 py-3 text-sm text-text-secondary">
+        <Lightbulb size={18} className="mt-0.5 shrink-0 text-brand-primary" />
+        <p><strong className="text-text-primary">Dica do Mentor:</strong> registre por que você errou e qual sinal ajudará a reconhecer a resposta certa na próxima vez.</p>
       </aside>
 
       <ErroModal
