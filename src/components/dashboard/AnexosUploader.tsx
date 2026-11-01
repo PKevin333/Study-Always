@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Image, Paperclip, Trash2, UploadCloud } from 'lucide-react';
+import { CheckCircle2, FileText, Image, Paperclip, Trash2, UploadCloud } from 'lucide-react';
 import { ErrorAttachment } from '../../types';
 import {
   ERROR_ATTACHMENT_ACCEPT,
@@ -20,6 +20,18 @@ interface AnexosUploaderProps {
 const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`;
 const formatSize = (size: number) => `${(size / 1024 / 1024).toFixed(size > 1024 * 1024 ? 1 : 2)} MB`;
 
+export const getClipboardFiles = (clipboardData: DataTransfer | null): File[] => {
+  if (!clipboardData) return [];
+
+  const directFiles = Array.from(clipboardData.files || []);
+  if (directFiles.length > 0) return directFiles;
+
+  return Array.from(clipboardData.items || [])
+    .filter(item => item.kind === 'file')
+    .map(item => item.getAsFile())
+    .filter((file): file is File => file !== null);
+};
+
 export function AnexosUploader({
   files,
   existingAttachments,
@@ -29,16 +41,19 @@ export function AnexosUploader({
   onExistingAttachmentsChange
 }: AnexosUploaderProps) {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const feedbackTimerRef = React.useRef<number | null>(null);
   const [dragging, setDragging] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [pasteFeedback, setPasteFeedback] = React.useState('');
   const totalCount = files.length + existingAttachments.length;
 
   const addFiles = React.useCallback((incoming: File[]) => {
     setError('');
+    setPasteFeedback('');
     const availableSlots = MAX_ERROR_ATTACHMENTS - totalCount;
     if (availableSlots <= 0) {
       setError('Você pode adicionar no máximo 5 anexos.');
-      return;
+      return 0;
     }
 
     const accepted: File[] = [];
@@ -48,23 +63,36 @@ export function AnexosUploader({
         setError(validationError);
         continue;
       }
-      const duplicate = files.some(current => fileKey(current) === fileKey(file));
+      const duplicate = [...files, ...accepted].some(current => fileKey(current) === fileKey(file));
       if (!duplicate) accepted.push(file);
     }
 
     if (incoming.length > availableSlots) setError('Somente os primeiros arquivos dentro do limite de 5 foram adicionados.');
     if (accepted.length > 0) onFilesChange([...files, ...accepted]);
+    return accepted.length;
   }, [files, onFilesChange, totalCount]);
 
   React.useEffect(() => {
     if (disabled) return;
     const handlePaste = (event: ClipboardEvent) => {
-      const pastedFiles = Array.from(event.clipboardData?.files || []);
-      if (pastedFiles.length > 0) addFiles(pastedFiles);
+      const pastedFiles = getClipboardFiles(event.clipboardData);
+      if (pastedFiles.length === 0) return;
+
+      const acceptedCount = addFiles(pastedFiles);
+      if (acceptedCount > 0) {
+        event.preventDefault();
+        setPasteFeedback(acceptedCount === 1 ? 'Imagem colada e adicionada aos anexos.' : `${acceptedCount} anexos colados e adicionados.`);
+        if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = window.setTimeout(() => setPasteFeedback(''), 3500);
+      }
     };
     document.addEventListener('paste', handlePaste);
     return () => document.removeEventListener('paste', handlePaste);
   }, [addFiles, disabled]);
+
+  React.useEffect(() => () => {
+    if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current);
+  }, []);
 
   return (
     <div className="space-y-3">
@@ -106,9 +134,15 @@ export function AnexosUploader({
           }}
         />
         <UploadCloud className="mx-auto mb-2 text-brand-primary" size={26} />
-        <p className="text-sm font-semibold text-text-primary">Clique, arraste ou cole com Ctrl+V</p>
+        <p className="text-sm font-semibold text-text-primary">Clique, arraste ou cole uma imagem com Ctrl+V</p>
         <p className="mt-1 text-xs text-text-secondary">PNG, JPG, WEBP ou PDF · até 5 MB · {totalCount}/5</p>
       </div>
+
+      {pasteFeedback ? (
+        <p className="flex items-center gap-2 text-xs font-semibold text-brand-green" role="status" aria-live="polite">
+          <CheckCircle2 size={15} /> {pasteFeedback}
+        </p>
+      ) : null}
 
       {error ? <p className="text-xs text-brand-red" role="alert">{error}</p> : null}
 
