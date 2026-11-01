@@ -100,7 +100,7 @@ export function Sidebar({
             <Target className="text-white w-6 h-6" />
           </div>
           <div>
-            <span className="block text-lg font-black leading-none tracking-tight text-white">Study Always</span>
+            <span className="block font-display text-lg font-extrabold leading-none tracking-[-0.035em] text-white">Study Always</span>
             <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Seu plano de estudos</span>
           </div>
         </div>

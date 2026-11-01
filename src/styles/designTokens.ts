@@ -1,7 +1,7 @@
 export const designTokens = {
   page: 'mx-auto w-full max-w-[1480px] pb-20',
   pageHeader: 'mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end',
-  pageTitle: 'text-2xl sm:text-3xl font-bold mb-2',
+  pageTitle: 'font-display text-2xl sm:text-3xl font-extrabold tracking-[-0.035em] leading-tight mb-2',
   pageIntro: 'text-sm text-text-secondary sm:text-base',
   pageSectionStack: 'space-y-6',
   sectionGrid: 'gap-6',
@@ -13,7 +13,7 @@ export const designTokens = {
   inputOnCard: 'w-full rounded-lg border border-border bg-card px-4 py-3 outline-none transition-all focus:border-brand-primary',
   modalPanel: 'relative w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-2xl',
   modalPanelWide: 'w-full rounded-xl border border-border bg-card shadow-lg',
-  cardTitle: 'text-xl font-bold',
+  cardTitle: 'font-display text-xl font-bold tracking-[-0.025em]',
   metaText: 'text-xs text-text-secondary',
   microBadge: 'text-[10px] font-bold uppercase tracking-wider',
   toolbarGap: 'gap-3',

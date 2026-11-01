@@ -15,7 +15,7 @@ export function MobileHeader({ isMobileMenuOpen, setIsMobileMenuOpen }: MobileHe
           <Target className={`text-white ${designTokens.brandMarkIcon}`} />
         </div>
         <div>
-          <span className="block text-lg font-black leading-none tracking-tight">Study Always</span>
+          <span className="block font-display text-lg font-extrabold leading-none tracking-[-0.035em]">Study Always</span>
           <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.18em] text-text-secondary">Seu plano de estudos</span>
         </div>
       </div>
