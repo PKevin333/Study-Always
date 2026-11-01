@@ -80,7 +80,10 @@ export function CalendarTab({
   const today = useMemo(() => new Date(), []);
   const [currentMonth, setCurrentMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(today);
-  const [view, setView] = useState<CalendarView>('month');
+  const [view, setView] = useState<CalendarView>(() => {
+    if (typeof window === 'undefined') return 'month';
+    return window.matchMedia('(max-width: 767px)').matches ? 'agenda' : 'month';
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
@@ -271,12 +274,12 @@ export function CalendarTab({
             />
           </div>
 
-          <div className="flex rounded-xl border border-border bg-card p-1">
+          <div className="flex w-full rounded-xl border border-border bg-card p-1 sm:w-auto">
             {(['month', 'agenda'] as CalendarView[]).map((option) => (
               <button
                 key={option}
                 onClick={() => setView(option)}
-                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors sm:flex-none ${
                   view === option
                     ? 'bg-brand-primary text-white'
                     : 'text-text-secondary hover:bg-border/30 hover:text-text-primary'
@@ -338,7 +341,7 @@ export function CalendarTab({
 
             <h2 className={`text-center tracking-wide text-text-primary ${designTokens.cardTitle}`}>{formatMonthTitle(currentMonth)}</h2>
 
-            <span className="text-sm font-semibold text-text-secondary">Clique em um dia para adicionar tarefas</span>
+            <span className="hidden text-sm font-semibold text-text-secondary lg:block">Clique em um dia para adicionar tarefas</span>
           </div>
 
           {view === 'month' ? (

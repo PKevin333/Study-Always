@@ -40,7 +40,7 @@ export function Modal({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -57,9 +57,9 @@ export function Modal({
             onClick={(event) => event.stopPropagation()}
           >
             {(title || headerContent || !hideCloseButton) && (
-              <div className="mb-6 flex items-center justify-between gap-3">
+              <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
                 <div className="min-w-0">
-                  {headerContent || (title ? <h3 className="text-2xl font-bold">{title}</h3> : null)}
+                  {headerContent || (title ? <h3 className="text-xl font-bold sm:text-2xl">{title}</h3> : null)}
                 </div>
                 {!hideCloseButton && (
                   <button

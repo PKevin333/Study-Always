@@ -149,8 +149,8 @@ export function KanbanTab({
         </div>
       </header>
 
-      <div className="flex-1 overflow-x-auto pb-4 -mx-2 px-2" style={trelloVars}>
-        <div className="flex gap-4 min-w-max h-full items-start font-sans">
+      <div className="-mx-1 flex-1 snap-x snap-mandatory overflow-x-auto px-1 pb-4 sm:-mx-2 sm:px-2" style={trelloVars}>
+        <div className="flex h-full min-w-max items-start gap-3 font-sans sm:gap-4">
           {columns.map(column => {
             const columnBlocks = filteredBlocks.filter(block => block.status === column.id).sort((a, b) => a.order - b.order);
 
@@ -158,7 +158,7 @@ export function KanbanTab({
               <div
                 key={column.id}
                 className={cn(
-                  'w-[272px] rounded-xl flex flex-col max-h-full border-t-[3px] shadow-sm',
+                  'w-[calc(100vw-2.5rem)] max-w-[320px] snap-start rounded-xl flex flex-col max-h-full border-t-[3px] shadow-sm sm:w-[272px]',
                   column.accent
                 )}
                 style={{ backgroundColor: 'var(--trello-list-bg)' }}

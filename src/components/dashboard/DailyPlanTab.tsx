@@ -363,7 +363,7 @@ export function DailyPlanTab({
           </div>
           
           {totalCount === 0 ? (
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
               <button 
                 onClick={() => setShowAddModal(true)}
                 className="w-full sm:w-auto px-5 py-3 border border-border rounded-xl font-bold text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all flex items-center justify-center gap-2"
@@ -374,7 +374,7 @@ export function DailyPlanTab({
               <button 
                 onClick={generateDailyPlan}
                 disabled={isGenerating}
-                className="bg-brand-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-brand-primary/80 transition-all disabled:opacity-50 shadow-lg shadow-brand-primary/20"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-3 font-bold text-white shadow-lg shadow-brand-primary/20 transition-all hover:bg-brand-primary/80 disabled:opacity-50 sm:w-auto"
               >
                 {isGenerating ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Zap size={20} />}
                 Gerar Plano de Hoje
@@ -436,7 +436,7 @@ export function DailyPlanTab({
                 className="absolute inset-0 bg-brand-green/5 pointer-events-none"
               />
             )}
-            <div className="flex justify-between items-center mb-4">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 <span className={`${designTokens.microBadge} text-text-secondary`}>Progresso Diário</span>
                 {isDayFinished && (
@@ -468,7 +468,7 @@ export function DailyPlanTab({
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-brand-green/10 border border-brand-green/30 rounded-3xl p-8 text-center mb-8"
+            className="mb-8 rounded-3xl border border-brand-green/30 bg-brand-green/10 p-5 text-center sm:p-8"
           >
             <div className="w-16 h-16 bg-brand-green/20 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
               <Trophy size={32} />
@@ -497,7 +497,7 @@ export function DailyPlanTab({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  `${designTokens.itemCard} group relative flex items-center gap-4 transition-all`,
+                  `${designTokens.itemCard} group relative flex flex-wrap items-center gap-3 transition-all sm:flex-nowrap sm:gap-4`,
                   isCurrent 
                     ? "bg-brand-primary/5 border-brand-primary shadow-md ring-1 ring-brand-primary/20" 
                   : isCompleted 
@@ -536,7 +536,7 @@ export function DailyPlanTab({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="ml-auto flex w-full items-center justify-end gap-1.5 border-t border-border/60 pt-3 sm:w-auto sm:gap-2 sm:border-0 sm:pt-0">
                   {isPending && (
                     <>
                       <button 
@@ -582,7 +582,7 @@ export function DailyPlanTab({
                   {isCurrent && (
                     <button 
                       onClick={() => startStudySession(block)}
-                      className="flex items-center gap-2 bg-brand-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-primary/80 transition-all shadow-lg shadow-brand-primary/30 scale-105"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 font-bold text-white shadow-lg shadow-brand-primary/30 transition-all hover:bg-brand-primary/80 sm:w-auto sm:scale-105 sm:px-6"
                     >
                       <Play size={20} fill="currentColor" />
                       <span>Continuar Estudo</span>
@@ -626,7 +626,7 @@ export function DailyPlanTab({
         )}
 
         {isGenerating && totalCount === 0 ? (
-          <div className="text-center py-20 bg-card border-2 border-dashed border-border rounded-3xl">
+          <div className="rounded-3xl border-2 border-dashed border-border bg-card py-12 text-center sm:py-20">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
             </div>
@@ -636,7 +636,7 @@ export function DailyPlanTab({
             </p>
           </div>
         ) : allFilteredOut ? (
-          <div className="text-center py-20 bg-card border-2 border-dashed border-border rounded-3xl">
+          <div className="rounded-3xl border-2 border-dashed border-border bg-card py-12 text-center sm:py-20">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <AlertCircle size={40} />
             </div>
@@ -652,7 +652,7 @@ export function DailyPlanTab({
             </button>
           </div>
         ) : totalCount === 0 && !isGenerating && !allFilteredOut ? (
-          <div className="text-center py-20 bg-card border-2 border-dashed border-border rounded-3xl">
+          <div className="rounded-3xl border-2 border-dashed border-border bg-card py-12 text-center sm:py-20">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <Zap size={40} />
             </div>

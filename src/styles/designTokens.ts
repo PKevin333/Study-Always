@@ -11,7 +11,7 @@ export const designTokens = {
   itemCardCompact: 'rounded-lg border border-border p-4',
   input: 'w-full rounded-lg border border-border bg-background px-4 py-3 outline-none transition-all focus:border-brand-primary',
   inputOnCard: 'w-full rounded-lg border border-border bg-card px-4 py-3 outline-none transition-all focus:border-brand-primary',
-  modalPanel: 'relative w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-2xl',
+  modalPanel: 'relative max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-5 shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:p-8',
   modalPanelWide: 'w-full rounded-xl border border-border bg-card shadow-lg',
   cardTitle: 'font-display text-xl font-bold tracking-[-0.025em]',
   metaText: 'text-xs text-text-secondary',

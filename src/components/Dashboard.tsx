@@ -554,7 +554,7 @@ export default function Dashboard() {
           setIsMobileMenuOpen={setIsMobileMenuOpen} 
         />
 
-        <div className="custom-scrollbar flex-1 overflow-y-auto bg-background p-4 pt-20 sm:p-6 sm:pt-20 md:p-8 lg:pt-7 xl:px-9 xl:pb-10">
+        <div className="custom-scrollbar flex-1 overflow-y-auto bg-background px-3 pb-6 pt-20 sm:px-5 sm:pb-8 sm:pt-20 md:px-7 lg:px-8 lg:pt-7 xl:px-9 xl:pb-10">
           <AnimatePresence mode="wait">
             {renderTabContent()}
           </AnimatePresence>
