@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Check, X, Loader2, AlertCircle } from 'lucide-rea
 import { cn } from '../../lib/utils';
 import { Materia } from '../../types';
 import { useMaterias } from '../../hooks/useMaterias';
+import { toast } from '../shared/ToastViewport';
 
 interface GerenciarMateriasProps {
   userId: string;
@@ -29,11 +30,11 @@ export function GerenciarMaterias({ userId }: GerenciarMateriasProps) {
     const nome = addInput.trim();
     if (!nome) return;
     if (materias.length >= 20) {
-      alert("Você atingiu o limite máximo de 20 matérias.");
+      toast.warning('Você atingiu o limite máximo de 20 matérias.');
       return;
     }
     if (materias.some(m => m.nome.toLowerCase() === nome.toLowerCase())) {
-      alert("Esta matéria já existe.");
+      toast.warning('Esta matéria já existe.');
       return;
     }
 
@@ -43,7 +44,7 @@ export function GerenciarMaterias({ userId }: GerenciarMateriasProps) {
       setAddInput('');
       setIsAdding(false);
     } catch (err: any) {
-      alert(err.message || 'Erro ao adicionar matéria.');
+      toast.error(err.message || 'Não foi possível adicionar a matéria.');
     } finally {
       setProcessingId(null);
     }

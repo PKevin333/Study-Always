@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { Login } from './components/Login';
 import Dashboard from './components/Dashboard';
 import { NetworkBadge } from './components/NetworkBadge';
+import { ToastViewport } from './components/shared/ToastViewport';
 import { applyThemePreferences, resolveThemePreferences } from './utils/themePreferences';
 
 function AppContent() {
@@ -37,6 +38,7 @@ export default function App() {
   return (
     <AuthProvider>
       <NetworkBadge />
+      <ToastViewport />
       <AppContent />
     </AuthProvider>
   );

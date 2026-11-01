@@ -23,6 +23,7 @@ import { useDashboardState } from '../hooks/useDashboardState';
 import { useDashboardEffects } from '../hooks/useDashboardEffects';
 import { useDashboardActions } from '../hooks/useDashboardActions';
 import { useDashboardLogic } from '../hooks/useDashboardLogic';
+import { toast } from './shared/ToastViewport';
 
 export default function Dashboard() {
   const { user, profile, loading, isAuthReady } = useAuth();
@@ -222,7 +223,7 @@ export default function Dashboard() {
       return;
     }
 
-    alert('Não foi possível concluir o cadastro inicial. Tente novamente em alguns instantes.');
+    toast.error('Não foi possível concluir o cadastro inicial. Tente novamente em alguns instantes.');
   };
 
   const handleClearFocusItems = () => {
@@ -242,7 +243,7 @@ export default function Dashboard() {
   const handleAddCustomSubject = async (color?: string) => {
     const trimmedName = newSubjectName.trim();
     if (!trimmedName) {
-      alert('Digite o nome da disciplina antes de adicionar.');
+      toast.warning('Digite o nome da disciplina antes de adicionar.');
       return;
     }
 

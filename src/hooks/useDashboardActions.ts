@@ -46,6 +46,7 @@ import {
 
 import { getMentorAdvice } from '../services/geminiService';
 import { calcularSRS } from '../utils/srsCalculator';
+import { toast } from '../components/shared/ToastViewport';
 
 const FIRESTORE_WRITE_TIMEOUT_MS = 15000;
 
@@ -185,7 +186,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user) return;
     const trimmedName = name.trim();
     if (!trimmedName) {
-      alert('Informe o nome da disciplina antes de adicionar.');
+      toast.warning('Informe o nome da disciplina antes de adicionar.');
       return;
     }
     const path = `users/${user.uid}/subjects`;
@@ -210,6 +211,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         totalTopics: 0,
         progressPercent: 0
       });
+      toast.success(`${trimmedName} foi adicionada às disciplinas.`);
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
     }
@@ -260,7 +262,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user) return;
     // [FIX]: evita criar bloco inválido quando não há disciplina selecionada/ativa.
     if (!subjectId || !subjectName || duration <= 0) {
-      alert('Selecione uma disciplina ativa antes de adicionar um bloco ao ciclo.');
+      toast.warning('Selecione uma disciplina ativa antes de adicionar um bloco ao ciclo.');
       return;
     }
     const path = `users/${user.uid}/cycleBlocks`;
@@ -355,7 +357,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   ) => {
     if (!user) return false;
     if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
-      alert('Selecione um dia da semana válido.');
+      toast.warning('Selecione um dia da semana válido.');
       return false;
     }
 
@@ -377,7 +379,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     });
 
     if (normalizedBlocks.some(block => !block.subject || !block.subjectId || block.durationMinutes < 5)) {
-      alert('Revise as matérias e durações antes de salvar o ciclo.');
+      toast.warning('Revise as matérias e durações antes de salvar o ciclo.');
       return false;
     }
 
@@ -407,11 +409,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const activeSubjects = subjects.filter(s => s.status === 'active');
     // [FIX]: gerar ciclo sem matéria ativa apagava os blocos existentes e não recriava nada.
     if (activeSubjects.length === 0) {
-      alert('Ative ao menos uma disciplina antes de gerar o ciclo.');
+      toast.warning('Ative ao menos uma disciplina antes de gerar o ciclo.');
       return;
     }
     if (blocksPerDay <= 0) {
-      alert('Informe ao menos um bloco de estudo por dia.');
+      toast.warning('Informe ao menos um bloco de estudo por dia.');
       return;
     }
 
@@ -506,11 +508,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const trimmedText = draft.conteudo.trim();
     // [FIX]: garante que chamadas fora da UI não gravem erro sem disciplina ou conteúdo.
     if (!draft.subjectId || !trimmedText) {
-      alert('Selecione a disciplina e descreva o erro antes de salvar.');
+      toast.warning('Selecione a disciplina e descreva o erro antes de salvar.');
       return false;
     }
     if (trimmedText.length > MAX_ERROR_CONTENT_LENGTH) {
-      alert(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
+      toast.warning(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
       return false;
     }
     setSavingError(true);
@@ -541,6 +543,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       };
       try {
         await addDoc(collection(db, path), payload);
+        toast.success('Erro registrado no caderno.');
         return true;
       } catch (error) {
         // Vercel does not deploy Firebase rules. Keep basic registration working
@@ -561,6 +564,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
           facilidade: 2.5,
           totalRevisoes: 0
         });
+        toast.success('Erro registrado no caderno.');
         return true;
       }
     } catch (err) {
@@ -608,6 +612,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         qualidade: srsResult.qualidade,
         nivel: nextLevel
       });
+      toast.success('Revisão registrada e próxima data atualizada.');
       return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, path);
@@ -620,6 +625,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const path = `users/${user.uid}/errors/${id}`;
     try {
       await deleteDoc(doc(db, path));
+      toast.success('Registro excluído do Caderno de Erros.');
       return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.DELETE, path);
@@ -635,11 +641,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (typeof updates.content === 'string') {
       const trimmedContent = updates.content.trim();
       if (!trimmedContent) {
-        alert('A anotação do erro não pode ficar vazia.');
+        toast.warning('A anotação do erro não pode ficar vazia.');
         return false;
       }
       if (trimmedContent.length > MAX_ERROR_CONTENT_LENGTH) {
-        alert(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
+        toast.warning(`A anotação do erro deve ter no máximo ${MAX_ERROR_CONTENT_LENGTH} caracteres.`);
         return false;
       }
       allowedUpdates.content = trimmedContent;
@@ -714,6 +720,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
 
     try {
       await updateDoc(doc(db, path), allowedUpdates);
+      toast.success('Registro atualizado.');
       return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, path);
@@ -727,7 +734,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const trimmedTopic = topic.trim();
     // [FIX]: total zero/negativo ou acertos maiores que o total geram NaN e são rejeitados pelas regras.
     if (!subjectId || !trimmedTopic || total <= 0 || correct < 0 || correct > total) {
-      alert('Informe disciplina, assunto, total de questões e acertos válidos.');
+      toast.warning('Informe disciplina, assunto, total de questões e acertos válidos.');
       return false;
     }
     if (savingRecord) return false;
@@ -766,6 +773,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
           accuracy: newAccuracy
         });
       }
+      toast.success('Resultado de questões registrado.');
       return true;
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, path);
@@ -806,11 +814,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user) return false;
     const trimmedName = name.trim();
     if (!subjectId) {
-      alert('Selecione uma disciplina antes de adicionar o conteúdo.');
+      toast.warning('Selecione uma disciplina antes de adicionar o conteúdo.');
       return false;
     }
     if (!trimmedName) {
-      alert('Informe o nome do conteúdo antes de adicionar.');
+      toast.warning('Informe o nome do conteúdo antes de adicionar.');
       return false;
     }
 
@@ -823,10 +831,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         order
       });
       await syncSubjectTopicProgress(subjectId);
+      toast.success('Tópico adicionado à disciplina.');
       return true;
     } catch (err) {
       console.error('Erro ao adicionar tópico:', { err, path });
-      alert('Não foi possível salvar o tópico. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível salvar o tópico. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -842,7 +851,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       return true;
     } catch (err) {
       console.error('Erro ao atualizar tópico:', { err, path });
-      alert('Não foi possível atualizar o tópico. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível atualizar o tópico. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -853,10 +862,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     try {
       await deleteDoc(doc(db, path));
       await syncSubjectTopicProgress(subjectId);
+      toast.success('Tópico excluído.');
       return true;
     } catch (err) {
       console.error('Erro ao excluir tópico:', { err, path });
-      alert('Não foi possível excluir o tópico. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível excluir o tópico. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -872,19 +882,19 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const coverError = getOptionalUrlError(trimmedCover);
 
     if (trimmedName.length > MAX_PROFILE_NAME_LENGTH) {
-      alert(`O nome de exibição deve ter no máximo ${MAX_PROFILE_NAME_LENGTH} caracteres.`);
+      toast.warning(`O nome de exibição deve ter no máximo ${MAX_PROFILE_NAME_LENGTH} caracteres.`);
       return false;
     }
     if (trimmedTargetContest.length > MAX_TARGET_EXAM_LENGTH) {
-      alert(`O concurso alvo deve ter no máximo ${MAX_TARGET_EXAM_LENGTH} caracteres.`);
+      toast.warning(`O concurso alvo deve ter no máximo ${MAX_TARGET_EXAM_LENGTH} caracteres.`);
       return false;
     }
     if (photoError) {
-      alert(photoError);
+      toast.warning(photoError);
       return false;
     }
     if (coverError) {
-      alert(coverError);
+      toast.warning(coverError);
       return false;
     }
 
@@ -897,6 +907,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         targetExam: trimmedTargetContest || 'Área Administrativa',
         concursoAlvo: trimmedTargetContest || 'Área Administrativa'
       });
+      toast.success('Perfil atualizado com sucesso.');
       return true;
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -939,6 +950,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         }
       }
 
+      toast.success('Caderno de Erros limpo com sucesso.');
       return true;
     } catch (err) {
       try {
@@ -968,13 +980,13 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
   const generateDailyPlan = async (dailyTime: number, blocksPerDay: number): Promise<DailyBlock[]> => {
     if (!user) return [];
     if (cycleBlocks.length === 0) {
-      alert("⚠️ Você não possui um Ciclo Base configurado.\n\nVá para a aba 'O Ciclo Base' e gere ou adicione blocos de estudo antes de gerar o plano diário.");
+      toast.warning("Você não possui um Ciclo Base configurado.\nVá para a aba 'Ciclo de Estudos' e gere ou adicione blocos antes de criar o plano diário.", { duration: 7000 });
       return [];
     }
     const activeSubjectIds = new Set(subjects.filter(subject => subject.status === 'active').map(subject => subject.id));
     const visibleCycleBlocks = cycleBlocks.filter(block => activeSubjectIds.has(block.subjectId));
     if (visibleCycleBlocks.length === 0) {
-      alert('Ative ao menos uma disciplina presente no ciclo antes de gerar o plano do dia.');
+      toast.warning('Ative ao menos uma disciplina presente no ciclo antes de gerar o plano do dia.');
       return [];
     }
 
@@ -1014,10 +1026,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       }
 
       await batch.commit();
+      toast.success(`${generatedBlocks.length} blocos adicionados ao Plano do Dia.`);
       return generatedBlocks;
     } catch (err) {
       console.error("Error generating daily plan:", err);
-      alert('Nao foi possivel gerar o plano do dia. Verifique as permissoes do Firestore e tente novamente.');
+      toast.error('Não foi possível gerar o plano do dia. Verifique sua conexão e tente novamente.');
       return [];
     } finally {
       setIsGenerating(false);
@@ -1035,7 +1048,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const subjectId = activeSessionBlock?.subjectId || selectedSubject;
     const subDoc = await resolveSubjectForSession(subjectId, activeSessionBlock?.subjectName || null);
     if (!subDoc) {
-      alert('Não foi possível localizar a disciplina desta sessão. Atualize a página e tente novamente.');
+      toast.error('Não foi possível localizar a disciplina desta sessão. Atualize a página e tente novamente.');
       return false;
     }
     const normalizedType = isStudyType(sessionType) ? sessionType : 'teoria';
@@ -1088,10 +1101,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       } catch (error) {
         console.error('Error updating subject stats after saving session:', error);
       }
+      toast.success(`${actualMinutes} min de estudo registrados.`);
       return true;
     } catch (err) {
       console.error("Error finishing study session:", err);
-      alert('Não foi possível registrar o tempo estudado. Verifique a conexão e tente novamente.');
+      toast.error('Não foi possível registrar o tempo estudado. Verifique a conexão e tente novamente.');
       return false;
     }
   };
@@ -1100,13 +1114,13 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (!user) return false;
     const normalizedMinutes = Math.floor(minutes);
     if (!subjectId || !Number.isFinite(normalizedMinutes) || normalizedMinutes < 1) {
-      alert('Selecione uma disciplina e informe um tempo válido.');
+      toast.warning('Selecione uma disciplina e informe um tempo válido.');
       return false;
     }
 
     const subDoc = await resolveSubjectForSession(subjectId);
     if (!subDoc) {
-      alert('Disciplina não encontrada.');
+      toast.error('Disciplina não encontrada. Atualize a página e tente novamente.');
       return false;
     }
 
@@ -1132,10 +1146,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         console.error('Error updating subject stats after manual session:', error);
       }
 
+      toast.success(`${normalizedMinutes} min de estudo registrados.`);
       return true;
     } catch (err) {
       console.error('Error recording manual study session:', err);
-      alert('Não foi possível registrar o estudo. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível registrar o estudo. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -1159,10 +1174,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       }
 
       await batch.commit();
+      toast.success('Sessão removida do histórico.');
       return true;
     } catch (err) {
       console.error('Error deleting study session:', err);
-      alert('Não foi possível excluir a sessão. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível excluir a sessão. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -1223,19 +1239,19 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const trimmedTitle = task.title.trim();
     const trimmedNotes = task.notes?.trim() || '';
     if (!trimmedTitle) {
-      alert('Informe o título da tarefa antes de salvar.');
+      toast.warning('Informe o título da tarefa antes de salvar.');
       return false;
     }
     if (trimmedTitle.length > MAX_CALENDAR_TITLE_LENGTH) {
-      alert(`O título da tarefa deve ter no máximo ${MAX_CALENDAR_TITLE_LENGTH} caracteres.`);
+      toast.warning(`O título da tarefa deve ter no máximo ${MAX_CALENDAR_TITLE_LENGTH} caracteres.`);
       return false;
     }
     if (trimmedNotes.length > MAX_CALENDAR_NOTES_LENGTH) {
-      alert(`A observação deve ter no máximo ${MAX_CALENDAR_NOTES_LENGTH} caracteres.`);
+      toast.warning(`A observação deve ter no máximo ${MAX_CALENDAR_NOTES_LENGTH} caracteres.`);
       return false;
     }
     if (!allowedCalendarCategories.includes(task.category)) {
-      alert('Selecione uma categoria válida para a tarefa.');
+      toast.warning('Selecione uma categoria válida para a tarefa.');
       return false;
     }
 
@@ -1252,10 +1268,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }), 'Tempo limite excedido ao salvar a tarefa no calendário.');
+      toast.success('Tarefa adicionada ao calendário.');
       return true;
     } catch (err) {
       console.error('Error adding calendar task:', err);
-      alert('Não foi possível salvar a tarefa. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível salvar a tarefa. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -1268,11 +1285,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (typeof updates.title === 'string') {
       const trimmedTitle = updates.title.trim();
       if (!trimmedTitle) {
-        alert('O título da tarefa não pode ficar vazio.');
+        toast.warning('O título da tarefa não pode ficar vazio.');
         return false;
       }
       if (trimmedTitle.length > MAX_CALENDAR_TITLE_LENGTH) {
-        alert(`O título da tarefa deve ter no máximo ${MAX_CALENDAR_TITLE_LENGTH} caracteres.`);
+        toast.warning(`O título da tarefa deve ter no máximo ${MAX_CALENDAR_TITLE_LENGTH} caracteres.`);
         return false;
       }
       allowedUpdates.title = trimmedTitle;
@@ -1296,7 +1313,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     if (typeof updates.notes === 'string') {
       const trimmedNotes = updates.notes.trim();
       if (trimmedNotes.length > MAX_CALENDAR_NOTES_LENGTH) {
-        alert(`A observação deve ter no máximo ${MAX_CALENDAR_NOTES_LENGTH} caracteres.`);
+        toast.warning(`A observação deve ter no máximo ${MAX_CALENDAR_NOTES_LENGTH} caracteres.`);
         return false;
       }
       allowedUpdates.notes = trimmedNotes;
@@ -1315,10 +1332,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         ...allowedUpdates,
         updatedAt: serverTimestamp()
       }), 'Tempo limite excedido ao atualizar a tarefa no calendário.');
+      toast.success('Tarefa atualizada.');
       return true;
     } catch (err) {
       console.error('Error updating calendar task:', err);
-      alert('Não foi possível atualizar a tarefa. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível atualizar a tarefa. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -1328,10 +1346,11 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
     const path = `users/${user.uid}/calendarTasks/${id}`;
     try {
       await withWriteTimeout(deleteDoc(doc(db, path)), 'Tempo limite excedido ao excluir a tarefa do calendário.');
+      toast.success('Tarefa excluída do calendário.');
       return true;
     } catch (err) {
       console.error('Error deleting calendar task:', err);
-      alert('Não foi possível excluir a tarefa. Verifique as permissões do Firestore e tente novamente.');
+      toast.error('Não foi possível excluir a tarefa. Verifique sua conexão e tente novamente.');
       return false;
     }
   };
@@ -1349,7 +1368,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
         .filter((subject, index, all) => all.findIndex((item) => item.toLowerCase() === subject.toLowerCase()) === index);
 
       if (normalizedSubjects.length === 0) {
-        alert('Selecione ao menos uma disciplina para concluir o cadastro inicial.');
+        toast.warning('Selecione ao menos uma disciplina para concluir o cadastro inicial.');
         return false;
       }
 
@@ -1437,6 +1456,7 @@ export function useDashboardActions(user: any, subjects: Subject[], cycleBlocks:
       }, { merge: true });
 
       await batch.commit();
+      toast.success('Cadastro inicial concluído. Seu plano já está pronto.');
       return true;
     } catch (err) {
       console.error("Error completing onboarding:", err);

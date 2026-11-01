@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { AlertTriangle, RotateCcw, Target, Trash2 } from 'lucide-react';
 import { Subject, DailyBlock, CycleBlock } from '../../types';
 import { Modal } from '../shared/Modal';
+import { toast } from '../shared/ToastViewport';
 
 interface FocusTabProps {
   generateWeaknessPlan: () => void;
@@ -214,7 +215,7 @@ export function FocusTab({
                     durationMinutes: block.durationMinutes
                   });
                 }
-                alert("Plano adicionado ao Plano do Dia!");
+                toast.success('Plano adicionado ao Plano do Dia.');
                 setShowWeaknessPlan(false);
                 setActiveTab('daily');
               }}
@@ -286,7 +287,7 @@ export function FocusTab({
                             'revisao',
                             30
                           );
-                          alert(`${item.subjectName} adicionado ao ciclo de estudos!`);
+                          toast.success(`${item.subjectName} foi adicionado ao ciclo de estudos.`);
                         }}
                         className="flex-1 bg-brand-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-primary/80 transition-colors"
                       >
@@ -297,7 +298,7 @@ export function FocusTab({
                       <button 
                         onClick={() => {
                           ignoreFocusItem(item.key);
-                          alert(`Marcado como revisado. O assunto foi removido das prioridades temporariamente.`);
+                          toast.success('Marcado como revisado. O assunto saiu temporariamente das prioridades.');
                         }}
                         className="flex-1 bg-background border border-border text-text-secondary text-xs font-bold py-2 rounded-lg hover:bg-border transition-colors"
                       >
