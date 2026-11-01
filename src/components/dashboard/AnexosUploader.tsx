@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, FileText, Image, Paperclip, Trash2, UploadCloud } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronUp, FileText, Paperclip, Trash2, UploadCloud } from 'lucide-react';
 import { ErrorAttachment } from '../../types';
 import {
   ERROR_ATTACHMENT_ACCEPT,
@@ -31,6 +31,28 @@ export const getClipboardFiles = (clipboardData: DataTransfer | null): File[] =>
     .map(item => item.getAsFile())
     .filter((file): file is File => file !== null);
 };
+
+export const moveAttachment = <T,>(items: T[], index: number, offset: -1 | 1): T[] => {
+  const targetIndex = index + offset;
+  if (index < 0 || index >= items.length || targetIndex < 0 || targetIndex >= items.length) return items;
+  const next = [...items];
+  [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+  return next;
+};
+
+function LocalImagePreview({ file }: { file: File }) {
+  const [url, setUrl] = React.useState('');
+
+  React.useEffect(() => {
+    if (!file.type.startsWith('image/')) return;
+    const objectUrl = URL.createObjectURL(file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  if (!url) return <Paperclip size={18} className="text-brand-primary" />;
+  return <img src={url} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover" />;
+}
 
 export function AnexosUploader({
   files,
@@ -150,10 +172,32 @@ export function AnexosUploader({
         <div className="space-y-2">
           {existingAttachments.map((attachment, index) => (
             <div key={`${attachment.url}-${index}`} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
-              {attachment.tipo.startsWith('image/') ? <Image size={18} className="text-brand-primary" /> : <FileText size={18} className="text-brand-red" />}
+              {attachment.tipo.startsWith('image/') ? (
+                <img src={attachment.url} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover" />
+              ) : <FileText size={18} className="text-brand-red" />}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-medium text-text-primary">{attachment.nome}</p>
                 <p className="text-[11px] text-text-secondary">{formatSize(attachment.tamanho)}</p>
+              </div>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => onExistingAttachmentsChange(moveAttachment(existingAttachments, index, -1))}
+                  disabled={disabled || index === 0}
+                  className="rounded-md p-1.5 text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary disabled:opacity-25"
+                  aria-label={`Mover ${attachment.nome} para cima`}
+                >
+                  <ChevronUp size={15} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onExistingAttachmentsChange(moveAttachment(existingAttachments, index, 1))}
+                  disabled={disabled || index === existingAttachments.length - 1}
+                  className="rounded-md p-1.5 text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary disabled:opacity-25"
+                  aria-label={`Mover ${attachment.nome} para baixo`}
+                >
+                  <ChevronDown size={15} />
+                </button>
               </div>
               <button
                 type="button"
@@ -172,10 +216,30 @@ export function AnexosUploader({
             return (
               <div key={fileKey(file)} className="rounded-xl border border-border bg-background p-3">
                 <div className="flex items-center gap-3">
-                  <Paperclip size={18} className="text-brand-primary" />
+                  <LocalImagePreview file={file} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium text-text-primary">{file.name}</p>
                     <p className="text-[11px] text-text-secondary">{formatSize(file.size)}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => onFilesChange(moveAttachment(files, index, -1))}
+                      disabled={disabled || index === 0}
+                      className="rounded-md p-1.5 text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary disabled:opacity-25"
+                      aria-label={`Mover ${file.name} para cima`}
+                    >
+                      <ChevronUp size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onFilesChange(moveAttachment(files, index, 1))}
+                      disabled={disabled || index === files.length - 1}
+                      className="rounded-md p-1.5 text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary disabled:opacity-25"
+                      aria-label={`Mover ${file.name} para baixo`}
+                    >
+                      <ChevronDown size={15} />
+                    </button>
                   </div>
                   <button
                     type="button"

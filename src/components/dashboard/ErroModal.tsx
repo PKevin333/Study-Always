@@ -2,7 +2,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, X } from 'lucide-react';
 import { ErrorAttachment, ErrorType, StudyError, StudyErrorDraft, Subject } from '../../types';
-import { uploadErrorAttachment } from '../../services/upload';
+import { deleteErrorAttachment, uploadErrorAttachment } from '../../services/upload';
 import { AnexosUploader } from './AnexosUploader';
 import { getErrorContent, getErrorSubjectName } from './errorUtils';
 
@@ -90,6 +90,9 @@ export function ErroModal({
     }
 
     let uploadedAttachments: ErrorAttachment[] = [];
+    const cleanupUploadedAttachments = async () => {
+      await Promise.allSettled(uploadedAttachments.map(attachment => deleteErrorAttachment(attachment.url)));
+    };
     setUploading(files.length > 0);
     try {
       uploadedAttachments = await Promise.all(files.map(file => uploadErrorAttachment(
@@ -116,14 +119,19 @@ export function ErroModal({
         nivel
       });
       if (saved) {
+        const retainedUrls = new Set(existingAttachments.map(attachment => attachment.url));
+        const removedAttachments = (editingError?.anexos || []).filter(attachment => !retainedUrls.has(attachment.url));
+        await Promise.allSettled(removedAttachments.map(attachment => deleteErrorAttachment(attachment.url)));
         onClose();
       } else {
+        await cleanupUploadedAttachments();
         setFormError(files.length > 0
           ? 'Os anexos foram enviados, mas o registro não foi salvo. As regras do Firebase Storage e Firestore precisam estar publicadas.'
           : 'Não foi possível salvar o registro. Tente novamente em alguns instantes.');
       }
     } catch (error) {
       console.error('Error saving study error:', error);
+      await cleanupUploadedAttachments();
       setFormError('Não foi possível salvar o registro. Tente novamente em alguns instantes.');
     } finally {
       setUploading(false);

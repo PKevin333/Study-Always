@@ -1,4 +1,5 @@
 import {
+  deleteObject,
   getDownloadURL,
   ref,
   uploadBytesResumable
@@ -90,4 +91,9 @@ export async function uploadErrorAttachment(
     tipo: preparedFile.type,
     tamanho: preparedFile.size
   };
+}
+
+export async function deleteErrorAttachment(url: string): Promise<void> {
+  if (!url) return;
+  await deleteObject(ref(storage, url));
 }
