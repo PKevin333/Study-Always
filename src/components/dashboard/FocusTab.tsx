@@ -4,6 +4,19 @@ import { AlertTriangle, RotateCcw, Target, Trash2 } from 'lucide-react';
 import { Subject, DailyBlock, CycleBlock } from '../../types';
 import { Modal } from '../shared/Modal';
 import { toast } from '../shared/ToastViewport';
+import FocoList from './FocoList';
+import FocoTable from './FocoTable';
+import FocoToolbar from './FocoToolbar';
+import type { FocusSort, FocusView, FocusViewItem, SortDirection } from './focusViewUtils';
+
+const getStoredFocusView = (): FocusView => {
+  try {
+    const storedView = localStorage.getItem('foco:view');
+    return storedView === 'list' || storedView === 'table' || storedView === 'cards' ? storedView : 'cards';
+  } catch {
+    return 'cards';
+  }
+};
 
 interface FocusTabProps {
   generateWeaknessPlan: () => void;
@@ -47,9 +60,90 @@ export function FocusTab({
   restoreFocusItems
 }: FocusTabProps) {
   const [clearModalOpen, setClearModalOpen] = React.useState(false);
+  const [focusView, setFocusView] = React.useState<FocusView>(getStoredFocusView);
+  const [focusSearch, setFocusSearch] = React.useState('');
+  const [focusSubject, setFocusSubject] = React.useState('all');
+  const [focusSort, setFocusSort] = React.useState<FocusSort>('performance');
+  const [focusSortDirection, setFocusSortDirection] = React.useState<SortDirection>('asc');
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('foco:view', focusView);
+    } catch {
+      // A visualização continua funcional mesmo quando o armazenamento está indisponível.
+    }
+  }, [focusView]);
 
   const ignoreFocusItem = (key: string) => {
     setIgnoredFocusTopics(current => current.includes(key) ? current : [...current, key]);
+  };
+
+  const handleStudy = (item: FocusViewItem) => {
+    setSelectedSubject(item.subjectId);
+    setActiveTab('timer');
+  };
+
+  const handleAddToCycle = (item: FocusViewItem) => {
+    addCycleBlock(item.subjectId, item.subjectName, 'revisao', 30);
+    toast.success(`${item.subjectName} foi adicionado ao ciclo de estudos.`);
+  };
+
+  const handleMarkReviewed = (item: FocusViewItem) => {
+    ignoreFocusItem(item.key);
+    toast.success('Marcado como revisado. O assunto saiu temporariamente das prioridades.');
+  };
+
+  const handleRemoveFromFocus = (item: FocusViewItem) => {
+    ignoreFocusItem(item.key);
+  };
+
+  const focusSubjectCounts = React.useMemo(() => {
+    const counts = new Map<string, { id: string; name: string; count: number }>();
+    (focusItems.focar as FocusViewItem[]).forEach((item) => {
+      const current = counts.get(item.subjectId);
+      if (current) current.count += 1;
+      else counts.set(item.subjectId, { id: item.subjectId, name: item.subjectName, count: 1 });
+    });
+    return Array.from(counts.values()).sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  }, [focusItems.focar]);
+
+  const visibleFocusItems = React.useMemo(() => {
+    const normalizedSearch = focusSearch.trim().toLocaleLowerCase('pt-BR');
+    const filteredItems = (focusItems.focar as FocusViewItem[]).filter((item) => {
+      const matchesSearch = !normalizedSearch || item.topic.toLocaleLowerCase('pt-BR').includes(normalizedSearch);
+      const matchesSubject = focusSubject === 'all' || item.subjectId === focusSubject;
+      return matchesSearch && matchesSubject;
+    });
+
+    return [...filteredItems].sort((a, b) => {
+      let comparison = 0;
+      if (focusSort === 'performance') comparison = a.percentage - b.percentage;
+      else if (focusSort === 'days') comparison = a.daysSinceLastStudy - b.daysSinceLastStudy;
+      else if (focusSort === 'errors') comparison = a.errors - b.errors;
+      else comparison = a.topic.localeCompare(b.topic, 'pt-BR');
+      return focusSortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [focusItems.focar, focusSearch, focusSubject, focusSort, focusSortDirection]);
+
+  const focusActions = {
+    onStudy: handleStudy,
+    onAddToCycle: handleAddToCycle,
+    onMarkReviewed: handleMarkReviewed,
+    onRemove: handleRemoveFromFocus,
+  };
+
+  const clearFocusFilters = () => {
+    setFocusSearch('');
+    setFocusSubject('all');
+  };
+
+  const handleTableSort = (nextSort: FocusSort) => {
+    if (nextSort === focusSort) {
+      setFocusSortDirection((current) => current === 'asc' ? 'desc' : 'asc');
+      return;
+    }
+    setFocusSort(nextSort);
+    setFocusSortDirection('asc');
   };
 
   return (
@@ -245,14 +339,62 @@ export function FocusTab({
             Focar Agora
           </h3>
           <p className="text-sm text-text-secondary mb-4">Assuntos com baixo desempenho, muitos erros ou esquecidos.</p>
+
+          {focusItems.focar.length > 0 ? (
+            <div className="mb-4">
+              <FocoToolbar
+                view={focusView}
+                onViewChange={setFocusView}
+                search={focusSearch}
+                onSearchChange={setFocusSearch}
+                selectedSubject={focusSubject}
+                onSubjectChange={setFocusSubject}
+                subjectCounts={focusSubjectCounts}
+                sort={focusSort}
+                onSortChange={setFocusSort}
+                direction={focusSortDirection}
+                onDirectionToggle={() => setFocusSortDirection((current) => current === 'asc' ? 'desc' : 'asc')}
+                count={visibleFocusItems.length}
+              />
+            </div>
+          ) : null}
           
           {focusItems.focar.length === 0 ? (
             <div className="p-6 bg-card border border-border rounded-2xl text-center text-text-secondary">
               Nenhum assunto crítico no momento. Bom trabalho!
             </div>
+          ) : visibleFocusItems.length === 0 ? (
+            <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card p-6 text-center">
+              <p className="font-semibold text-text-primary">Nenhum assunto encontrado.</p>
+              <p className="mt-1 text-sm text-text-secondary">Ajuste a busca ou a disciplina selecionada.</p>
+              <button
+                type="button"
+                onClick={clearFocusFilters}
+                className="mt-4 h-10 rounded-lg bg-accent/10 px-4 text-sm font-semibold text-accent transition-colors hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                Limpar filtros
+              </button>
+            </div>
+          ) : focusView === 'list' ? (
+            <FocoList items={visibleFocusItems} {...focusActions} />
+          ) : focusView === 'table' ? (
+            <>
+              <div className="md:hidden">
+                <FocoList items={visibleFocusItems} {...focusActions} />
+              </div>
+              <div className="hidden md:block">
+                <FocoTable
+                  items={visibleFocusItems}
+                  sort={focusSort}
+                  direction={focusSortDirection}
+                  onSort={handleTableSort}
+                  {...focusActions}
+                />
+              </div>
+            </>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {focusItems.focar.map(item => (
+              {visibleFocusItems.map(item => (
                 <div key={item.key} className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-card p-5 shadow-sm transition-shadow duration-150 before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-full before:bg-brand-red hover:shadow-md">
                   <div>
                     <div className="flex justify-between items-start mb-2">
@@ -271,24 +413,13 @@ export function FocusTab({
                   <div className="flex flex-col gap-2 mt-auto">
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => {
-                          setSelectedSubject(item.subjectId);
-                          setActiveTab('timer');
-                        }}
+                        onClick={() => handleStudy(item)}
                         className="flex-1 bg-brand-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-primary/80 transition-colors"
                       >
                         Estudar
                       </button>
                       <button 
-                        onClick={async () => {
-                          addCycleBlock(
-                            item.subjectId,
-                            item.subjectName,
-                            'revisao',
-                            30
-                          );
-                          toast.success(`${item.subjectName} foi adicionado ao ciclo de estudos.`);
-                        }}
+                        onClick={() => handleAddToCycle(item)}
                         className="flex-1 rounded-lg bg-brand-primary/10 py-2 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-primary/15"
                       >
                         + Ciclo
@@ -296,16 +427,13 @@ export function FocusTab({
                     </div>
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => {
-                          ignoreFocusItem(item.key);
-                          toast.success('Marcado como revisado. O assunto saiu temporariamente das prioridades.');
-                        }}
+                        onClick={() => handleMarkReviewed(item)}
                         className="flex-1 rounded-lg bg-neutral-100 py-2 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-200 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300 [html[data-theme=dark]_&]:hover:bg-neutral-700"
                       >
                         Já Revisei
                       </button>
                       <button 
-                        onClick={() => ignoreFocusItem(item.key)}
+                        onClick={() => handleRemoveFromFocus(item)}
                         className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-transparent py-2 text-xs font-bold text-neutral-500 transition-colors hover:text-brand-red"
                       >
                         <Trash2 size={14} /> Remover do foco
