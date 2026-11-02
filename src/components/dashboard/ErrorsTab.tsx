@@ -148,10 +148,10 @@ export function ErrorsTab({
           <div>
             <div className="mb-2 flex items-center gap-2 text-brand-primary">
               <BookOpenCheck size={18} />
-              <span className="text-[10px] font-black uppercase tracking-[0.18em]">Revisão inteligente</span>
+              <span className="text-xs font-black uppercase tracking-[0.12em]">Revisão inteligente</span>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">Caderno de Erros</h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary">
+            <h2 className="font-editorial text-2xl font-semibold tracking-[-0.025em] text-text-primary sm:text-3xl">Caderno de Erros</h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-neutral-400">
               Transforme cada falha em uma revisão objetiva e acompanhe o que já foi dominado.
             </p>
           </div>
@@ -196,14 +196,14 @@ export function ErrorsTab({
         {errorsLoading ? (
           <><ErrorSkeleton /><ErrorSkeleton /><ErrorSkeleton /></>
         ) : visibleErrors.length === 0 ? (
-          <section className="rounded-lg bg-card px-6 py-16 text-center shadow-sm">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-16 text-center shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
               <Sparkles size={28} />
             </div>
             <h3 className="mt-5 text-lg font-bold text-text-primary">
               {errors.length === 0 ? 'Seu caderno está pronto para começar' : 'Nenhum registro com esses filtros'}
             </h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-400">
               {errors.length === 0
                 ? 'Registre o motivo de um erro, anexe a questão e deixe o ciclo de revisão cuidar do restante.'
                 : 'Tente limpar a busca ou selecionar outra disciplina, situação ou tipo de erro.'}
@@ -229,7 +229,7 @@ export function ErrorsTab({
       </main>
 
       {!errorsLoading && filteredErrors.length > PAGE_SIZE ? (
-        <div className="mt-5 flex items-center justify-between px-1 py-3 text-xs text-text-secondary">
+        <div className="mt-5 flex items-center justify-between px-1 py-3 text-[13px] text-neutral-400">
           <span>{filteredErrors.length} registros · página {page} de {totalPages}</span>
           <div className="flex gap-2">
             <button type="button" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={page === 1} className="h-9 rounded-md bg-[var(--surface-muted)] px-3 font-bold text-text-primary disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">Anterior</button>
@@ -238,7 +238,7 @@ export function ErrorsTab({
         </div>
       ) : null}
 
-      <aside className="mt-6 flex items-start gap-3 border-l-2 border-brand-primary bg-brand-primary/5 px-4 py-3 text-sm text-text-secondary">
+      <aside className="mt-6 flex items-start gap-3 rounded-xl border border-brand-primary/20 bg-brand-primary/5 px-4 py-3 text-sm text-neutral-300">
         <Lightbulb size={18} className="mt-0.5 shrink-0 text-brand-primary" />
         <p><strong className="text-text-primary">Dica do Mentor:</strong> registre por que você errou e qual sinal ajudará a reconhecer a resposta certa na próxima vez.</p>
       </aside>

@@ -37,7 +37,7 @@ export function FiltrosErros({
   onTypeChange
 }: FiltrosErrosProps) {
   return (
-    <section className="py-1" aria-label="Filtros do caderno de erros">
+    <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm" aria-label="Filtros do caderno de erros">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative min-w-0 flex-1">
@@ -46,7 +46,7 @@ export function FiltrosErros({
               value={search}
               onChange={event => onSearchChange(event.target.value)}
               placeholder="Buscar por assunto, conteúdo ou tag..."
-              className="h-11 w-full rounded-lg border border-border bg-card pl-10 pr-4 text-sm text-text-primary shadow-sm outline-none placeholder:text-text-secondary/60 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+              className="h-10 w-full rounded-lg border border-neutral-800 bg-neutral-950 pl-10 pr-4 text-sm text-text-primary outline-none placeholder:text-neutral-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
               aria-label="Buscar erros"
             />
           </div>
@@ -56,7 +56,7 @@ export function FiltrosErros({
             <select
               value={type}
               onChange={event => onTypeChange(event.target.value as ErrorType | 'todos')}
-              className="h-11 flex-1 rounded-lg border border-border bg-card px-3 text-sm text-text-primary shadow-sm outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 lg:min-w-44"
+              className="h-10 flex-1 rounded-lg border border-neutral-800 bg-neutral-950 px-3 text-sm text-text-primary outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 lg:min-w-44"
               aria-label="Filtrar por tipo de erro"
             >
               <option value="todos">Todos os tipos</option>
@@ -77,14 +77,14 @@ export function FiltrosErros({
               aria-selected={tab === item.value}
               onClick={() => onTabChange(item.value)}
               className={cn(
-                'inline-flex h-9 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+                'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
                 tab === item.value
-                  ? 'bg-brand-primary text-white shadow-sm'
-                  : 'bg-[var(--surface-muted)] text-text-secondary hover:text-text-primary'
+                  ? 'border-brand-primary/40 bg-brand-primary/15 text-violet-200'
+                  : 'border-transparent bg-neutral-800 text-neutral-300 hover:text-white'
               )}
             >
               {item.label}
-              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px]', tab === item.value ? 'bg-white/20' : 'bg-card text-text-secondary')}>
+              <span className={cn('rounded-full px-1.5 py-0.5 text-xs tabular-nums', tab === item.value ? 'bg-brand-primary/20 text-violet-200' : 'bg-neutral-900 text-neutral-400')}>
                 {counts[item.value]}
               </span>
             </button>
@@ -96,8 +96,8 @@ export function FiltrosErros({
             type="button"
             onClick={() => onSubjectChange('todos')}
             className={cn(
-              'h-8 shrink-0 rounded-md px-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
-              subjectId === 'todos' ? 'bg-brand-primary/12 text-brand-primary' : 'text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary'
+              'h-9 shrink-0 rounded-lg border px-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+              subjectId === 'todos' ? 'border-brand-primary/40 bg-brand-primary/15 text-violet-200' : 'border-transparent bg-neutral-800 text-neutral-300 hover:text-white'
             )}
           >
             Todas
@@ -108,8 +108,8 @@ export function FiltrosErros({
               type="button"
               onClick={() => onSubjectChange(subject.id)}
               className={cn(
-                'inline-flex h-8 shrink-0 items-center gap-2 rounded-md px-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
-                subjectId === subject.id ? 'bg-brand-primary/12 text-brand-primary' : 'text-text-secondary hover:bg-[var(--surface-muted)] hover:text-text-primary'
+                'inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border px-3 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+                subjectId === subject.id ? 'border-brand-primary/40 bg-brand-primary/15 text-violet-200' : 'border-transparent bg-neutral-800 text-neutral-300 hover:text-white'
               )}
             >
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: getSubjectColorHex(subject) }} />
