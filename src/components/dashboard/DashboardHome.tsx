@@ -326,7 +326,7 @@ export function DashboardHome({
             </div>
           </div>
 
-          <div className={`${designTokens.sectionCard} border-border bg-card shadow-[var(--shadow-soft)]`}>
+          <div className={`${designTokens.sectionCard} min-h-[220px] border-border bg-card shadow-[var(--shadow-soft)]`}>
             <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-text-primary">
               <BarChart3 size={18} className="text-brand-primary" /> Atividade Semanal
             </h3>
@@ -334,12 +334,12 @@ export function DashboardHome({
               {weeklyActivityData.subjects.length > 0 ? (
                 <WeeklyActivityChart data={weeklyActivityData} />
               ) : (
-                <div className="flex min-h-[220px] flex-col items-center justify-center p-6 text-center">
+                <div className="flex min-h-[150px] flex-col items-center justify-center p-6 text-center">
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
                     <BarChart3 size={24} />
                   </div>
                   <p className="text-[13px] text-text-secondary">Seus dados aparecerão após sua primeira sessão de estudo.</p>
-                  <p className="mt-1 text-xs text-text-secondary/70">Inicie um bloco no Plano do Dia para começar a registrar seu progresso.</p>
+                  <p className="mt-1 text-xs text-text-secondary">Inicie um bloco no Plano do Dia para começar a registrar seu progresso.</p>
                 </div>
               )}
             </div>

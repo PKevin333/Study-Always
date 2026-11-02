@@ -92,7 +92,7 @@ export function Sidebar({
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-[15.5rem] transform flex-col border-r border-white/10 bg-[var(--sidebar-background)] px-3 py-4 text-[var(--sidebar-text)] shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none",
+        "fixed inset-y-0 left-0 z-50 flex w-[15.5rem] transform flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-background)] px-3 py-4 text-[var(--sidebar-text)] shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 lg:shadow-none",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="mb-7 flex items-center gap-3 border-b border-white/10 px-2 pb-5 pt-1">
@@ -101,30 +101,30 @@ export function Sidebar({
           </div>
           <div>
             <span className="block font-display text-lg font-extrabold leading-none tracking-[-0.035em] text-white">Study Always</span>
-            <span className="mt-1.5 block text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Seu plano de estudos</span>
+            <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Seu plano de estudos</span>
           </div>
         </div>
 
         <nav className="custom-scrollbar flex-1 space-y-1 overflow-y-auto pr-1">
-          <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Hoje</p>
+          <p className="px-3 pb-2 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Hoje</p>
           <NavItem icon={<LayoutDashboard size={20} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => handleNavClick('dashboard')} />
           <NavItem icon={<Target size={20} />} label="Foco de Estudo" active={activeTab === 'focus'} onClick={() => handleNavClick('focus')} />
 
-          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Planejamento</p>
+          <p className="px-3 pb-2 pt-5 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Planejamento</p>
           <NavItem icon={<CalendarCheck size={20} />} label="Plano do Dia" active={activeTab === 'daily'} onClick={() => handleNavClick('daily')} />
           <NavItem icon={<CalendarDays size={20} />} label="Calendário" active={activeTab === 'calendar'} onClick={() => handleNavClick('calendar')} />
           <NavItem icon={<Kanban size={20} />} label="Quadro Kanban" active={activeTab === 'kanban'} onClick={() => handleNavClick('kanban')} />
           <NavItem icon={<History size={20} />} label="Ciclo de Estudos" active={activeTab === 'cycle'} onClick={() => handleNavClick('cycle')} />
           <NavItem icon={<BookOpen size={20} />} label="Disciplinas" active={activeTab === 'subjects'} onClick={() => handleNavClick('subjects')} />
 
-          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Evolução</p>
+          <p className="px-3 pb-2 pt-5 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Evolução</p>
           <NavItem icon={<BarChart3 size={20} />} label="Desempenho" active={activeTab === 'performance'} onClick={() => handleNavClick('performance')} />
           <NavItem icon={<ListChecks size={20} />} label="Caderno de Erros" active={activeTab === 'errors'} onClick={() => handleNavClick('errors')} />
           <NavItem icon={<Timer size={20} />} label="Cronômetro" active={activeTab === 'timer'} onClick={() => handleNavClick('timer')} />
           <NavItem icon={<ClipboardList size={20} />} label="Histórico" active={activeTab === 'history'} onClick={() => handleNavClick('history')} />
           <NavItem icon={<Sparkles size={20} />} label="Mentor IA" badge="IA" active={activeTab === 'mentor'} onClick={() => handleNavClick('mentor')} />
 
-          <p className="px-3 pb-2 pt-5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Conta</p>
+          <p className="px-3 pb-2 pt-5 text-[11px] font-black uppercase tracking-[0.2em] text-[var(--sidebar-muted)]">Conta</p>
           <NavItem icon={<Settings size={20} />} label="Configurações" active={activeTab === 'settings'} onClick={() => handleNavClick('settings')} />
         </nav>
 

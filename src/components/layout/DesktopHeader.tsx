@@ -39,7 +39,7 @@ export function DesktopHeader({ activeTab, setActiveTab, user, profile }: Deskto
     <header className="hidden h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6 lg:flex xl:px-8">
       <div className="min-w-0">
         <h1 className="truncate text-base font-bold text-text-primary">{TAB_LABELS[activeTab] || 'Study Always'}</h1>
-        <p className="mt-0.5 flex items-center gap-1.5 text-[11px] capitalize text-text-secondary">
+        <p className="mt-0.5 flex items-center gap-1.5 text-xs capitalize text-text-secondary">
           <CalendarDays size={12} /> {today}
         </p>
       </div>

@@ -51,22 +51,22 @@ export function StatCard({
 
   return (
     <div className={cn(
-      "group relative min-h-36 overflow-hidden rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] transition-shadow duration-200 hover:shadow-[var(--shadow-surface)]"
+      "group relative flex min-h-36 flex-col justify-start overflow-hidden rounded-xl border border-border bg-card p-5 shadow-[var(--shadow-soft)] transition-shadow duration-200 hover:shadow-[var(--shadow-surface)]"
     )}>
-      <div className="relative z-10 mb-5 flex items-start justify-between">
-        <div className="absolute -right-2 -top-2 text-neutral-200 transition-transform duration-300 group-hover:scale-105 [html[data-theme=dark]_&]:text-neutral-800">
+      <div className="z-10 mb-3 h-6">
+        <div className="absolute bottom-4 right-4 text-text-primary opacity-[0.12] transition-transform duration-300 group-hover:scale-105">
           {React.cloneElement(icon as React.ReactElement, { 
-            size: 72,
+            size: 40,
             className: 'text-current'
           })}
         </div>
         {trend && (
-          <span className="relative z-10 ml-auto rounded-md bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-600 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300">
+          <span className="absolute right-5 top-5 z-10 rounded-md bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-600 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300">
             {trend}
           </span>
         )}
       </div>
-      <div className="relative z-10 mb-2 truncate text-xs font-semibold uppercase tracking-wider text-neutral-500">{label}</div>
+      <div className="relative z-10 mb-2 truncate text-xs font-semibold uppercase tracking-wider text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">{label}</div>
       <div className={cn(
         "relative z-10 truncate font-editorial text-4xl font-semibold leading-none tracking-[-0.025em] text-text-primary tabular-nums",
         color === 'blue' && 'text-brand-primary'

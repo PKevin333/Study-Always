@@ -16,7 +16,7 @@ export function MobileHeader({ isMobileMenuOpen, setIsMobileMenuOpen }: MobileHe
         </div>
         <div>
           <span className="block font-display text-lg font-extrabold leading-none tracking-[-0.035em]">Study Always</span>
-          <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.18em] text-text-secondary">Seu plano de estudos</span>
+          <span className="mt-1 block text-xs font-bold uppercase tracking-[0.18em] text-text-secondary">Seu plano de estudos</span>
         </div>
       </div>
       <button 

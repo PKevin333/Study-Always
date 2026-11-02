@@ -14,9 +14,9 @@ export function NavItem({ icon, label, active, badge, onClick }: NavItemProps) {
     <button 
       onClick={onClick}
       className={cn(
-        "group relative flex w-full items-center gap-3 rounded-md px-3 py-2.5 transition-all duration-200",
+        "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200",
         active
-          ? "bg-brand-primary text-white shadow-sm"
+          ? "bg-brand-primary text-white"
           : "text-[var(--sidebar-muted)] hover:bg-[var(--sidebar-hover)] hover:text-white"
       )}
     >
@@ -31,7 +31,7 @@ export function NavItem({ icon, label, active, badge, onClick }: NavItemProps) {
       </span>
       <span className="min-w-0 flex-1 truncate text-left text-sm font-medium">{label}</span>
       {badge && (
-        <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+        <span className="rounded bg-white/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
           {badge}
         </span>
       )}
