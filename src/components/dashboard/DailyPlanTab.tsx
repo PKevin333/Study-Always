@@ -67,13 +67,13 @@ function BlockActionsMenu({
     <div className="relative" ref={isOpen ? menuRef : null}>
       <button
         onClick={onToggle}
-        className="rounded-lg p-2 text-text-secondary hover:bg-background hover:text-text-primary transition-all"
+        className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-400 transition-all hover:bg-neutral-800 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         title="Mais opções"
       >
         <MoreVertical size={18} />
       </button>
       {isOpen && (
-        <div className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-border bg-card p-1.5 shadow-xl">
+        <div className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-neutral-800 bg-neutral-900 p-1.5 shadow-xl">
           <button
             onClick={onEdit}
             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-primary hover:bg-background transition-all"
@@ -286,7 +286,7 @@ export function DailyPlanTab({
       initial={{ opacity: 0, y: 10 }} 
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
-      className={`relative mx-auto max-w-4xl ${designTokens.page}`}
+      className={`relative ${designTokens.page}`}
     >
       {/* Add Block Modal */}
       <AnimatePresence>
@@ -366,7 +366,7 @@ export function DailyPlanTab({
             <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:items-end">
               <button 
                 onClick={() => setShowAddModal(true)}
-                className="w-full sm:w-auto px-5 py-3 border border-border rounded-xl font-bold text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all flex items-center justify-center gap-2"
+                className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-5 text-sm font-bold text-neutral-300 transition-all hover:border-brand-primary/50 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary sm:w-auto"
               >
                 <Plus size={18} />
                 Adicionar Manualmente
@@ -374,7 +374,7 @@ export function DailyPlanTab({
               <button 
                 onClick={generateDailyPlan}
                 disabled={isGenerating}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-3 font-bold text-white shadow-lg shadow-brand-primary/20 transition-all hover:bg-brand-primary/80 disabled:opacity-50 sm:w-auto"
+                className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-brand-primary px-6 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
                 {isGenerating ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Zap size={20} />}
                 Gerar Plano de Hoje
@@ -387,7 +387,7 @@ export function DailyPlanTab({
             <div className={`flex items-center ${designTokens.toolbarGap}`}>
                <button 
                 onClick={() => setShowAddModal(true)}
-                className="p-3 border border-border rounded-xl text-text-secondary hover:text-brand-primary hover:border-brand-primary/50 transition-all"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all hover:border-brand-primary/50 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 title="Adicionar Bloco Manual"
               >
                 <Plus size={20} />
@@ -407,7 +407,7 @@ export function DailyPlanTab({
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mb-8 p-6 bg-brand-primary/10 border border-brand-primary/30 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4"
+            className="mb-8 flex flex-col items-center justify-between gap-4 rounded-xl border border-brand-primary/30 bg-brand-primary/10 p-5 md:flex-row sm:p-6"
           >
             <div className="flex items-center gap-4 text-center md:text-left">
               <div className="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-primary/20">
@@ -428,7 +428,7 @@ export function DailyPlanTab({
         )}
 
         {totalCount > 0 && (
-          <div className={`${designTokens.sectionCard} relative overflow-hidden rounded-3xl`}>
+          <div className="relative overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm sm:p-6">
             {isDayFinished && (
               <motion.div 
                 initial={{ opacity: 0 }}
@@ -449,7 +449,7 @@ export function DailyPlanTab({
                 {completedCount} de {totalCount} blocos · {Math.round(progressPercent)}%
               </span>
             </div>
-            <div className="h-3 bg-background rounded-full overflow-hidden border border-border">
+            <div className="h-2 overflow-hidden rounded-full bg-neutral-800">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
@@ -468,7 +468,7 @@ export function DailyPlanTab({
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mb-8 rounded-3xl border border-brand-green/30 bg-brand-green/10 p-5 text-center sm:p-8"
+            className="mb-8 rounded-xl border border-brand-green/30 bg-brand-green/10 p-5 text-center sm:p-8"
           >
             <div className="w-16 h-16 bg-brand-green/20 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
               <Trophy size={32} />
@@ -497,22 +497,18 @@ export function DailyPlanTab({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  `${designTokens.itemCard} group relative flex flex-wrap items-center gap-3 transition-all sm:flex-nowrap sm:gap-4`,
+                  'group relative flex flex-wrap items-center gap-3 rounded-xl border p-4 shadow-sm transition-all duration-150 sm:flex-nowrap sm:gap-4 sm:p-5',
                   isCurrent 
-                    ? "bg-brand-primary/5 border-brand-primary shadow-md ring-1 ring-brand-primary/20" 
+                    ? "border-brand-primary bg-brand-primary/5 shadow-md ring-1 ring-brand-primary/20"
                   : isCompleted 
-                      ? "bg-background/50 border-border opacity-60" 
+                      ? "border-neutral-800 bg-neutral-900/60 opacity-60"
                       : isNext
-                        ? "bg-card border-brand-primary/40 shadow-sm"
-                        : "bg-card border-border hover:border-brand-primary/30"
+                        ? "border-brand-primary/40 bg-neutral-900"
+                        : "border-neutral-800 bg-neutral-900 hover:border-brand-primary/30 hover:shadow-md"
                 )}
               >
-                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-border bg-background text-text-secondary">
-                  <TypeIcon size={20} className={cn(
-                    block.type === 'teoria' && 'text-brand-blue',
-                    block.type === 'questoes' && 'text-brand-primary',
-                    block.type === 'revisao' && 'text-brand-orange'
-                  )} />
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-neutral-800 bg-neutral-950 text-brand-primary">
+                  <TypeIcon size={20} className="text-brand-primary" />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -536,19 +532,19 @@ export function DailyPlanTab({
                   </div>
                 </div>
 
-                <div className="ml-auto flex w-full items-center justify-end gap-1.5 border-t border-border/60 pt-3 sm:w-auto sm:gap-2 sm:border-0 sm:pt-0">
+                <div className="ml-auto flex w-full items-center justify-end gap-1.5 border-t border-neutral-800 pt-3 sm:w-auto sm:gap-2 sm:border-0 sm:pt-0">
                   {isPending && (
                     <>
                       <button 
                         onClick={() => handleComplete(block)}
-                        className="p-2 text-text-secondary hover:text-brand-green hover:bg-brand-green/10 rounded-lg transition-all"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-400 transition-all hover:bg-brand-green/10 hover:text-brand-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                         title="Marcar como concluído"
                       >
                         <CheckCircle2 size={20} />
                       </button>
                       <button 
                         onClick={() => handleSkip(block)}
-                        className="p-2 text-text-secondary hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-all"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-neutral-400 transition-all hover:bg-brand-primary/10 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                         title="Pular para o final"
                       >
                         <SkipForward size={20} />
@@ -556,7 +552,7 @@ export function DailyPlanTab({
                       <button 
                         onClick={() => startStudySession(block)}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all shadow-md",
+                          "flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-bold transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary",
                           isNext 
                             ? "bg-brand-primary text-white hover:bg-brand-primary/80 shadow-brand-primary/20" 
                             : "bg-brand-primary text-white hover:bg-brand-primary/80 shadow-brand-primary/20"
@@ -582,7 +578,7 @@ export function DailyPlanTab({
                   {isCurrent && (
                     <button 
                       onClick={() => startStudySession(block)}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 font-bold text-white shadow-lg shadow-brand-primary/30 transition-all hover:bg-brand-primary/80 sm:w-auto sm:scale-105 sm:px-6"
+                      className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-brand-primary px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary sm:w-auto sm:px-6"
                     >
                       <Play size={20} fill="currentColor" />
                       <span>Continuar Estudo</span>
@@ -610,14 +606,14 @@ export function DailyPlanTab({
         </AnimatePresence>
 
         {canAddMoreBlocks && !isGenerating && !allFilteredOut && (
-          <div className="rounded-3xl border-2 border-dashed border-border bg-card/50 p-6 text-center">
+          <div className="rounded-xl border border-dashed border-neutral-700 bg-neutral-900/50 p-6 text-center">
             <p className="text-sm font-medium text-text-primary">Ainda cabe mais um bloco no seu dia.</p>
-            <p className="mt-1 text-xs text-text-secondary">
+            <p className="mt-1 text-xs text-neutral-400">
               Você planejou {plannedMinutes} min de {dailyTime} min disponíveis.
             </p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-bold text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary transition-all"
+              className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg border border-neutral-800 px-4 text-sm font-bold text-neutral-300 transition-all hover:border-brand-primary/50 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             >
               <Plus size={16} />
               Adicionar mais um bloco
@@ -626,7 +622,7 @@ export function DailyPlanTab({
         )}
 
         {isGenerating && totalCount === 0 ? (
-          <div className="rounded-3xl border-2 border-dashed border-border bg-card py-12 text-center sm:py-20">
+          <div className="rounded-xl border border-dashed border-neutral-700 bg-neutral-900 py-12 text-center sm:py-20">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <div className="w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full animate-spin" />
             </div>
@@ -636,7 +632,7 @@ export function DailyPlanTab({
             </p>
           </div>
         ) : allFilteredOut ? (
-          <div className="rounded-3xl border-2 border-dashed border-border bg-card py-12 text-center sm:py-20">
+          <div className="rounded-xl border border-dashed border-neutral-700 bg-neutral-900 py-12 text-center sm:py-20">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <AlertCircle size={40} />
             </div>
@@ -652,7 +648,7 @@ export function DailyPlanTab({
             </button>
           </div>
         ) : totalCount === 0 && !isGenerating && !allFilteredOut ? (
-          <div className="rounded-3xl border-2 border-dashed border-border bg-card py-12 text-center sm:py-20">
+          <div className="rounded-xl border border-dashed border-neutral-700 bg-neutral-900 py-12 text-center sm:py-20">
             <div className="w-20 h-20 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-primary">
               <Zap size={40} />
             </div>
