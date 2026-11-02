@@ -58,7 +58,7 @@ export function FocusTab({
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
       key="focus" 
-      className="pb-20"
+      className="bg-neutral-50 pb-20 [html[data-theme=dark]_&]:bg-neutral-950"
     >
       <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
@@ -253,7 +253,7 @@ export function FocusTab({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {focusItems.focar.map(item => (
-                <div key={item.key} className="bg-card border border-brand-red/30 rounded-2xl p-5 flex flex-col justify-between">
+                <div key={item.key} className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-card p-5 shadow-sm transition-shadow duration-150 before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-full before:bg-brand-red hover:shadow-md">
                   <div>
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-xs font-bold px-2 py-1 rounded-full bg-brand-red/10 text-brand-red uppercase">{item.reason}</span>
@@ -289,7 +289,7 @@ export function FocusTab({
                           );
                           toast.success(`${item.subjectName} foi adicionado ao ciclo de estudos.`);
                         }}
-                        className="flex-1 bg-brand-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-primary/80 transition-colors"
+                        className="flex-1 rounded-lg bg-brand-primary/10 py-2 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-primary/15"
                       >
                         + Ciclo
                       </button>
@@ -300,13 +300,13 @@ export function FocusTab({
                           ignoreFocusItem(item.key);
                           toast.success('Marcado como revisado. O assunto saiu temporariamente das prioridades.');
                         }}
-                        className="flex-1 bg-background border border-border text-text-secondary text-xs font-bold py-2 rounded-lg hover:bg-border transition-colors"
+                        className="flex-1 rounded-lg bg-neutral-100 py-2 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-200 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300 [html[data-theme=dark]_&]:hover:bg-neutral-700"
                       >
                         Já Revisei
                       </button>
                       <button 
                         onClick={() => ignoreFocusItem(item.key)}
-                        className="flex flex-1 items-center justify-center gap-1.5 bg-background border border-border text-text-secondary text-xs font-bold py-2 rounded-lg hover:bg-brand-red/10 hover:text-brand-red transition-colors"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-transparent py-2 text-xs font-bold text-neutral-500 transition-colors hover:text-brand-red"
                       >
                         <Trash2 size={14} /> Remover do foco
                       </button>
