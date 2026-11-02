@@ -180,8 +180,8 @@ export function CycleTab({
         </div>
       </header>
 
-      <div className={`grid grid-cols-1 lg:grid-cols-12 ${designTokens.sectionGrid}`}>
-        <div className={`lg:col-span-4 ${designTokens.pageSectionStack}`}>
+      <div className={`grid grid-cols-1 items-start lg:grid-cols-12 ${designTokens.sectionGrid}`}>
+        <div className="space-y-5 self-start lg:col-span-4">
           <div className={designTokens.sectionCard}>
             <h3 className={`${designTokens.cardTitle} mb-4 flex items-center gap-2`}>
               <Target size={18} className="text-brand-primary" /> Foco do Estudo
@@ -197,12 +197,14 @@ export function CycleTab({
                   key={focus.id}
                   onClick={() => updateCycleSettings({ cycleFocus: focus.id })}
                   className={cn(
-                    "text-left p-4 rounded-xl border transition-all",
-                    cycleFocus === focus.id ? "bg-brand-primary/10 border-brand-primary" : "bg-background border-border hover:border-brand-primary/30"
+                    "rounded-xl border p-4 text-left transition-all duration-150",
+                    cycleFocus === focus.id
+                      ? "border-brand-primary bg-brand-primary/10"
+                      : "border-neutral-800 bg-neutral-900 hover:bg-neutral-800 [html[data-theme=light]_&]:border-neutral-200 [html[data-theme=light]_&]:bg-neutral-50 [html[data-theme=light]_&]:hover:bg-neutral-100"
                   )}
                 >
-                  <div className={cn("text-sm font-bold mb-1", cycleFocus === focus.id ? "text-brand-primary" : "text-text-primary")}>{focus.label}</div>
-                  <div className="text-[10px] text-text-secondary leading-tight">{focus.desc}</div>
+                  <div className={cn("mb-1 text-sm font-bold", cycleFocus === focus.id ? "text-brand-primary [html[data-theme=dark]_&]:text-violet-300" : "text-text-primary")}>{focus.label}</div>
+                  <div className="text-xs leading-relaxed text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">{focus.desc}</div>
                 </button>
               ))}
             </div>
@@ -215,8 +217,8 @@ export function CycleTab({
             <div className="space-y-6">
               <div>
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <label className="text-[10px] text-text-secondary uppercase font-bold tracking-wider">Horas por Dia</label>
-                  <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+                  <label className="text-xs font-bold uppercase tracking-wider text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">Horas por Dia</label>
+                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">
                     Máx.
                     <input
                       type="number"
@@ -225,7 +227,7 @@ export function CycleTab({
                       step={0.5}
                       value={Number((dailyTimeMax / 60).toFixed(1))}
                       onChange={(e) => handleDailyTimeMaxChange(Number(e.target.value) || 1)}
-                      className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-right text-xs font-bold text-text-primary outline-none focus:border-brand-primary"
+                      className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-right text-sm font-semibold text-text-primary outline-none focus:border-brand-primary"
                     />
                     h
                   </label>
@@ -237,7 +239,7 @@ export function CycleTab({
                   step="30"
                   value={dailyTime}
                   onChange={(e) => handleDailyTimeChange(parseInt(e.target.value))}
-                  className="w-full h-1.5 bg-border rounded-lg appearance-none cursor-pointer accent-brand-primary"
+                  className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-neutral-200 accent-brand-primary [html[data-theme=dark]_&]:bg-neutral-800"
                 />
                 <div className="flex justify-between mt-2 text-sm font-bold">
                   <span>{Math.floor(dailyTime / 60)}h {dailyTime % 60 > 0 ? `${dailyTime % 60}min` : ''}</span>
@@ -246,15 +248,17 @@ export function CycleTab({
               </div>
 
               <div>
-                <label className="text-[10px] text-text-secondary block mb-2 uppercase font-bold tracking-wider">Blocos de Estudo</label>
-                <div className="flex gap-2">
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">Blocos de Estudo</label>
+                <div className="flex flex-wrap gap-2">
                   {[1, 2, 3, 4, 5, 6].map(n => (
                     <button
                       key={n}
                       onClick={() => updateCycleSettings({ blocksPerDay: n })}
                       className={cn(
-                        "flex-1 py-2 rounded-lg border font-bold text-xs transition-all",
-                        blocksPerDay === n ? "bg-brand-primary text-white border-brand-primary" : "bg-background border-border text-text-secondary hover:border-brand-primary/30"
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-xs font-bold transition-all duration-150",
+                        blocksPerDay === n
+                          ? "border-brand-primary bg-brand-primary text-white"
+                          : "border-neutral-800 bg-neutral-900 text-neutral-400 hover:bg-neutral-800 [html[data-theme=light]_&]:border-neutral-200 [html[data-theme=light]_&]:bg-neutral-50 [html[data-theme=light]_&]:text-neutral-600 [html[data-theme=light]_&]:hover:bg-neutral-100"
                       )}
                     >
                       {n}
@@ -298,7 +302,7 @@ export function CycleTab({
           </div>
         </div>
 
-        <div className={`lg:col-span-8 ${designTokens.pageSectionStack}`}>
+        <div className="space-y-5 self-start lg:col-span-8">
           {(blockingAlert || suggestionAlerts.length > 0) && (
             <div className="space-y-3">
               {blockingAlert && (
@@ -309,14 +313,14 @@ export function CycleTab({
               )}
 
               {suggestionAlerts.length > 0 && (
-                <details className="rounded-xl border border-border bg-card/50 px-4 py-3 text-text-secondary">
-                  <summary className="flex cursor-pointer list-none items-center gap-2 text-xs font-semibold">
-                    <Lightbulb size={16} className="text-text-secondary" />
+                <details className="overflow-hidden rounded-[10px] border border-brand-primary/20 bg-brand-primary/10 px-4 text-text-secondary">
+                  <summary className="flex min-h-[42px] cursor-pointer list-none items-center gap-2 text-[13px] font-semibold text-brand-primary">
+                    <Lightbulb size={16} className="text-brand-primary" />
                     <span>{suggestionAlerts.length} sugestões para melhorar seu ciclo</span>
                   </summary>
                   <div className="mt-3 space-y-2 pl-6">
                     {suggestionAlerts.map((alert, i) => (
-                      <p key={i} className="text-xs leading-relaxed text-text-secondary">
+                      <p key={i} className="text-[13px] leading-relaxed text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">
                         {alert.message}
                       </p>
                     ))}
@@ -354,7 +358,7 @@ export function CycleTab({
                   key={day.value}
                   onClick={() => setSelectedCycleDay(day.value)}
                   className={cn(
-                    "rounded-lg border px-3 py-2 text-xs font-bold transition-all",
+                    "h-9 rounded-lg border px-3 text-xs font-bold transition-all",
                     selectedCycleDay === day.value
                       ? "border-brand-primary bg-brand-primary text-white"
                       : "border-border text-text-secondary hover:border-brand-primary/50 hover:text-brand-primary"
@@ -385,14 +389,14 @@ export function CycleTab({
                   <motion.div
                     layout
                     key={block.id}
-                    className={`${designTokens.itemCard} group relative bg-background hover:border-brand-primary/50 transition-all`}
+                    className={`${designTokens.itemCard} group relative bg-background p-4 sm:p-4 hover:border-brand-primary/50 transition-all`}
                   >
-                    <div className="absolute -top-2 -left-2 w-6 h-6 bg-brand-primary rounded-lg flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
+                    <div className="absolute left-4 top-4 flex h-5 w-5 items-center justify-center rounded-md bg-brand-primary/15 text-xs font-bold text-brand-primary">
                       {i + 1}
                     </div>
 
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
+                      <div className="flex-1 pl-7">
                         <select
                           value={block.subjectId}
                           onChange={(e) => {
@@ -416,13 +420,13 @@ export function CycleTab({
                           <select
                             value={block.type}
                             onChange={(e) => updateBlock(block.id, { type: e.target.value })}
-                            className={cn(getStudyTypeBadgeClasses(block.type, 'outline-none appearance-none cursor-pointer'))}
+                            className={cn(getStudyTypeBadgeClasses(block.type, 'cursor-pointer appearance-none rounded-md bg-brand-primary/10 text-xs uppercase tracking-wider text-brand-primary outline-none [html[data-theme=dark]_&]:text-violet-300'))}
                           >
                             <option value="teoria">Teoria</option>
                             <option value="questoes">Questões</option>
                             <option value="revisao">Revisão</option>
                           </select>
-                          <StudyTypeBadge type="outro" label="Manual" />
+                          <StudyTypeBadge type="outro" label="Manual" className="rounded-md bg-neutral-100 text-xs uppercase tracking-wider text-neutral-600 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300" />
                         </div>
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -444,19 +448,19 @@ export function CycleTab({
                           step={5}
                           value={block.durationMinutes}
                           onChange={(e) => updateBlock(block.id, { durationMinutes: parseInt(e.target.value) })}
-                          className="w-12 bg-transparent text-xs font-bold outline-none"
+                          className="w-8 bg-transparent text-base font-semibold leading-none text-text-primary outline-none"
                         />
-                        <span className="text-[10px] text-text-secondary">min</span>
+                        <span className="text-[13px] text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">min</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleRecordBlock(block)}
                           disabled={savingBlockId === block.id || block.durationMinutes < 1}
                           className={cn(
-                            "px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-all disabled:opacity-50",
+                            "flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-all disabled:opacity-50",
                             savedBlockId === block.id
-                              ? "bg-brand-green text-white"
-                              : "bg-brand-green/10 text-brand-green hover:bg-brand-green hover:text-white"
+                              ? "border-brand-green bg-brand-green text-white"
+                              : "border-brand-primary bg-transparent text-brand-primary hover:bg-brand-primary/10"
                           )}
                           title="Registrar como estudado"
                         >
@@ -474,7 +478,7 @@ export function CycleTab({
                             updateBlock(block.id, { order: i - 1 });
                             updateBlock(prev.id, { order: i });
                           }}
-                          className="p-1 hover:text-brand-primary disabled:opacity-20"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-20 [html[data-theme=dark]_&]:text-neutral-400 [html[data-theme=dark]_&]:hover:bg-neutral-800 [html[data-theme=dark]_&]:hover:text-neutral-200"
                           aria-label="Mover bloco para cima"
                           title="Mover bloco para cima"
                         >
@@ -487,7 +491,7 @@ export function CycleTab({
                             updateBlock(block.id, { order: i + 1 });
                             updateBlock(next.id, { order: i });
                           }}
-                          className="p-1 hover:text-brand-primary disabled:opacity-20"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-20 [html[data-theme=dark]_&]:text-neutral-400 [html[data-theme=dark]_&]:hover:bg-neutral-800 [html[data-theme=dark]_&]:hover:text-neutral-200"
                           aria-label="Mover bloco para baixo"
                           title="Mover bloco para baixo"
                         >
@@ -500,17 +504,17 @@ export function CycleTab({
 
                 <button
                   onClick={handleAddBlock}
-                  className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border p-5 text-text-secondary transition-all hover:border-brand-primary/50 hover:text-brand-primary"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 p-5 text-[13px] text-neutral-500 transition-all hover:border-brand-primary hover:bg-brand-primary/5 hover:text-brand-primary [html[data-theme=dark]_&]:border-neutral-700 [html[data-theme=dark]_&]:text-neutral-400"
                 >
                   <Plus size={24} />
-                  <span className="text-xs font-bold">Adicionar Bloco</span>
+                  <span className="text-[13px] font-bold">Adicionar Bloco</span>
                 </button>
               </div>
             )}
           </div>
 
-          <div className="flex items-start gap-2 text-xs leading-relaxed text-text-secondary">
-            <Info size={15} className="mt-0.5 shrink-0 text-text-secondary" />
+          <div className="flex items-start gap-2 rounded-[10px] border border-neutral-200 bg-neutral-50 p-4 text-[13px] leading-[1.6] text-neutral-500 [html[data-theme=dark]_&]:border-neutral-800 [html[data-theme=dark]_&]:bg-neutral-900 [html[data-theme=dark]_&]:text-neutral-400">
+            <Info size={15} className="mt-0.5 shrink-0 text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400" />
             <p>
               Diferente de um cronograma fixo, o ciclo é uma sequência. Se você parar no bloco 2 hoje, amanhã começa pelo bloco 3. Isso evita o sentimento de matéria acumulada e garante que você estude tudo na proporção correta.
             </p>
