@@ -12,11 +12,12 @@ import {
   XCircle
 } from 'lucide-react';
 import {
+  Area,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Legend,
   Line,
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -56,6 +57,9 @@ const periodOptions: { id: PeriodFilter; label: string }[] = [
   { id: 'all', label: 'Sempre' }
 ];
 
+const prefersReducedMotion = typeof window !== 'undefined'
+  && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 const parseRecordDate = (value: string) => {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
@@ -81,6 +85,32 @@ const getAccuracyClass = (accuracy: number) => {
   if (accuracy >= 70) return 'text-brand-green';
   if (accuracy >= 50) return 'text-brand-yellow';
   return 'text-brand-red';
+};
+
+type LastValueDotProps = {
+  cx?: number;
+  cy?: number;
+  index?: number;
+};
+
+const renderLastValueDot = (
+  props: LastValueDotProps,
+  lastIndex: number,
+  color: string
+) => {
+  if (props.index !== lastIndex || props.cx === undefined || props.cy === undefined) return null;
+
+  return (
+    <circle
+      cx={props.cx}
+      cy={props.cy}
+      r={4}
+      fill={color}
+      stroke={color}
+      strokeOpacity={0.25}
+      strokeWidth={3}
+    />
+  );
 };
 
 const filterRecordsByPeriod = (records: QuestionRecord[], period: PeriodFilter) => {
@@ -293,29 +323,83 @@ export function PerformanceTab({
           <section className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <div>
-                <h3 className="font-bold flex items-center gap-2">
+                <h3 className="flex items-center gap-2 text-base font-semibold">
                   <LineChartIcon size={18} className="text-brand-primary" /> Evolução no Período
                 </h3>
-                <p className="text-xs text-text-secondary mt-1">Volume resolvido e percentual de acerto por data.</p>
+                <p className="mt-1 text-[13px] text-neutral-500 [html[data-theme=dark]_&]:text-neutral-400">Volume resolvido e percentual de acerto por data.</p>
               </div>
-              <span className="text-xs font-bold text-text-secondary">{filteredRecords.length} registros</span>
+              <span className="w-fit rounded-md bg-neutral-100 px-2.5 py-1 text-xs font-semibold text-neutral-600 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300">{filteredRecords.length} registros</span>
             </div>
 
-            <div className="h-72">
+            <div className="performance-evolution-chart h-[290px]">
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--text-secondary)" fontSize={12} tickLine={false} axisLine={false} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: 'var(--card-color)', border: '1px solid var(--border-color)', borderRadius: '12px' }}
-                      labelStyle={{ color: 'var(--text-primary)' }}
+                  <ComposedChart data={chartData} margin={{ top: 16, right: 20, left: 0, bottom: 8 }}>
+                    <defs>
+                      <linearGradient id="performance-accuracy-fill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--brand-primary)" stopOpacity={0.25} />
+                        <stop offset="100%" stopColor="var(--brand-primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="4 4" stroke="var(--border-color)" strokeOpacity={0.55} vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={8}
+                      tick={{ fill: 'var(--text-secondary)', fontSize: 12, fontVariantNumeric: 'tabular-nums' }}
                     />
-                    <Line type="monotone" dataKey="total" name="Questões" stroke="var(--brand-primary)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                    <Legend verticalAlign="top" align="right" wrapperStyle={{ color: 'var(--text-secondary)', fontSize: 12, paddingBottom: 8 }} />
-                    <Line type="monotone" dataKey="accuracy" name="% Acerto" stroke="var(--color-brand-blue)" strokeWidth={2} dot={{ r: 3 }} />
-                  </LineChart>
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tickMargin={8}
+                      tick={{ fill: 'var(--text-secondary)', fontSize: 12, fontVariantNumeric: 'tabular-nums' }}
+                    />
+                    <Tooltip
+                      cursor={{ stroke: '#404040', strokeWidth: 1, strokeDasharray: '4 4' }}
+                      contentStyle={{
+                        backgroundColor: '#171717',
+                        border: '1px solid #262626',
+                        borderRadius: '8px',
+                        padding: '10px 12px',
+                        boxShadow: 'var(--shadow-surface)'
+                      }}
+                      labelStyle={{ color: '#a3a3a3', fontSize: 12, marginBottom: 6 }}
+                      itemStyle={{ fontSize: 13, fontWeight: 600, fontVariantNumeric: 'tabular-nums', padding: 0 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="total"
+                      name="Questões"
+                      stroke="#a3a3a3"
+                      strokeWidth={1.5}
+                      dot={(props) => renderLastValueDot(props, chartData.length - 1, '#a3a3a3')}
+                      activeDot={{ r: 5, fill: '#a3a3a3', strokeWidth: 0 }}
+                      isAnimationActive={!prefersReducedMotion}
+                      animationDuration={600}
+                      animationEasing="ease-out"
+                    />
+                    <Legend
+                      verticalAlign="top"
+                      align="left"
+                      iconType="plainline"
+                      iconSize={16}
+                      wrapperStyle={{ color: 'var(--chart-legend)', fontSize: 12, paddingBottom: 8 }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="accuracy"
+                      name="% Acerto"
+                      stroke="var(--brand-primary)"
+                      strokeWidth={2}
+                      fill="url(#performance-accuracy-fill)"
+                      dot={(props) => renderLastValueDot(props, chartData.length - 1, 'var(--brand-primary)')}
+                      activeDot={{ r: 5, fill: 'var(--brand-primary)', strokeWidth: 0 }}
+                      isAnimationActive={!prefersReducedMotion}
+                      animationDuration={600}
+                      animationEasing="ease-out"
+                    />
+                  </ComposedChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-center text-text-secondary">
