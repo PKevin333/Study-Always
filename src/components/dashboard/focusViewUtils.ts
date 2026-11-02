@@ -28,6 +28,8 @@ export const getPerformanceTone = (percentage: number) => {
       accent: 'bg-red-500',
       badge: 'bg-red-500/10 text-red-500',
       text: 'text-red-500',
+      cardAccent: 'before:bg-red-400',
+      cardText: 'text-red-400',
     };
   }
 
@@ -36,6 +38,8 @@ export const getPerformanceTone = (percentage: number) => {
       accent: 'bg-amber-500',
       badge: 'bg-amber-500/10 text-amber-500',
       text: 'text-amber-500',
+      cardAccent: 'before:bg-amber-400',
+      cardText: 'text-amber-400',
     };
   }
 
@@ -43,5 +47,7 @@ export const getPerformanceTone = (percentage: number) => {
     accent: 'bg-emerald-500',
     badge: 'bg-emerald-500/10 text-emerald-500',
     text: 'text-emerald-500',
+    cardAccent: 'before:bg-emerald-400',
+    cardText: 'text-emerald-400',
   };
 };

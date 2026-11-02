@@ -60,12 +60,12 @@ const FocoToolbar: React.FC<FocoToolbarProps> = ({
   const totalCount = subjectCounts.reduce((total, subject) => total + subject.count, 0);
 
   return (
-    <div className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+    <div className="space-y-4 rounded-xl border border-neutral-800 bg-card p-4 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
         <div
           role="tablist"
           aria-label="Modo de visualização"
-          className="inline-flex h-10 shrink-0 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800"
+          className="inline-flex h-11 shrink-0 rounded-lg bg-neutral-800 p-1"
         >
           {viewOptions.map((option, index) => {
             const Icon = option.icon;
@@ -79,10 +79,10 @@ const FocoToolbar: React.FC<FocoToolbarProps> = ({
                 tabIndex={isSelected ? 0 : -1}
                 onClick={() => onViewChange(option.value)}
                 onKeyDown={(event) => handleViewKeyDown(event, index)}
-                className={`flex min-w-24 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex min-h-9 min-w-24 items-center justify-center gap-2 rounded-md px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
                   isSelected
-                    ? 'bg-accent text-white shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary'
+                    ? 'bg-neutral-700 text-white'
+                    : 'text-neutral-400 hover:text-neutral-200'
                 }`}
               >
                 <Icon size={16} aria-hidden="true" />
@@ -104,7 +104,7 @@ const FocoToolbar: React.FC<FocoToolbarProps> = ({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Buscar por assunto"
-            className="h-10 w-full rounded-lg border border-border bg-background pl-10 pr-3 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary focus:border-accent focus:ring-2 focus:ring-accent/20"
+            className="h-10 w-full rounded-lg border border-neutral-800 bg-background pl-10 pr-3 text-sm text-text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
           />
         </label>
 
@@ -114,7 +114,7 @@ const FocoToolbar: React.FC<FocoToolbarProps> = ({
             <select
               value={sort}
               onChange={(event) => onSortChange(event.target.value as FocusSort)}
-              className="h-10 rounded-lg border border-border bg-background px-3 text-sm font-medium text-text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="h-10 rounded-lg border border-neutral-800 bg-background px-3 text-sm font-medium text-text-primary outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
             >
               <option value="performance">Desempenho</option>
               <option value="days">Dias sem ver</option>
@@ -125,13 +125,13 @@ const FocoToolbar: React.FC<FocoToolbarProps> = ({
           <button
             type="button"
             onClick={onDirectionToggle}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:bg-neutral-100 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:hover:bg-neutral-800"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 text-neutral-300 transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             aria-label={direction === 'asc' ? 'Ordenação crescente' : 'Ordenação decrescente'}
             title={direction === 'asc' ? 'Ordenação crescente' : 'Ordenação decrescente'}
           >
             {direction === 'asc' ? <ArrowUp size={17} /> : <ArrowDown size={17} />}
           </button>
-          <span className="ml-auto whitespace-nowrap text-sm font-semibold tabular-nums text-text-secondary xl:ml-0">
+          <span className="ml-auto whitespace-nowrap text-[13px] font-semibold tabular-nums text-neutral-400 xl:ml-0">
             {count} {count === 1 ? 'assunto' : 'assuntos'}
           </span>
         </div>
@@ -141,26 +141,26 @@ const FocoToolbar: React.FC<FocoToolbarProps> = ({
         <button
           type="button"
           onClick={() => onSubjectChange('all')}
-          className={`h-10 rounded-lg px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+          className={`h-10 rounded-lg border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
             selectedSubject === 'all'
-              ? 'bg-accent/10 text-accent'
-              : 'bg-neutral-100 text-text-secondary hover:text-text-primary dark:bg-neutral-800'
+              ? 'border-brand-primary/40 bg-brand-primary/15 text-violet-200'
+              : 'border-transparent bg-neutral-800 text-neutral-300 hover:text-white'
           }`}
         >
-          Todas <span className="ml-1 tabular-nums opacity-70">{totalCount}</span>
+          Todas <span className="ml-1 text-xs tabular-nums text-neutral-400">{totalCount}</span>
         </button>
         {subjectCounts.map((subject) => (
           <button
             key={subject.id}
             type="button"
             onClick={() => onSubjectChange(subject.id)}
-            className={`h-10 rounded-lg px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+            className={`h-10 rounded-lg border px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
               selectedSubject === subject.id
-                ? 'bg-accent/10 text-accent'
-                : 'bg-neutral-100 text-text-secondary hover:text-text-primary dark:bg-neutral-800'
+                ? 'border-brand-primary/40 bg-brand-primary/15 text-violet-200'
+                : 'border-transparent bg-neutral-800 text-neutral-300 hover:text-white'
             }`}
           >
-            {subject.name} <span className="ml-1 tabular-nums opacity-70">{subject.count}</span>
+            {subject.name} <span className="ml-1 text-xs tabular-nums text-neutral-400">{subject.count}</span>
           </button>
         ))}
       </div>

@@ -7,7 +7,7 @@ import { toast } from '../shared/ToastViewport';
 import FocoList from './FocoList';
 import FocoTable from './FocoTable';
 import FocoToolbar from './FocoToolbar';
-import type { FocusSort, FocusView, FocusViewItem, SortDirection } from './focusViewUtils';
+import { getPerformanceTone, type FocusSort, type FocusView, type FocusViewItem, type SortDirection } from './focusViewUtils';
 
 const getStoredFocusView = (): FocusView => {
   try {
@@ -393,20 +393,20 @@ export function FocusTab({
               </div>
             </>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {visibleFocusItems.map(item => (
-                <div key={item.key} className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-card p-5 shadow-sm transition-shadow duration-150 before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-full before:bg-brand-red hover:shadow-md">
+                <div key={item.key} className={`relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-xl bg-card p-5 shadow-sm transition-shadow duration-150 before:absolute before:inset-y-3 before:left-0 before:w-[3px] before:rounded-full hover:shadow-md ${getPerformanceTone(item.percentage).cardAccent}`}>
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-bold px-2 py-1 rounded-full bg-brand-red/10 text-brand-red uppercase">{item.reason}</span>
-                      <span className="text-lg font-bold text-brand-red">{Math.round(item.percentage)}%</span>
+                      <span className="rounded-full bg-red-500/10 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-red-300">{item.reason}</span>
+                      <span className={`font-editorial text-[28px] font-semibold leading-none tabular-nums ${getPerformanceTone(item.percentage).cardText}`}>{Math.round(item.percentage)}%</span>
                     </div>
                     <h4 className="font-bold text-lg mb-1">{item.topic}</h4>
                     <p className="text-sm text-text-secondary mb-1">{item.subjectName}</p>
                     
-                    <div className="flex gap-4 text-xs text-text-secondary mb-4">
-                      <div><span className="font-bold text-text-primary">{item.errors}</span> erros</div>
-                      <div><span className="font-bold text-text-primary">{Math.round(item.daysSinceLastStudy)}</span> dias sem ver</div>
+                    <div className="mb-4 flex gap-4 text-[13px] text-neutral-400">
+                      <div><span className="font-semibold tabular-nums text-neutral-100">{item.errors}</span> erros</div>
+                      <div><span className="font-semibold tabular-nums text-neutral-100">{Math.round(item.daysSinceLastStudy)}</span> dias sem ver</div>
                     </div>
                   </div>
                   
@@ -414,13 +414,13 @@ export function FocusTab({
                     <div className="flex gap-2">
                       <button 
                         onClick={() => handleStudy(item)}
-                        className="flex-1 bg-brand-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-brand-primary/80 transition-colors"
+                        className="h-10 flex-1 rounded-lg bg-brand-primary px-3 text-[13px] font-bold text-white transition-colors hover:bg-brand-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         Estudar
                       </button>
                       <button 
                         onClick={() => handleAddToCycle(item)}
-                        className="flex-1 rounded-lg bg-brand-primary/10 py-2 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-primary/15"
+                        className="h-10 flex-1 rounded-lg border border-brand-primary/40 bg-transparent px-3 text-[13px] font-bold text-violet-300 transition-colors hover:bg-brand-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         + Ciclo
                       </button>
@@ -428,13 +428,13 @@ export function FocusTab({
                     <div className="flex gap-2">
                       <button 
                         onClick={() => handleMarkReviewed(item)}
-                        className="flex-1 rounded-lg bg-neutral-100 py-2 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-200 [html[data-theme=dark]_&]:bg-neutral-800 [html[data-theme=dark]_&]:text-neutral-300 [html[data-theme=dark]_&]:hover:bg-neutral-700"
+                        className="h-9 flex-1 rounded-lg bg-neutral-800 px-3 text-[13px] font-bold text-neutral-200 transition-colors hover:bg-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         Já Revisei
                       </button>
                       <button 
                         onClick={() => handleRemoveFromFocus(item)}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-transparent py-2 text-xs font-bold text-neutral-500 transition-colors hover:text-brand-red"
+                        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-transparent px-2 text-[13px] font-bold text-neutral-400 transition-colors hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         <Trash2 size={14} /> Remover do foco
                       </button>
