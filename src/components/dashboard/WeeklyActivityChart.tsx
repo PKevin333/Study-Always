@@ -45,7 +45,7 @@ function WeeklyActivityTooltip({
   if (rows.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-white/10 bg-card px-3 py-2 shadow-xl">
+    <div className="rounded-xl border border-border bg-card px-3 py-2 shadow-[var(--shadow-surface)]">
       <p className="mb-2 text-xs font-semibold text-text-primary">{label}</p>
       <div className="space-y-1.5">
         {rows.map(row => (
@@ -93,15 +93,15 @@ export function WeeklyActivityChart({ data }: WeeklyActivityChartProps) {
     <>
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
-          <p className="text-3xl font-bold leading-none text-text-primary">{data.totalHours.toFixed(1)}h</p>
-          <p className="mt-1 text-xs text-text-secondary">Últimos 7 dias corridos</p>
+          <p className="font-editorial text-3xl font-semibold leading-none tracking-[-0.025em] text-text-primary tabular-nums">{data.totalHours.toFixed(1)}h</p>
+          <p className="mt-1 text-[13px] text-text-secondary">Últimos 7 dias corridos</p>
         </div>
-        <p className="text-right text-xs text-text-secondary">
+        <p className="text-right text-[13px] text-text-secondary">
           {data.subjects.length} {data.subjects.length === 1 ? 'disciplina ativa' : 'disciplinas ativas'}
         </p>
       </div>
 
-      <div className="h-44">
+      <div className="h-40">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data.days} margin={{ top: 4, right: 0, left: 0, bottom: 0 }} barCategoryGap="28%">
             <defs>

@@ -201,20 +201,20 @@ export function DashboardHome({
       key="dashboard" 
       className={designTokens.page}
     >
-      <header className="mb-6 flex flex-col justify-between gap-4 border-b border-border pb-5 sm:flex-row sm:items-end">
+      <header className="mb-6 flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-1 text-xs font-bold text-brand-primary">Olá, {user?.displayName?.split(' ')[0] || 'estudante'}</p>
-          <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">Seu estudo em números</h2>
+          <p className="mb-1 text-[13px] font-semibold text-brand-primary">Olá, {user?.displayName?.split(' ')[0] || 'estudante'}</p>
+          <h2 className="font-editorial text-[32px] font-semibold leading-tight tracking-[-0.025em] text-text-primary sm:text-4xl">Seu estudo em números</h2>
           <p className="mt-2 text-sm text-text-secondary">
             Acompanhe sua preparação para <span className="font-semibold text-text-primary">{targetContest}</span>.
           </p>
         </div>
-        <div className="inline-flex w-fit items-center gap-2 rounded-md border border-brand-primary/20 bg-brand-primary/10 px-3 py-2 text-xs font-bold text-brand-primary">
+        <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-brand-primary/20 bg-brand-primary/10 px-3 py-2 text-xs font-semibold text-brand-primary">
           <span className="h-2 w-2 rounded-full bg-brand-primary" /> Plano ativo
         </div>
       </header>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 xl:gap-6">
         <StatCard 
           icon={<TrendingUp className="text-brand-primary" />} 
           label="Desempenho" 
@@ -247,17 +247,17 @@ export function DashboardHome({
 
       <div className={`grid grid-cols-1 xl:grid-cols-12 ${designTokens.sectionGrid}`}>
         <div className={`xl:col-span-7 ${designTokens.pageSectionStack}`}>
-          <div className={`${designTokens.sectionCard} border-brand-primary/20 shadow-lg shadow-brand-primary/5`}>
+          <div className={`${designTokens.sectionCard} border-border bg-card shadow-[var(--shadow-soft)]`}>
             <div className="flex items-start justify-between gap-4 mb-6">
               <div>
-                <h3 className="font-bold flex items-center gap-2">
+                <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary">
                   <History size={18} className="text-brand-primary" /> Ciclo de Hoje
                 </h3>
-                <p className="mt-1 text-xs text-text-secondary">Sua ação imediata para continuar o estudo de hoje.</p>
+                <p className="mt-1 text-[13px] text-text-secondary">Sua ação imediata para continuar o estudo de hoje.</p>
               </div>
               <button
                 onClick={openCycleEditor}
-                className="text-xs font-bold text-brand-primary hover:underline whitespace-nowrap"
+                className="whitespace-nowrap text-[13px] font-semibold text-brand-primary hover:underline"
               >
                 Ajustar ciclo
               </button>
@@ -268,8 +268,8 @@ export function DashboardHome({
                   const isCompleted = completedBlockIds.has(block.id);
 
                   return (
-                  <div key={block.id} className={`${designTokens.itemCardCompact} flex items-center gap-4 bg-background group hover:border-brand-primary/30 transition-colors`}>
-                    <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold text-xs">
+                  <div key={block.id} className={`${designTokens.itemCardCompact} group flex items-center gap-4 rounded-lg border-border bg-[var(--surface-muted)] transition-colors hover:border-brand-primary/30`}>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-xs font-bold text-brand-primary">
                       {i + 1}º
                     </div>
                     <div className="flex-1 overflow-hidden">
@@ -281,7 +281,7 @@ export function DashboardHome({
                         />
                       </div>
                       <div className="flex gap-2 mt-0.5">
-                        <StudyTypeBadge type={block.type} />
+                        <StudyTypeBadge type={block.type} className="bg-brand-primary/10 text-brand-primary" />
                         <span className={designTokens.metaText}>{block.durationMinutes} min</span>
                       </div>
                     </div>
@@ -310,14 +310,14 @@ export function DashboardHome({
                   );
                 })
               ) : (
-                <div className="rounded-2xl border border-dashed border-brand-primary/20 bg-brand-primary/5 py-8 text-center">
+                <div className="rounded-xl border border-dashed border-border bg-[var(--surface-muted)] py-8 text-center">
                   <div className="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center text-brand-primary mx-auto mb-3">
                     <History size={20} />
                   </div>
-                  <p className="text-xs text-text-secondary mb-4 px-4">Seu ciclo de estudos ainda não foi configurado.</p>
+                  <p className="mb-4 px-4 text-[13px] text-text-secondary">Seu ciclo de estudos ainda não foi configurado.</p>
                   <button 
                     onClick={() => setActiveTab('cycle')}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl hover:bg-brand-primary/80 transition-all"
+                    className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-xs font-bold text-white transition-all hover:brightness-110"
                   >
                     Gerar Ciclo Automático
                   </button>
@@ -326,34 +326,34 @@ export function DashboardHome({
             </div>
           </div>
 
-          <div className={designTokens.sectionCard}>
-            <h3 className={`${designTokens.cardTitle} mb-6 flex items-center gap-2`}>
+          <div className={`${designTokens.sectionCard} border-border bg-card shadow-[var(--shadow-soft)]`}>
+            <h3 className="mb-6 flex items-center gap-2 text-base font-semibold text-text-primary">
               <BarChart3 size={18} className="text-brand-primary" /> Atividade Semanal
             </h3>
             <div>
               {weeklyActivityData.subjects.length > 0 ? (
                 <WeeklyActivityChart data={weeklyActivityData} />
               ) : (
-                <div className="flex min-h-[320px] flex-col items-center justify-center text-center p-6">
-                  <div className="w-12 h-12 bg-brand-blue/10 rounded-full flex items-center justify-center text-brand-blue mb-4">
+                <div className="flex min-h-[220px] flex-col items-center justify-center p-6 text-center">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
                     <BarChart3 size={24} />
                   </div>
-                  <p className="text-sm text-text-secondary">Seus dados aparecerão após sua primeira sessão de estudo.</p>
-                  <p className="text-[10px] text-text-secondary/60 mt-1">Inicie um bloco no Plano do Dia para começar a registrar seu progresso.</p>
+                  <p className="text-[13px] text-text-secondary">Seus dados aparecerão após sua primeira sessão de estudo.</p>
+                  <p className="mt-1 text-xs text-text-secondary/70">Inicie um bloco no Plano do Dia para começar a registrar seu progresso.</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className={`xl:col-span-5 ${designTokens.pageSectionStack}`}>
-          <div className={designTokens.sectionCard}>
+        <div className={`xl:col-span-5 ${designTokens.pageSectionStack} [&>div:last-child]:border-brand-primary/20 [&>div:last-child]:bg-brand-primary/5 [&>div:last-child]:shadow-[var(--shadow-soft)] [&>div:last-child>h4]:text-[13px] [&>div:last-child>h4]:font-semibold [&>div:last-child>div]:text-sm [&>div:last-child>div]:leading-[1.6] [&>div:last-child>div]:text-text-primary`}>
+          <div className={`${designTokens.sectionCard} border-border bg-card shadow-[var(--shadow-soft)]`}>
             <div className="flex items-start justify-between gap-4 mb-5">
               <div>
-                <h3 className={`${designTokens.cardTitle} flex items-center gap-2`}>
+                <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary">
                   <AlertCircle size={18} className="text-brand-primary" /> Acompanhamento
                 </h3>
-                <p className="text-xs text-text-secondary mt-1">Mostra matérias ativas que ainda ficaram fora do ciclo de hoje.</p>
+                <p className="mt-1 text-[13px] text-text-secondary">Mostra matérias ativas que ainda ficaram fora do ciclo de hoje.</p>
               </div>
               <div className="group relative">
                 <Info size={16} className="text-text-secondary" />
@@ -362,7 +362,7 @@ export function DashboardHome({
                 </div>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3 mb-5 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
+            <div className="mb-5 flex flex-wrap gap-3 text-xs font-bold uppercase tracking-wider text-text-secondary">
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-primary" /> Fora do ciclo de hoje</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-blue" /> Acompanhar depois</span>
             </div>
@@ -400,10 +400,10 @@ export function DashboardHome({
                 ))
               ) : (
                 <div className="py-8 text-center">
-                  <p className="text-xs text-text-secondary mb-4">Seu ciclo de hoje já cobre as principais matérias ativas.</p>
+                  <p className="mb-4 text-[13px] text-text-secondary">Seu ciclo de hoje já cobre as principais matérias ativas.</p>
                   <button 
                     onClick={openCycleEditor}
-                    className="text-xs font-bold text-brand-primary hover:underline"
+                    className="text-[13px] font-semibold text-brand-primary hover:underline"
                   >
                     Ajustar ciclo
                   </button>
