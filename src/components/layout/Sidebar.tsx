@@ -101,7 +101,7 @@ export function Sidebar({
           </div>
           <div>
             <span className="block font-display text-lg font-extrabold leading-none tracking-[-0.035em] text-white">Study Always</span>
-            <span className="mt-1.5 block text-xs font-bold uppercase tracking-[0.18em] text-[var(--sidebar-muted)]">Seu plano de estudos</span>
+            <span className="mt-1.5 block whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--sidebar-muted)]">Seu plano de estudos</span>
           </div>
         </div>
 

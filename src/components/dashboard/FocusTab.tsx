@@ -152,19 +152,19 @@ export function FocusTab({
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -10 }} 
       key="focus" 
-      className="bg-neutral-50 pb-20 [html[data-theme=dark]_&]:bg-neutral-950"
+      className="mx-auto w-full max-w-[1480px] pb-20"
     >
-      <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <header className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2">Foco de Estudo</h2>
-          <p className="text-text-secondary text-sm sm:text-base">Identifique rapidamente o que revisar com base no seu desempenho real.</p>
+          <p className="text-sm text-neutral-400">Identifique rapidamente o que revisar com base no seu desempenho real.</p>
         </div>
-        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+        <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:justify-end">
           {ignoredFocusCount > 0 ? (
             <button
               type="button"
               onClick={restoreFocusItems}
-              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-[var(--surface-muted)] px-4 text-sm font-bold text-text-secondary transition hover:text-brand-primary sm:flex-none"
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-4 text-sm font-bold text-neutral-200 transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary sm:flex-none"
             >
               <RotateCcw size={17} /> Restaurar ocultados
             </button>
@@ -173,7 +173,7 @@ export function FocusTab({
             <button
               type="button"
               onClick={() => setClearModalOpen(true)}
-              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-bold text-brand-red transition hover:bg-brand-red/10 sm:flex-none"
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-lg px-4 text-sm font-bold text-red-400 transition-colors hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 sm:flex-none"
             >
               <Trash2 size={17} /> Limpar foco
             </button>
@@ -181,7 +181,7 @@ export function FocusTab({
           <button
             onClick={generateWeaknessPlan}
             disabled={focusItems.focar.length === 0}
-            className="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-brand-primary px-5 font-bold text-white transition-colors hover:bg-brand-primary/80 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-brand-primary px-5 text-sm font-bold text-white transition-colors hover:bg-brand-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             <Target size={18} />
             Atacar pontos fracos
@@ -334,11 +334,11 @@ export function FocusTab({
 
       <div className="space-y-8">
         <section>
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-brand-red"></div>
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <div className="h-2 w-2 rounded-full bg-brand-red"></div>
             Focar Agora
           </h3>
-          <p className="text-sm text-text-secondary mb-4">Assuntos com baixo desempenho, muitos erros ou esquecidos.</p>
+          <p className="mb-4 text-sm text-neutral-400">Assuntos com baixo desempenho, muitos erros ou esquecidos.</p>
 
           {focusItems.focar.length > 0 ? (
             <div className="mb-4">
@@ -360,7 +360,7 @@ export function FocusTab({
           ) : null}
           
           {focusItems.focar.length === 0 ? (
-            <div className="p-6 bg-card border border-border rounded-2xl text-center text-text-secondary">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900 px-6 py-12 text-center text-sm text-neutral-300">
               Nenhum assunto crítico no momento. Bom trabalho!
             </div>
           ) : visibleFocusItems.length === 0 ? (
