@@ -264,19 +264,19 @@ export function TimerTab({
             Organize foco, pausas e registros de estudo sem sair do seu fluxo.
           </p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-card border border-border">
-          <TimerIcon size={16} className={styles.text} />
+        <div className="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-4 py-2">
+          <TimerIcon size={16} className="text-brand-primary" />
           <span className="text-xs font-bold text-text-secondary">Ciclo {currentCycle}/{cyclesBeforeLongBreak}</span>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-        <section className="xl:col-span-5 self-start h-fit bg-card border border-border rounded-[2rem] p-8 sm:px-8 sm:py-10 shadow-2xl relative overflow-hidden">
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-12">
+        <section className="relative h-fit self-start overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-2xl sm:p-6 xl:sticky xl:top-6 xl:col-span-5">
           <div className={cn('absolute inset-x-0 top-0 h-40 bg-gradient-to-b opacity-80', styles.panel)} />
 
           <div className="relative z-10 flex flex-col items-center gap-4">
             <div className="flex justify-center">
-              <div className="inline-flex bg-background/70 border border-border rounded-2xl p-1 overflow-x-auto max-w-full">
+              <div className="inline-flex max-w-full overflow-x-auto rounded-lg border border-neutral-800 bg-neutral-950/70 p-1">
                 {modeOptions.map(mode => (
                   <button
                     key={mode.id}
@@ -284,10 +284,10 @@ export function TimerTab({
                     onClick={() => selectMode(mode.id)}
                     disabled={!canChangeMode}
                     className={cn(
-                      'px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all disabled:opacity-50 disabled:cursor-not-allowed',
+                      'h-9 whitespace-nowrap rounded-lg px-4 text-sm font-bold transition-all disabled:cursor-not-allowed disabled:opacity-50',
                       timerMode === mode.id
-                        ? cn(styles.activeTab, 'shadow-lg')
-                        : 'text-text-secondary hover:text-text-primary hover:bg-card'
+                        ? styles.activeTab
+                        : 'text-neutral-300 hover:bg-neutral-900 hover:text-white'
                     )}
                   >
                     {mode.label}
@@ -297,17 +297,17 @@ export function TimerTab({
             </div>
 
             <div className="text-center flex flex-col items-center gap-4">
-              <div className={cn('inline-flex px-4 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-wider', styles.soft)}>
+              <div className={cn('inline-flex rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider', styles.soft)}>
                 {activeMode.helper}
               </div>
-              <div className="text-6xl sm:text-8xl font-black tabular-nums tracking-tight leading-none">
+              <div className={cn('text-[64px] font-semibold leading-none tracking-tight tabular-nums sm:text-[72px]', styles.text)}>
                 {formatTime(timeLeft)}
               </div>
 
               <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={handleResetClick}
-                  className="p-3 rounded-2xl bg-background border border-border text-text-secondary hover:text-brand-red hover:border-brand-red/30 transition-all"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950 text-neutral-300 transition-all hover:border-brand-red/30 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                   title="Reiniciar"
                 >
                   <RotateCcw size={20} />
@@ -317,7 +317,7 @@ export function TimerTab({
                   onClick={() => setTimerActive(!timerActive)}
                   disabled={!canStart}
                   className={cn(
-                    'px-8 py-3 rounded-2xl text-white font-black text-base shadow-xl transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2',
+                    'flex h-11 min-w-[140px] items-center justify-center gap-2 rounded-lg px-8 text-base font-black text-white shadow-xl transition-all hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100',
                     styles.button
                   )}
                 >
@@ -327,7 +327,7 @@ export function TimerTab({
 
                 <button
                   onClick={skipPhase}
-                  className="p-3 rounded-2xl bg-background border border-border text-text-secondary hover:text-brand-primary hover:border-brand-primary/30 transition-all"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-950 text-neutral-300 transition-all hover:border-brand-primary/30 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                   title="Pular fase"
                 >
                   <Zap size={20} />
@@ -343,7 +343,7 @@ export function TimerTab({
               {timerMode === 'study' && seconds >= 60 && (
                 <button
                   onClick={finishStudySession}
-                  className={cn('px-5 py-2.5 rounded-full border text-xs font-bold hover:text-white transition-all inline-flex items-center gap-2', styles.soft)}
+                  className="inline-flex items-center gap-2 rounded-full border border-brand-primary/40 bg-brand-primary/10 px-5 py-2.5 text-xs font-bold text-brand-primary transition-all hover:bg-brand-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 >
                   <CheckCircle2 size={14} />
                   Finalizar sessão agora ({Math.floor(seconds / 60)} min)
@@ -379,15 +379,15 @@ export function TimerTab({
           </Modal>
         </section>
 
-        <aside className="xl:col-span-7 space-y-6">
-          <section className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-sm">
+        <aside className="space-y-5 xl:col-span-7">
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm sm:p-6">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <Clock size={18} className={styles.text} /> Sessão Atual
+              <Clock size={18} className="text-brand-primary" /> Sessão Atual
             </h3>
 
             {activeSessionBlock ? (
-              <div className="bg-background border border-border rounded-2xl p-4 text-center">
-                <div className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Plano do Dia</div>
+              <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4 text-center">
+                <div className="mb-1 text-xs font-bold uppercase tracking-widest text-neutral-400">Plano do Dia</div>
                 <div className="font-bold text-lg">{activeSessionBlock.subjectName}</div>
                 <div className="mt-2">
                   <StudyTypeBadge type={activeSessionBlock.type} label={studyTypeOptions.find(option => option.id === activeSessionBlock.type)?.label || 'Teoria'} />
@@ -399,7 +399,7 @@ export function TimerTab({
                   value={selectedSubject}
                   onChange={(e) => setSelectedSubject(e.target.value)}
                   disabled={timerActive}
-                  className="w-full bg-background border border-border rounded-2xl px-4 py-3 outline-none focus:border-brand-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-10 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 outline-none transition-all focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Selecione a disciplina</option>
                   {subjects.filter(subject => subject.status === 'active').map(subject => (
@@ -415,10 +415,10 @@ export function TimerTab({
                       onClick={() => setTimerStudyType(option.id)}
                       disabled={timerActive}
                       className={cn(
-                        'px-3 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed',
+                        'h-9 rounded-lg border px-3 text-xs font-bold uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50',
                         timerStudyType === option.id
-                          ? cn(styles.activeTab, 'shadow-lg')
-                          : 'bg-background border-border text-text-secondary hover:border-brand-primary/40 hover:text-brand-primary'
+                          ? 'border-brand-primary bg-brand-primary text-white'
+                          : 'border-neutral-800 bg-neutral-900 text-neutral-300 hover:border-brand-primary/40 hover:text-brand-primary'
                       )}
                     >
                       {option.label}
@@ -429,9 +429,9 @@ export function TimerTab({
             )}
           </section>
 
-          <section className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-sm">
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm sm:p-6">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <Settings2 size={18} className={styles.text} /> Ajustes do Pomodoro
+              <Settings2 size={18} className="text-brand-primary" /> Ajustes do Pomodoro
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3 mb-5">
@@ -445,17 +445,17 @@ export function TimerTab({
                   onClick={() => applyPreset(preset.id as 'pomodoro' | 'medium' | 'deep')}
                   disabled={!canChangeMode}
                   className={cn(
-                    'flex items-center justify-between p-3 rounded-2xl border transition-all group disabled:opacity-50 disabled:cursor-not-allowed',
-                    timerPreset === preset.id ? cn(styles.soft, 'border-current') : 'bg-background border-border hover:border-brand-primary/30'
+                    'group flex items-center justify-between rounded-lg border bg-neutral-900 p-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50',
+                    timerPreset === preset.id ? 'border-brand-primary bg-brand-primary/10' : 'border-neutral-800 hover:border-brand-primary/30'
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={cn('p-2 rounded-lg transition-colors', timerPreset === preset.id ? styles.activeTab : 'bg-card text-text-secondary group-hover:text-brand-primary')}>
+                    <div className={cn('rounded-lg p-2 transition-colors', timerPreset === preset.id ? 'bg-brand-primary text-white' : 'bg-neutral-950 text-neutral-400 group-hover:text-brand-primary')}>
                       {preset.icon}
                     </div>
                     <div className="text-left">
-                      <div className={cn('text-xs font-bold', timerPreset === preset.id ? styles.text : 'text-text-primary')}>{preset.label}</div>
-                      <div className="text-[10px] text-text-secondary">{preset.time} min</div>
+                      <div className={cn('text-xs font-bold', timerPreset === preset.id ? 'text-brand-primary' : 'text-text-primary')}>{preset.label}</div>
+                      <div className="text-xs text-neutral-400">{preset.time} min</div>
                     </div>
                   </div>
                 </button>
@@ -464,7 +464,7 @@ export function TimerTab({
 
             <div className="grid grid-cols-2 gap-3">
               <label className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Foco</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Foco</span>
                 <input
                   type="number"
                   min={1}
@@ -472,11 +472,11 @@ export function TimerTab({
                   value={studyTime}
                   onChange={(e) => updateDuration('study', parseInt(e.target.value, 10))}
                   disabled={!canChangeMode}
-                  className="w-full bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-brand-primary disabled:opacity-50"
+                  className="h-10 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Pausa curta</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Pausa curta</span>
                 <input
                   type="number"
                   min={1}
@@ -484,11 +484,11 @@ export function TimerTab({
                   value={shortBreakTime}
                   onChange={(e) => updateDuration('shortBreak', parseInt(e.target.value, 10))}
                   disabled={!canChangeMode}
-                  className="w-full bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-brand-primary disabled:opacity-50"
+                  className="h-10 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Pausa longa</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Pausa longa</span>
                 <input
                   type="number"
                   min={1}
@@ -496,11 +496,11 @@ export function TimerTab({
                   value={longBreakTime}
                   onChange={(e) => updateDuration('longBreak', parseInt(e.target.value, 10))}
                   disabled={!canChangeMode}
-                  className="w-full bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-brand-primary disabled:opacity-50"
+                  className="h-10 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-text-secondary">Ciclos</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Ciclos</span>
                 <input
                   type="number"
                   min={1}
@@ -508,21 +508,21 @@ export function TimerTab({
                   value={cyclesBeforeLongBreak}
                   onChange={(e) => updateCycles(parseInt(e.target.value, 10))}
                   disabled={!canChangeMode}
-                  className="w-full bg-background border border-border rounded-xl px-3 py-2 outline-none focus:border-brand-primary disabled:opacity-50"
+                  className="h-10 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-3 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </label>
             </div>
           </section>
 
-          <section className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-sm">
+          <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm sm:p-6">
             <h3 className="font-bold mb-4 flex items-center gap-2">
-              <Palette size={18} className={styles.text} /> Cor do Pomodoro
+              <Palette size={18} className="text-brand-primary" /> Cor do Pomodoro
             </h3>
             <SwatchPicker
               options={colorOptions.map(option => ({
                 value: option.id,
                 label: option.label,
-                swatchClassName: cn(option.swatch, 'border border-border'),
+                swatchClassName: cn(option.swatch, 'border border-neutral-800 ring-brand-primary'),
                 iconColor: 'white'
               }))}
               value={pomodoroColor}
@@ -533,13 +533,13 @@ export function TimerTab({
         </aside>
       </div>
 
-      <section className="mt-6 bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-sm">
+      <section className="mt-5 rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm sm:p-6">
         <div className="flex items-center justify-between gap-4 mb-4">
           <div>
             <h3 className="font-bold text-sm">Registrar estudo manual</h3>
             <p className="text-xs text-text-secondary">Use quando você já estudou fora do cronômetro.</p>
           </div>
-          <CheckCircle2 size={20} className={styles.text} />
+          <CheckCircle2 size={20} className="text-brand-primary" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_140px] gap-3">
@@ -547,7 +547,7 @@ export function TimerTab({
             value={manualSubject}
             onChange={(e) => setManualSubject(e.target.value)}
             disabled={savingManualSession}
-            className="bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary disabled:opacity-50"
+            className="h-10 rounded-lg border border-neutral-800 bg-neutral-950 px-4 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="">Disciplina estudada</option>
             {subjects.filter(subject => subject.status === 'active').map(subject => (
@@ -561,14 +561,14 @@ export function TimerTab({
             value={manualMinutes}
             onChange={(e) => setManualMinutes(parseInt(e.target.value, 10) || 0)}
             disabled={savingManualSession}
-            className="bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary disabled:opacity-50"
+            className="h-10 rounded-lg border border-neutral-800 bg-neutral-950 px-4 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
           />
 
           <select
             value={manualType}
             onChange={(e) => setManualType(e.target.value as StudySessionType)}
             disabled={savingManualSession}
-            className="bg-background border border-border rounded-xl px-4 py-3 outline-none focus:border-brand-primary disabled:opacity-50"
+            className="h-10 rounded-lg border border-neutral-800 bg-neutral-950 px-4 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="teoria">Teoria</option>
             <option value="questoes">Questões</option>
@@ -579,7 +579,7 @@ export function TimerTab({
         <button
           onClick={handleManualSessionSave}
           disabled={savingManualSession || !manualSubject || manualMinutes <= 0}
-          className={cn('mt-4 w-full text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50', styles.button)}
+          className="mt-4 h-10 w-full rounded-lg bg-brand-primary px-4 font-bold text-white transition-all hover:bg-brand-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {savingManualSession ? 'Registrando...' : 'Registrar tempo estudado'}
         </button>
